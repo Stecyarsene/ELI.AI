@@ -23,11 +23,10 @@ export async function middleware(req: NextRequest) {
   res.headers.set('X-Frame-Options', 'DENY');
   res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.headers.set('Permissions-Policy', 'camera=(self), microphone=(self), geolocation=()');
-  res.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
-  res.headers.set(
-    'Content-Security-Policy',
-    "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://generativelanguage.googleapis.com; frame-ancestors 'none'"
-  );
+res.headers.set(
+      'Content-Security-Policy',
+      "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;"
+    );
   return res;
 }
 export const config = { matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'] };
