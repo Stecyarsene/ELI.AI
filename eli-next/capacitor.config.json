@@ -1,0 +1,25 @@
+{
+  "appId": "ga.eli.app",
+  "appName": "Éli",
+  "webDir": "out",
+  "bundledWebRuntime": false,
+  "server": { "androidScheme": "https" },
+  "plugins": {
+    "Filesystem": { "androidRequestLegacyExternalStorage": false },
+    "PushNotifications": { "presentationOptions": ["badge", "sound", "alert"] },
+    "LocalNotifications": { "smallIcon": "ic_stat_eli", "iconColor": "#0B3D2E" }
+  },
+  "android": {
+    "allowMixedContent": false,
+    "permissions": [
+      "android.permission.INTERNET",
+      "android.permission.POST_NOTIFICATIONS",
+      "android.permission.READ_EXTERNAL_STORAGE",
+      "android.permission.WRITE_EXTERNAL_STORAGE"
+    ]
+  },
+  "ios": {
+    "contentInset": "automatic",
+    "permissions": ["UIBackgroundModes:remote-notification"]
+  }
+}

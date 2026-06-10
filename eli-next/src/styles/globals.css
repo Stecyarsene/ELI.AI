@@ -1,0 +1,24 @@
+:root { color-scheme: light dark; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg, #04140D); color: var(--ink, #FFF8EC); font-family: system-ui, sans-serif; }
+
+/* ── MODE BOUGIE : kill-switch instantané (MAD §2.2) — un toggle de classe, zéro re-render ── */
+html.bougie *, html.bougie *::before, html.bougie *::after {
+  animation: none !important; transition: none !important;
+  backdrop-filter: none !important; filter: none !important;
+  box-shadow: none !important; text-shadow: none !important;
+}
+html.bougie [data-decor] { display: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ── Skeletons aux dimensions réservées : CLS = 0 (MAD §2.1) ── */
+.sk { background: color-mix(in srgb, currentColor 12%, transparent); border-radius: 12px; }
+.sk-tile { aspect-ratio: 5 / 3; min-height: 96px; }
+.sk-line { height: 14px; }
+.subj-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 720px) { .subj-grid { grid-template-columns: 1fr 1fr; } }
+.tile { aspect-ratio: 5 / 3; min-height: 96px; border-radius: 12px; padding: 14px; border: 1px solid color-mix(in srgb, currentColor 15%, transparent); min-width: 44px; }
+.skip-link { position: absolute; left: -9999px; }
+.skip-link:focus { left: 12px; top: 12px; background: var(--gold, #F5B544); color: #04140D; padding: 8px 14px; border-radius: 8px; z-index: 999; }
