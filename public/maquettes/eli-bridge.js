@@ -19,155 +19,45 @@
     return sbPromise;
   }
 
-  /* ───────── VOIX — FILE D'ATTENTE : lit TOUT le texte, paragraphe par paragraphe ───────── */
+  /* ───────── VOIX (ElevenLabs d'abord, navigateur en secours) ───────── */
   var currentAudio = null;
-  var speechQueue = [];
-  var speechSeq = 0; // jeton : invalide une lecture en cours quand une nouvelle démarre
-
-  // Découpe en segments parlables (≤ ~480 car.) : d'abord par paragraphes, puis par phrases.
-  function chunkText(text) {
-    var paras = String(text || '').split(/\n{2,}|\n/).map(function (p) { return p.trim(); }).filter(Boolean);
-    var out = [];
-    paras.forEach(function (p) {
-      if (p.length <= 480) { out.push(p); return; }
-      var sentences = p.match(/[^.!?…]+[.!?…]+(\s|$)|[^.!?…]+$/g) || [p];
-      var buf = '';
-      sentences.forEach(function (sn) {
-        sn = sn.trim(); if (!sn) return;
-        if ((buf + ' ' + sn).trim().length > 480) { if (buf) out.push(buf.trim()); buf = sn; }
-        else { buf = (buf ? buf + ' ' : '') + sn; }
-      });
-      if (buf.trim()) out.push(buf.trim());
-    });
-    return out;
-  }
-
-  function stopSpeak() {
-    speechSeq++;                 // toute lecture programmée devient caduque
-    speechQueue = [];
-    if (currentAudio) { try { currentAudio.pause(); } catch (e) {} currentAudio = null; }
-    if (typeof speechSynthesis !== 'undefined') { try { speechSynthesis.cancel(); } catch (e) {} }
-  }
-
-  // Lit l'intégralité du texte fourni : remplit la file et enchaîne segment après segment.
-  function speakAll(text) {
+  function speak(text) {
     if (window.__eliMuted__ || !text) return;
     stopSpeak();
-    var token = ++speechSeq;
-    speechQueue = chunkText(text);
-    playNext(token);
-  }
-  function speak(text) { speakAll(text); } // compat : un appel simple = lecture complète
-
-  function playNext(token) {
-    if (token !== speechSeq) return;                 // une autre lecture a pris la main
-    if (!speechQueue.length) return;
-    var seg = speechQueue.shift();
-    elevenSpeak(seg, token, function () { if (token === speechSeq) playNext(token); });
-  }
-
-  // ElevenLabs d'abord ; repli navigateur si 503/erreur. Enchaînement via le callback "done".
-  function elevenSpeak(text, token, done) {
-    if (window.__eliMuted__ || token !== speechSeq) { done(); return; }
+    // 1) ElevenLabs
     fetch('/api/tts', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text: text }) })
       .then(function (r) {
-        if (token !== speechSeq) { done(); return; }
-        var ct = r.headers.get('content-type') || '';
-        if (r.ok && ct.indexOf('audio') === 0) {
+        if (r.ok && r.headers.get('content-type') && r.headers.get('content-type').indexOf('audio') === 0) {
           return r.blob().then(function (b) {
-            if (token !== speechSeq) { done(); return; }
             var url = URL.createObjectURL(b);
             currentAudio = new Audio(url);
-            currentAudio.onended = function () { try { URL.revokeObjectURL(url); } catch (e) {} done(); };
-            currentAudio.onerror = function () { try { URL.revokeObjectURL(url); } catch (e) {} browserSpeak(text, done); };
-            currentAudio.play().catch(function () { browserSpeak(text, done); });
+            currentAudio.play().catch(function () { browserSpeak(text); });
           });
         }
-        browserSpeak(text, done); // 503 → repli navigateur
+        browserSpeak(text); // 503 → repli
       })
-      .catch(function () { browserSpeak(text, done); });
+      .catch(function () { browserSpeak(text); });
   }
-
-  function browserSpeak(text, done) {
-    done = done || function () {};
+  function browserSpeak(text) {
     try {
-      if (typeof speechSynthesis === 'undefined') { done(); return; }
+      if (typeof speechSynthesis === 'undefined') return;
+      speechSynthesis.cancel();
       var u = new SpeechSynthesisUtterance(text);
       u.lang = 'fr-FR'; u.rate = 1.0; u.pitch = 1.05;
       var fr = speechSynthesis.getVoices().filter(function (v) { return v.lang && v.lang.indexOf('fr') === 0; })[0];
       if (fr) u.voice = fr;
-      u.onend = function () { done(); };
-      u.onerror = function () { done(); };
       speechSynthesis.speak(u);
-    } catch (e) { done(); }
+    } catch (e) {}
   }
-
+  function stopSpeak() {
+    if (currentAudio) { try { currentAudio.pause(); } catch (e) {} currentAudio = null; }
+    if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
+  }
   window.__eliToggleMute__ = function () {
     window.__eliMuted__ = !window.__eliMuted__;
     if (window.__eliMuted__) stopSpeak();
     return window.__eliMuted__;
   };
-
-  /* ───────── Pilier courant + blocs techniques [FICHE]/[BILAN] (invisibles à l'élève) ───────── */
-  function normalizePillar(name) {
-    var v = String(name || '').toLowerCase().trim();
-    if (!v) return '';
-    if (/exerc/.test(v)) return 'exercices';
-    if (/r[ée]vis|fiche/.test(v)) return 'revision';
-    if (/exam|\bbac\b|bepc|\bcep\b|brevet|[ée]preuve/.test(v)) return 'examen';
-    if (/avenir|orient|parcoursup|anbg/.test(v)) return 'avenir';
-    if (/oral/.test(v)) return 'oral';
-    if (/organ|plann|planif|agenda|emploi du temps/.test(v)) return 'organisation';
-    if (/aide|question/.test(v)) return 'aide';
-    if (/cours|le[çc]on/.test(v)) return 'cours';
-    return v;
-  }
-
-  // Nettoyage live (pendant le stream) : on coupe avant tout bloc technique et on enlève les balises voix.
-  function cleanForDisplay(t) {
-    return String(t || '').split(/\[BILAN\]|\[FICHE\]/i)[0].replace(/\[VOIX\]|\[\/VOIX\]/gi, '');
-  }
-
-  // Extrait, poste (progress/fiches) puis RETIRE les blocs [BILAN]/[FICHE] ; renvoie le texte visible.
-  function processBlocks(full, subject) {
-    var text = String(full || '');
-    var subj = (subject && subject !== 'general') ? subject : null;
-
-    var bilanRe = /\[BILAN\]([\s\S]*?)\[\/BILAN\]/i;
-    var mb = text.match(bilanRe);
-    if (mb) {
-      try {
-        var bj = JSON.parse(mb[1].trim());
-        var sb = subj || bj.matiere;
-        if (sb) {
-          authedFetch('/api/progress', { method: 'POST', body: JSON.stringify({
-            subject: sb,
-            bilan: {
-              chapitre_travaille: bj.chapitre_travaille, reussites: bj.reussites,
-              erreurs_types: bj.erreurs_types, statut_propose: bj.statut_propose, prochaine_etape: bj.prochaine_etape
-            }
-          }) }).then(function () { if (typeof window.eliHydrateProgress === 'function') window.eliHydrateProgress(); }).catch(function () {});
-        }
-      } catch (e) {}
-      text = text.replace(bilanRe, '');
-    }
-
-    var ficheRe = /\[FICHE\]([\s\S]*?)\[\/FICHE\]/i;
-    var mf = text.match(ficheRe);
-    if (mf) {
-      try {
-        var fj = JSON.parse(mf[1].trim());
-        var fsj = subj || fj.matiere;
-        if (fsj) {
-          authedFetch('/api/fiches', { method: 'POST', body: JSON.stringify({
-            subject: fsj, kind: (fj.type || 'revision'), title: (fj.titre || ''), body: (fj.contenu || {})
-          }) }).catch(function () {});
-        }
-      } catch (e) {}
-      text = text.replace(ficheRe, '');
-    }
-    return text.trim();
-  }
 
   function splitVoice(full) {
     var m = full.match(/\[VOIX\]([\s\S]*?)\[\/VOIX\]/i);
@@ -247,7 +137,7 @@
     getSb().then(function (c) {
       return c.auth.getSession().then(function (res) {
         var loggedIn = !!(res.data && res.data.session);
-        if (loggedIn) return stream('/api/ai/chat', { message: txt, focusSubject: focus !== 'general' ? focus : undefined, pillar: window.__eliPillar__ || undefined }, bubble, true);
+        if (loggedIn) return stream('/api/ai/chat', { message: txt, focusSubject: focus !== 'general' ? focus : undefined }, bubble, true);
         // visiteur
         if (tCount(focus) >= TRIAL_MAX) { if (bubble) bubble.textContent = "Tu as profité de tes 2 essais gratuits 🌱"; showSignup(); return; }
         var n = tInc(focus);
@@ -272,14 +162,9 @@
         return reader.read().then(function (r) {
           if (r.done) {
             var full = extractText(acc) || '…';
-            if (authed) full = processBlocks(full, (payload && payload.focusSubject) || window.__eliFocusSubject__);
-            else full = full.replace(/\[BILAN\][\s\S]*?\[\/BILAN\]/i, '').replace(/\[FICHE\][\s\S]*?\[\/FICHE\]/i, '');
             var parts = splitVoice(full);
-            var hasVoiceTag = /\[VOIX\]/i.test(full);
-            var body = (parts.written && parts.written !== parts.speech) ? parts.written : '';
-            var toRead = hasVoiceTag ? (parts.speech + (body ? '\n\n' + body : '')) : (parts.written || parts.speech);
-            if (!spoken) { speakAll(toRead); spoken = true; }
-            if (bubble) bubble.textContent = body ? ('🔊 ' + parts.speech + '\n\n' + body) : ('🔊 ' + parts.speech);
+            if (!spoken) { speak(parts.speech); spoken = true; }
+            if (bubble) bubble.textContent = (parts.written && parts.written !== parts.speech) ? ('🔊 ' + parts.speech + '\n\n' + parts.written) : ('🔊 ' + parts.speech);
             if (st) st.scrollTop = st.scrollHeight;
             return;
           }
@@ -289,7 +174,8 @@
           if (soFar) {
             var parts = splitVoice(soFar);
             // Dès que la réplique [VOIX] est complète, on la prononce sans attendre la fin
-            if (bubble) bubble.textContent = cleanForDisplay(soFar) || '…';
+            if (!spoken && /\[\/VOIX\]/i.test(acc)) { speak(parts.speech); spoken = true; }
+            if (bubble) bubble.textContent = (parts.written && parts.written !== parts.speech && spoken) ? ('🔊 ' + parts.speech + '\n\n' + parts.written) : soFar.replace(/\[VOIX\]|\[\/VOIX\]/gi, '');
             if (st) st.scrollTop = st.scrollHeight;
           }
           return pump();
@@ -403,8 +289,6 @@
           renderRealDashboard(progress);
           // Bouton Centre de Commandement pour le super_admin
           if (roles.indexOf('super_admin') >= 0) addAdminButton();
-          // Hydrate les dashboards des maquettes avec la vraie progression (/api/progress)
-          if (typeof window.eliHydrateProgress === 'function') window.eliHydrateProgress();
         });
       });
     }).catch(function () {});
@@ -449,19 +333,13 @@
     window.sendChat = realSendChat;
     window.loginReturn = realLogin;
     window.loginByPhone = loginByPhone;
-    window.eliAuthedFetch = authedFetch; // exposé aux maquettes pour eliHydrateProgress()
     if (findIn('formSignup', 'email') || findIn('formS', 'email')) window.submitSignup = realSignup;
 
     ['openChatContext', 'openToolChat', 'startClassChat'].forEach(function (fn) {
       if (typeof window[fn] === 'function') {
         var orig = window[fn];
         window[fn] = function () {
-          try {
-            var a = arguments;
-            if (fn === 'openChatContext') { window.__eliFocusSubject__ = a[1] || 'general'; }
-            else if (fn === 'openToolChat') { if (typeof a[0] === 'string') window.__eliPillar__ = normalizePillar(a[0]); }
-            else { window.__eliFocusSubject__ = (typeof a[0] === 'string' ? a[0] : 'general'); }
-          } catch (e) {}
+          try { var a = arguments; window.__eliFocusSubject__ = (fn === 'openChatContext') ? (a[1] || 'general') : (typeof a[0] === 'string' ? a[0] : 'general'); } catch (e) {}
           return orig.apply(this, arguments);
         };
       }
@@ -478,3 +356,52 @@
   if (document.readyState === 'complete' || document.readyState === 'interactive') setTimeout(install, 400);
   else window.addEventListener('DOMContentLoaded', function () { setTimeout(install, 400); });
 })();
+// ═══════════ VOIX : lit TOUT le contenu, morceau par morceau ═══════════
+let __eliTtsQueue = [], __eliTtsPlaying = false, __eliAudio = null;
+function eliCleanForSpeech(t){
+  return (t||'')
+    .replace(/\[VOIX\]|\[\/VOIX\]/g,'')
+    .replace(/\[BILAN\][\s\S]*?\[\/BILAN\]/g,'')
+    .replace(/\[FICHE\][\s\S]*?\[\/FICHE\]/g,'')
+    .replace(/[#*_`>]/g,'').replace(/\n{2,}/g,'\n').trim();
+}
+function eliChunk(t){
+  const parts=t.split(/(?<=[.!?…])\s+|\n+/).filter(s=>s.trim());
+  const out=[]; let buf='';
+  for(const s of parts){ if((buf+' '+s).length>280){ if(buf)out.push(buf.trim()); buf=s; } else buf=(buf?buf+' ':'')+s; }
+  if(buf.trim())out.push(buf.trim()); return out;
+}
+async function eliPlayNext(){
+  if(__eliTtsPlaying||!__eliTtsQueue.length) return;
+  __eliTtsPlaying=true; const chunk=__eliTtsQueue.shift();
+  try{
+    const r=await fetch('/api/tts',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({text:chunk})});
+    if(r.ok){ const b=await r.blob(); __eliAudio=new Audio(URL.createObjectURL(b));
+      __eliAudio.onended=()=>{__eliTtsPlaying=false;eliPlayNext();};
+      __eliAudio.onerror=()=>{__eliTtsPlaying=false;eliPlayNext();};
+      await __eliAudio.play(); return; }
+  }catch(e){}
+  try{ const u=new SpeechSynthesisUtterance(chunk); u.lang='fr-FR';
+    u.onend=()=>{__eliTtsPlaying=false;eliPlayNext();}; speechSynthesis.speak(u);
+  }catch(e){__eliTtsPlaying=false;eliPlayNext();}
+}
+function eliSpeakAll(fullText){
+  try{ if(__eliAudio)__eliAudio.pause(); speechSynthesis.cancel(); }catch(e){}
+  __eliTtsQueue=[]; __eliTtsPlaying=false;
+  const clean=eliCleanForSpeech(fullText); if(!clean)return;
+  __eliTtsQueue=eliChunk(clean); eliPlayNext();
+}
+
+// ═══════════ Fin de réponse : voix + sauvegarde bilan + sauvegarde fiche ═══════════
+function eliStripForDisplay(t){
+  return (t||'').replace(/\[BILAN\][\s\S]*?\[\/BILAN\]/g,'')
+                .replace(/\[FICHE\][\s\S]*?\[\/FICHE\]/g,'')
+                .replace(/\[VOIX\]|\[\/VOIX\]/g,'').trim();
+}
+async function eliOnStreamComplete(fullText){
+  eliSpeakAll(fullText);
+  const mB=fullText.match(/\[BILAN\]([\s\S]*?)\[\/BILAN\]/);
+  if(mB){try{await fetch('/api/progress',{method:'POST',headers:{'content-type':'application/json'},body:mB[1].trim()});}catch(e){}}
+  const mF=fullText.match(/\[FICHE\]([\s\S]*?)\[\/FICHE\]/);
+  if(mF){try{await fetch('/api/fiches',{method:'POST',headers:{'content-type':'application/json'},body:mF[1].trim()});}catch(e){}}
+}
