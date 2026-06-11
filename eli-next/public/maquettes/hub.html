@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Éli — Choisis ton programme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,400..600&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --void:#020806;--deep:#04140D;
+  --emerald:#00C271;--emerald-soft:#00A86B;--jade:#34D399;
+  --gold:#F5B544;--gold-bright:#FFD479;
+  --cream:#FFF8EC;--mist:rgba(255,248,236,.72);--faint:rgba(255,248,236,.5);
+  --blue:#1565C0;--blue-bright:#42A5F5;
+  --fdisplay:'Fraunces',serif;--fbody:'Space Grotesk',sans-serif;--fmono:'JetBrains Mono',monospace;
+}
+body{background:var(--void);color:var(--cream);font-family:var(--fbody);min-height:100vh;overflow-x:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px}
+/* atmosphère */
+.cosmos{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.aurora{position:absolute;top:-30%;left:-10%;width:120%;height:80%;background:radial-gradient(ellipse 60% 50% at 50% 40%,rgba(0,194,113,.16),transparent 70%);filter:blur(60px);animation:breath 14s ease-in-out infinite}
+.aurora2{position:absolute;bottom:-30%;right:-10%;width:100%;height:80%;background:radial-gradient(ellipse 50% 50% at 60% 40%,rgba(21,101,192,.12),transparent 65%);filter:blur(70px);animation:breath 18s ease-in-out infinite reverse}
+@keyframes breath{0%,100%{transform:translateY(0) scale(1);opacity:.7}50%{transform:translateY(30px) scale(1.1);opacity:1}}
+.stars{position:absolute;inset:0}
+.star{position:absolute;width:2px;height:2px;background:var(--cream);border-radius:50%;opacity:0;animation:tw ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:0}50%{opacity:.7}}
+@media(max-width:760px){.aurora,.aurora2{animation:none}.stars{display:none}}
+
+.wrap{position:relative;z-index:2;max-width:980px;width:100%;text-align:center}
+.brand{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:10px;animation:drop .8s both}
+.brand-logo{position:relative;width:56px;height:56px}
+.brand-glow{position:absolute;inset:-6px;background:radial-gradient(circle,rgba(245,181,68,.4),transparent 70%);filter:blur(8px);animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.12)}}
+.brand-name{font-family:var(--fdisplay);font-size:40px;font-weight:600;background:linear-gradient(135deg,var(--gold-bright),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.tagline{font-family:var(--fmono);font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--faint);margin-bottom:48px;animation:drop .8s .1s both}
+.title{font-family:var(--fdisplay);font-size:clamp(30px,5.5vw,52px);font-weight:400;line-height:1.05;margin-bottom:12px;animation:drop .8s .2s both}
+.title em{font-style:italic;color:var(--jade)}
+.subtitle{color:var(--mist);font-size:16px;margin-bottom:48px;animation:drop .8s .3s both}
+
+.portals{display:grid;grid-template-columns:1fr 1fr;gap:22px;animation:drop .8s .4s both}
+@media(max-width:760px){.portals{grid-template-columns:1fr}}
+.portal{position:relative;padding:40px 32px;border-radius:28px;cursor:pointer;overflow:hidden;text-align:left;border:1px solid rgba(255,248,236,.1);transition:all .4s cubic-bezier(.16,1,.3,1)}
+.portal-nat{background:linear-gradient(160deg,rgba(10,36,24,.7),rgba(4,20,13,.85))}
+.portal-nat:hover{border-color:var(--emerald);transform:translateY(-8px);box-shadow:0 28px 70px rgba(0,194,113,.3)}
+.portal-aefe{background:linear-gradient(160deg,rgba(13,28,54,.7),rgba(8,16,32,.85))}
+.portal-aefe:hover{border-color:var(--blue);transform:translateY(-8px);box-shadow:0 28px 70px rgba(21,101,192,.3)}
+.portal-glow{position:absolute;top:-40%;right:-20%;width:300px;height:300px;border-radius:50%;filter:blur(50px);opacity:.5;transition:opacity .4s}
+.portal-nat .portal-glow{background:radial-gradient(circle,rgba(0,194,113,.3),transparent 65%)}
+.portal-aefe .portal-glow{background:radial-gradient(circle,rgba(21,101,192,.3),transparent 65%)}
+.portal:hover .portal-glow{opacity:1}
+.portal-badge{display:inline-block;font-family:var(--fmono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:6px 14px;border-radius:99px;margin-bottom:18px;position:relative}
+.portal-nat .portal-badge{background:rgba(0,194,113,.15);color:var(--jade);border:1px solid rgba(0,194,113,.3)}
+.portal-aefe .portal-badge{background:rgba(21,101,192,.15);color:var(--blue-bright);border:1px solid rgba(21,101,192,.3)}
+.portal-icon{font-size:46px;margin-bottom:16px;display:block}
+.portal-name{font-family:var(--fdisplay);font-size:clamp(30px,4vw,42px);font-weight:700;margin-bottom:12px;position:relative;line-height:1.05}
+.portal-desc{font-size:14px;color:var(--mist);line-height:1.6;margin-bottom:24px;position:relative}
+.portal-cta{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:600;position:relative;transition:gap .25s}
+.portal-nat .portal-cta{color:var(--jade)}
+.portal-aefe .portal-cta{color:var(--blue-bright)}
+.portal:hover .portal-cta{gap:13px}
+.soon{position:absolute;top:18px;right:18px;font-family:var(--fmono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:99px;background:rgba(255,248,236,.08);color:var(--faint);border:1px solid rgba(255,248,236,.12)}
+
+@keyframes drop{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="cosmos"><div class="aurora"></div><div class="aurora2"></div><div class="stars" id="stars"></div></div>
+
+<div class="wrap">
+  <div class="brand">
+    <div class="brand-logo">
+      <div class="brand-glow"></div>
+      <svg width="56" height="56" viewBox="0 0 200 200" style="position:relative;z-index:1">
+        <defs>
+          <radialGradient id="g1" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#388E3C"/><stop offset="100%" stop-color="#1B5E20"/></radialGradient>
+          <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFE082"/><stop offset="100%" stop-color="#FFA000"/></linearGradient>
+          <linearGradient id="g3" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#FFA000"/><stop offset="60%" stop-color="#FFD54F"/><stop offset="100%" stop-color="#FFFDE7"/></linearGradient>
+        </defs>
+        <circle cx="100" cy="100" r="86" fill="url(#g1)"/>
+        <rect x="61" y="44" width="13" height="108" rx="6" fill="url(#g2)"/><rect x="61" y="44" width="78" height="13" rx="6" fill="url(#g2)"/><rect x="61" y="91" width="60" height="13" rx="6" fill="url(#g2)"/><rect x="61" y="139" width="78" height="13" rx="6" fill="url(#g2)"/>
+        <path d="M147 44C145 34,141 24,147 12C150 5,156 1,156 1C156 1,167 10,164 24C162 32,156 38,156 44Z" fill="url(#g3)"/>
+        <circle cx="82" cy="172" r="4.5" fill="url(#g2)" opacity=".9"/><circle cx="100" cy="176" r="5.5" fill="url(#g2)"/><circle cx="118" cy="172" r="4.5" fill="url(#g2)" opacity=".9"/>
+      </svg>
+    </div>
+    <div class="brand-name">Éli</div>
+  </div>
+  <div class="tagline">Ta plateforme éducative</div>
+
+  <h1 class="title">Choisis ton <em>programme</em></h1>
+  <p class="subtitle">Une seule intelligence, deux parcours d'excellence.</p>
+
+  <div class="portals">
+    <!-- Programme National → ouvre l'interface -->
+    <div class="portal portal-nat" onclick="window.location.href='/nationale'">
+      <div class="portal-glow"></div>
+      <span class="portal-icon">🌍</span>
+      <div class="portal-name">Programme National</div>
+      <div class="portal-desc">Du CP1 à la Terminale. Prépare ton CEP, BEPC ou BAC avec ton professeur personnel.</div>
+      <span class="portal-cta">Accéder à mon espace →</span>
+    </div>
+
+    <!-- Programme AEFE → bientôt -->
+    <div class="portal portal-aefe" onclick="window.location.href='/aefe'">
+      <span class="soon">Bientôt</span>
+      <div class="portal-glow"></div>
+      <span class="portal-icon">🎓</span>
+      <div class="portal-name">Programme AEFE</div>
+      <div class="portal-desc">Le programme français des lycées AEFE. Parcoursup, Grand Oral et excellence académique.</div>
+      <span class="portal-cta">Accéder à mon espace →</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const s=document.getElementById('stars');
+for(let i=0;i<50;i++){const e=document.createElement('div');e.className='star';e.style.left=Math.random()*100+'%';e.style.top=Math.random()*100+'%';e.style.animationDuration=(2+Math.random()*4)+'s';e.style.animationDelay=(Math.random()*5)+'s';s.appendChild(e);}
+</script>
+</body>
+</html>

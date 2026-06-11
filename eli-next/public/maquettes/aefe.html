@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Éli AEFE — L'excellence à la française</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   ÉLI AEFE — Direction A « L'Institution lumineuse »
+   Clair · institutionnel · bleu nuit / platine
+   ═══════════════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ivory:#ECE9E1;--paper:#F2EFE7;--white:#F7F4EC;
+  --navy:#0D1B3E;--navy-soft:#1A2B52;--ink:#2A3454;
+  --france:#1565C0;--france-bright:#2E7BD6;--azure:#E2EAF6;
+  --platine:#9AA5B8;--platine-soft:#C9CFD9;--line:#DAD6CC;
+  --gray:#6B7280;--faint:#9CA3AF;
+  --fdisplay:'Fraunces',serif;--fbody:'Inter',sans-serif;--fmono:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--ivory);color:var(--navy);font-family:var(--fbody);min-height:100vh;overflow-x:hidden;position:relative;-webkit-font-smoothing:antialiased}
+
+/* fine texture lumineuse */
+.lightfield{position:fixed;inset:0;z-index:0;pointer-events:none;background:
+  radial-gradient(ellipse 70% 50% at 70% -10%,rgba(21,101,192,.06),transparent 60%),
+  radial-gradient(ellipse 50% 40% at 0% 100%,rgba(154,165,184,.10),transparent 55%)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ═══ LOGO ÉLI (officiel) ═══ */
+.svglogo{display:block}
+
+/* ═══ NAVBAR ═══ */
+.navbar{position:sticky;top:0;z-index:50;background:rgba(13,27,62,.92);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.10)}
+.nav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:18px 40px}
+.nav-brand{display:flex;align-items:center;gap:13px;cursor:pointer}
+.nav-name{font-family:var(--fdisplay);font-size:25px;font-weight:600;color:#fff;letter-spacing:-.01em}
+.nav-name small{display:block;font-family:var(--fmono);font-size:9px;font-weight:400;letter-spacing:.28em;color:var(--france);text-transform:uppercase;margin-top:-2px}
+.nav-links{display:flex;align-items:center;gap:4px}
+@media(max-width:980px){.nav-links{display:none}}
+.nav-link{padding:10px 16px;border-radius:8px;font-size:14px;font-weight:500;color:rgba(255,255,255,.82);background:none;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.nav-link:hover{color:#fff;background:rgba(255,255,255,.10)}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.nav-login{padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600;color:#fff;background:none;border:1px solid rgba(255,255,255,.28);cursor:pointer;font-family:inherit;transition:all .2s}
+.nav-login:hover{border-color:#fff;background:rgba(255,255,255,.10)}
+.nav-cta{padding:10px 22px;border-radius:8px;font-size:14px;font-weight:600;color:var(--white);background:var(--france);border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.nav-cta:hover{background:var(--france-bright);transform:translateY(-1px)}
+.nav-burger{display:none;width:42px;height:42px;border-radius:8px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.22);cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+@media(max-width:980px){.nav-burger{display:flex}}
+.nav-burger span{width:18px;height:2px;background:#fff;border-radius:2px}
+
+/* MENU MOBILE */
+.mobile-menu{position:fixed;inset:0;z-index:60;background:var(--paper);display:flex;flex-direction:column;padding:24px 28px;transform:translateX(100%);transition:transform .4s cubic-bezier(.16,1,.3,1)}
+.mobile-menu.open{transform:translateX(0)}
+.mm-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:36px}
+.mm-close{width:42px;height:42px;border-radius:8px;background:var(--white);border:1px solid var(--line);color:var(--navy);font-size:20px;cursor:pointer}
+.mm-link{padding:18px 0;font-family:var(--fdisplay);font-size:24px;font-weight:500;color:var(--navy);background:none;border:none;border-bottom:1px solid var(--line);text-align:left;cursor:pointer;transition:color .2s}
+.mm-link:hover{color:var(--france)}
+.mm-cta{margin-top:28px;padding:16px;border-radius:10px;background:var(--navy);color:var(--white);font-size:16px;font-weight:600;border:none;cursor:pointer}
+
+.app{position:relative;z-index:2}
+
+/* ═══ HERO ═══ */
+.hero{max-width:1280px;margin:0 auto;padding:80px 40px 50px;display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}
+@media(max-width:920px){.hero{grid-template-columns:1fr;padding:54px 28px 36px;gap:40px}}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--fmono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--france);margin-bottom:22px;padding:7px 14px;border:1px solid var(--platine-soft);border-radius:99px;background:var(--white)}
+.hero-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--france)}
+.hero h1{font-family:var(--fdisplay);font-size:clamp(40px,5.6vw,68px);font-weight:400;line-height:1.04;letter-spacing:-.02em;color:var(--navy);margin-bottom:24px}
+.hero h1 em{font-style:italic;color:var(--france)}
+.hero-lead{font-size:18px;line-height:1.65;color:var(--ink);max-width:480px;margin-bottom:34px}
+.hero-cta-row{display:flex;gap:14px;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;gap:9px;padding:16px 28px;border-radius:10px;border:none;cursor:pointer;background:var(--navy);color:var(--white);font-family:inherit;font-size:15px;font-weight:600;transition:all .25s}
+.btn-primary:hover{background:var(--france);transform:translateY(-2px);box-shadow:0 12px 28px rgba(21,101,192,.22)}
+.btn-outline{display:inline-flex;align-items:center;gap:9px;padding:16px 26px;border-radius:10px;cursor:pointer;background:var(--white);border:1px solid var(--platine-soft);color:var(--navy);font-family:inherit;font-size:15px;font-weight:600;transition:all .25s}
+.btn-outline:hover{border-color:var(--france);color:var(--france)}
+.hero-trust{display:flex;gap:26px;margin-top:38px;flex-wrap:wrap}
+.hero-trust-item{display:flex;flex-direction:column}
+.hero-trust-n{font-family:var(--fdisplay);font-size:26px;font-weight:600;color:var(--navy)}
+.hero-trust-l{font-size:12px;color:var(--gray)}
+
+/* carte hero visuelle */
+.hero-card{background:var(--white);border:1px solid var(--line);border-radius:20px;padding:8px;box-shadow:0 30px 70px rgba(13,27,62,.10)}
+.hero-card-top{display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line)}
+.hero-card-logo{width:40px;height:40px}
+.hero-card-id{flex:1}
+.hero-card-name{font-family:var(--fdisplay);font-size:16px;font-weight:600;color:var(--navy)}
+.hero-card-state{font-family:var(--fmono);font-size:11px;color:var(--france)}
+.hero-card-tag{font-family:var(--fmono);font-size:10px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;border:1px solid var(--line);padding:4px 10px;border-radius:99px}
+.hero-card-body{padding:22px 20px;display:flex;flex-direction:column;gap:14px}
+.hcb{max-width:84%;padding:13px 16px;border-radius:13px;font-size:14px;line-height:1.5}
+.hcb-eli{align-self:flex-start;background:var(--azure);color:var(--ink);border-bottom-left-radius:4px}
+.hcb-user{align-self:flex-end;background:var(--navy);color:var(--white);border-bottom-right-radius:4px}
+.hero-card-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.hcf-input{flex:1;font-size:13px;color:var(--faint)}
+.hcf-mic{width:38px;height:38px;border-radius:50%;background:var(--azure);border:1px solid var(--platine-soft);display:flex;align-items:center;justify-content:center}
+
+/* ═══ SECTIONS ═══ */
+.section{max-width:1280px;margin:0 auto;padding:64px 40px}
+@media(max-width:920px){.section{padding:48px 28px}}
+.sec-head{margin-bottom:44px;max-width:760px;border:1px solid rgba(255,255,255,.10);border-left:3px solid #F5B544;border-radius:14px;padding:26px 30px;background:linear-gradient(150deg,var(--navy),var(--navy-soft))}
+.sec-eyebrow{font-family:var(--fmono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#F5B544;margin-bottom:14px}
+.sec-title{font-family:var(--fdisplay);font-size:clamp(28px,4vw,44px);font-weight:400;line-height:1.1;color:#fff;letter-spacing:-.01em}
+.sec-title em{font-style:italic;color:var(--france-bright)}
+.sec-lead{font-size:16px;line-height:1.6;color:rgba(255,255,255,.78);margin-top:14px}
+
+/* PILIERS AEFE */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+@media(max-width:880px){.feat-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.feat-grid{grid-template-columns:1fr}}
+.feat{background:var(--paper);padding:30px 26px;cursor:pointer;transition:all .25s;position:relative}
+.feat:hover{background:var(--white)}
+.feat:hover .feat-arrow{opacity:1;transform:translateX(0)}
+.feat-num{font-family:var(--fmono);font-size:12px;color:var(--platine);margin-bottom:16px}
+.feat-ic{width:46px;height:46px;border-radius:11px;background:var(--azure);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}
+.feat-name{font-family:var(--fdisplay);font-size:19px;font-weight:600;color:var(--navy);margin-bottom:7px}
+.feat-desc{font-size:13.5px;line-height:1.55;color:var(--gray)}
+.feat-arrow{position:absolute;top:30px;right:26px;color:var(--france);opacity:0;transform:translateX(-4px);transition:all .25s;font-size:18px}
+
+/* PARCOURS (Grand Oral / Parcoursup mises en avant) */
+.spotlight{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:820px){.spotlight{grid-template-columns:1fr}}
+.spot{position:relative;border-radius:20px;overflow:hidden;padding:38px 34px;cursor:pointer;border:1px solid var(--line);transition:all .3s}
+.spot-oral{background:linear-gradient(150deg,#3B1E54,#6D28D9)}
+.spot-pcs{background:linear-gradient(150deg,#0E3A6B,var(--france))}
+.spot:hover{transform:translateY(-5px);box-shadow:0 26px 60px rgba(13,27,62,.22)}
+.spot-tag{font-family:var(--fmono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:14px}
+.spot-title{font-family:var(--fdisplay);font-size:30px;font-weight:600;color:var(--white);margin-bottom:10px}
+.spot-desc{font-size:14.5px;line-height:1.6;color:rgba(255,255,255,.82);margin-bottom:24px}
+.spot-cta{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--white);transition:gap .25s}
+.spot:hover .spot-cta{gap:13px}
+.spot-deco{position:absolute;top:-30px;right:-20px;font-size:130px;opacity:.10;color:#fff}
+
+/* NIVEAUX / SPÉCIALITÉS */
+.levels{display:flex;flex-direction:column;gap:14px}
+.level-group-label{font-family:var(--fmono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--france);margin-top:14px;display:flex;align-items:center;gap:10px}
+.level-group-label::after{content:'';flex:1;height:1px;background:var(--line)}
+.level-group-label:first-child{margin-top:0}
+.levels-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:820px){.levels-row{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.levels-row{grid-template-columns:1fr}}
+@media(max-width:820px){.levels{grid-template-columns:1fr}}
+.level{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:28px 26px;cursor:pointer;transition:all .3s}
+.level:hover{border-color:var(--france);transform:translateY(-4px);box-shadow:0 20px 44px rgba(13,27,62,.10)}
+.level-tag{font-family:var(--fmono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--france);margin-bottom:8px}
+.level-name{font-family:var(--fdisplay);font-size:26px;font-weight:600;color:var(--navy);margin-bottom:6px}
+.level-desc{font-size:13.5px;color:var(--gray);line-height:1.5;margin-bottom:16px}
+.level-cta{font-size:13px;font-weight:600;color:var(--france)}
+
+/* BANDE CITATION INSTITUTIONNELLE */
+.statement{max-width:1280px;margin:0 auto;padding:20px 40px}
+.statement-inner{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--france);border-radius:14px;padding:44px 48px}
+@media(max-width:620px){.statement-inner{padding:32px 26px}}
+.statement p{font-family:var(--fdisplay);font-size:clamp(20px,2.6vw,30px);font-weight:400;font-style:italic;line-height:1.4;color:var(--navy);max-width:780px}
+.statement p span{color:var(--france)}
+
+/* FOOTER */
+.footer{position:relative;z-index:2;margin-top:50px;background:var(--navy);color:rgba(255,255,255,.8)}
+.footer-inner{max-width:1280px;margin:0 auto;padding:56px 40px 30px;display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:40px}
+@media(max-width:820px){.footer-inner{grid-template-columns:1fr 1fr;gap:30px}}
+@media(max-width:520px){.footer-inner{grid-template-columns:1fr}}
+.footer-brand{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.footer-name{font-family:var(--fdisplay);font-size:24px;font-weight:600;color:var(--white)}
+.footer-name small{display:block;font-family:var(--fmono);font-size:9px;letter-spacing:.24em;color:var(--france-bright);text-transform:uppercase}
+.footer-tagline{font-size:14px;line-height:1.7;color:rgba(255,255,255,.65);max-width:300px;margin-bottom:18px}
+.footer-contact{font-family:var(--fmono);font-size:12px;line-height:2;color:rgba(255,255,255,.6)}
+.footer-socials{display:flex;gap:10px;margin-top:16px}
+.fsoc{width:38px;height:38px;border-radius:8px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
+.fsoc:hover{background:var(--france)}
+.fsoc svg{width:17px;height:17px;fill:#fff}
+.footer-col h4{font-family:var(--fdisplay);font-size:15px;font-weight:600;color:var(--white);margin-bottom:14px}
+.footer-col button{display:block;font-size:14px;color:rgba(255,255,255,.65);background:none;border:none;cursor:pointer;font-family:inherit;text-align:left;padding:6px 0;transition:color .2s}
+.footer-col button:hover{color:var(--white)}
+.footer-bottom{max-width:1280px;margin:0 auto;padding:22px 40px;border-top:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.footer-copy{font-size:13px;color:rgba(255,255,255,.5)}
+.footer-slogan{font-family:var(--fdisplay);font-style:italic;font-size:14px;color:#F5B544}
+
+/* ═══ OVERLAY / PANELS / MODALS ═══ */
+.overlay{position:fixed;inset:0;z-index:96;background:rgba(13,27,62,.42);opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.show{opacity:1;pointer-events:auto}
+.panel{position:fixed;top:0;right:0;bottom:0;width:min(460px,93vw);z-index:100;background:var(--paper);border-left:1px solid var(--line);box-shadow:-20px 0 60px rgba(13,27,62,.16);transform:translateX(100%);transition:transform .4s cubic-bezier(.16,1,.3,1);overflow-y:auto;padding:34px}
+.panel.open{transform:translateX(0)}
+.panel-close{position:absolute;top:24px;right:24px;width:38px;height:38px;border-radius:8px;background:var(--white);border:1px solid var(--line);color:var(--navy);font-size:17px;cursor:pointer}
+.panel-ic{width:54px;height:54px;border-radius:13px;background:var(--azure);display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:16px}
+.panel-title{font-family:var(--fdisplay);font-size:26px;font-weight:600;color:var(--navy);margin-bottom:12px}
+.panel-text{font-size:14.5px;line-height:1.65;color:var(--ink);margin-bottom:14px}
+.panel-list{list-style:none;margin:16px 0}
+.panel-list li{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--ink);padding:8px 0;line-height:1.5;border-bottom:1px solid var(--line)}
+.panel-list li::before{content:'—';color:var(--france);flex-shrink:0}
+.panel-cta{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:22px;padding:15px;border-radius:10px;border:none;cursor:pointer;background:var(--navy);color:var(--white);font-family:inherit;font-size:15px;font-weight:600;transition:all .25s}
+.panel-cta:hover{background:var(--france)}
+.panel-specs{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.panel-spec{font-size:12px;font-weight:500;padding:7px 13px;border-radius:8px;background:var(--white);border:1px solid var(--line);color:var(--ink);cursor:pointer;transition:all .2s}
+.panel-spec:hover{border-color:var(--france);color:var(--france);background:var(--azure)}
+
+.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-47%);z-index:100;width:min(620px,94vw);max-height:88vh;background:var(--paper);border:1px solid var(--line);border-radius:20px;box-shadow:0 40px 100px rgba(13,27,62,.28);opacity:0;pointer-events:none;transition:opacity .2s,transform .25s cubic-bezier(.16,1,.3,1);overflow:hidden;display:flex;flex-direction:column}
+.modal.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)}
+#legalModal{z-index:115}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:22px 26px;border-bottom:1px solid var(--line)}
+.modal-head .mh-left{display:flex;align-items:center;gap:11px}
+.modal-title{font-family:var(--fdisplay);font-size:19px;font-weight:600;color:var(--navy)}
+.modal-close{width:36px;height:36px;border-radius:8px;background:var(--white);border:1px solid var(--line);color:var(--navy);font-size:17px;cursor:pointer}
+.modal-body{padding:26px;overflow-y:auto}
+
+/* CHAT */
+.chat-modal{width:min(560px,96vw);height:min(680px,90vh)}
+.chat-stream{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:14px}
+.chat-welcome{text-align:center;margin:auto 0;padding:18px}
+.chat-orb{width:80px;height:80px;margin:0 auto 18px}
+.chat-welcome h3{font-family:var(--fdisplay);font-size:23px;font-weight:600;color:var(--navy);margin-bottom:8px}
+.chat-welcome p{font-size:14px;color:var(--gray);max-width:340px;margin:0 auto 22px;line-height:1.5}
+.chat-mic-big{width:76px;height:76px;border-radius:50%;margin:0 auto;background:var(--navy);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s;animation:micPulseA 2.6s ease-in-out infinite}
+@keyframes micPulseA{0%,100%{box-shadow:0 6px 22px rgba(13,27,62,.25)}50%{box-shadow:0 6px 40px rgba(21,101,192,.5)}}
+.chat-mic-big:hover{background:var(--france);transform:scale(1.06)}
+.chat-mic-label{font-family:var(--fmono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--france);margin-top:13px}
+.chat-msg{max-width:82%;padding:13px 17px;border-radius:15px;font-size:14.5px;line-height:1.5;animation:msgIn .35s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.chat-eli{align-self:flex-start;background:var(--azure);color:var(--ink);border-bottom-left-radius:4px}
+.chat-user{align-self:flex-end;background:var(--navy);color:var(--white);border-bottom-right-radius:4px}
+.chat-bar{display:flex;align-items:center;gap:10px;padding:16px;border-top:1px solid var(--line)}
+.chat-input{flex:1;background:var(--white);border:1px solid var(--line);border-radius:99px;padding:13px 18px;color:var(--navy);font-family:inherit;font-size:14.5px;outline:none}
+.chat-input:focus{border-color:var(--france)}
+.chat-mic{width:46px;height:46px;border-radius:50%;border:1px solid var(--platine-soft);background:var(--azure);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.chat-mic.rec{background:#DC2626;border-color:#DC2626;animation:recP 1s ease-in-out infinite}
+@keyframes recP{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.chat-send{width:46px;height:46px;border-radius:50%;border:none;background:var(--navy);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* PAYWALL */
+.paywall{text-align:center;padding:8px}
+.paywall-ic{width:64px;height:64px;border-radius:16px;background:var(--azure);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 18px}
+.paywall h3{font-family:var(--fdisplay);font-size:24px;font-weight:600;color:var(--navy);margin-bottom:10px}
+.paywall p{font-size:14.5px;color:var(--gray);line-height:1.6;margin-bottom:8px}
+.paywall-price{font-family:var(--fdisplay);font-size:40px;font-weight:700;color:var(--navy);margin:18px 0 4px}
+.paywall-price span{font-size:15px;color:var(--gray);font-weight:400}
+.paywall-benefits{text-align:left;max-width:350px;margin:18px auto 22px;display:flex;flex-direction:column;gap:9px}
+.pwb{display:flex;gap:10px;font-size:14px;color:var(--ink)}
+.pwb::before{content:'✓';color:var(--france);font-weight:700}
+.paywall-cta{width:100%;padding:15px;border-radius:10px;border:none;cursor:pointer;background:var(--navy);color:#fff;font-family:inherit;font-size:15px;font-weight:600;margin-bottom:9px}
+.paywall-cta:hover{background:var(--france)}
+.paywall-skip{background:none;border:none;color:var(--faint);font-size:13px;cursor:pointer;font-family:inherit;text-decoration:underline}
+
+/* FORMS / OFFERS / PAY */
+.uform{display:flex;flex-direction:column;gap:13px}
+.uform input,.uform select{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:14px 16px;color:var(--navy);font-family:inherit;font-size:14.5px;outline:none}
+.uform input:focus,.uform select:focus{border-color:var(--france)}
+.uform input::placeholder{color:var(--faint)}
+.field-label{font-size:12px;color:var(--gray);font-family:var(--fmono);margin:-3px 0 -7px 3px}
+.usubmit{padding:15px;border-radius:10px;border:none;cursor:pointer;background:var(--navy);color:#fff;font-family:inherit;font-size:15px;font-weight:600;margin-top:4px}
+.usubmit:hover{background:var(--france)}
+.unote{font-size:12px;color:var(--faint);text-align:center;margin-top:6px}
+.auth-tabs{display:flex;gap:6px;margin-bottom:22px;background:var(--white);padding:5px;border-radius:11px;border:1px solid var(--line)}
+.auth-tab{flex:1;padding:11px;border-radius:8px;border:none;background:none;color:var(--gray);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.auth-tab.active{background:var(--navy);color:#fff}
+.offers{display:flex;flex-direction:column;gap:12px;margin:18px 0}
+.offer{position:relative;padding:18px 20px;border-radius:14px;background:var(--white);border:1px solid var(--line);cursor:pointer;text-align:left;transition:all .25s}
+.offer:hover{border-color:var(--france);transform:translateY(-2px)}
+.offer.feat{border-color:var(--france);background:var(--azure)}
+.offer-flag{position:absolute;top:-10px;left:20px;background:var(--france);color:#fff;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:4px 11px;border-radius:99px}
+.offer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.offer-name{font-family:var(--fdisplay);font-size:17px;font-weight:600;color:var(--navy)}
+.offer-tag{font-family:var(--fmono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--france);padding:3px 9px;border-radius:99px;background:var(--azure)}
+.offer-price{font-family:var(--fdisplay);font-size:28px;font-weight:700;color:var(--navy);line-height:1}
+.offer-price span{font-size:13px;color:var(--gray);font-weight:400}
+.offer-per{font-size:12px;color:var(--faint);margin-top:3px}
+.pay-section{font-family:var(--fdisplay);font-size:15px;font-weight:600;color:var(--navy);margin:18px 0 12px}
+.pay-method{display:flex;align-items:center;gap:15px;padding:14px 16px;border-radius:12px;background:var(--white);border:1px solid var(--line);cursor:pointer;transition:all .2s;margin-bottom:10px}
+.pay-method:hover,.pay-method.sel{border-color:var(--france);background:var(--azure)}
+.pay-method img{width:48px;height:48px;border-radius:10px;object-fit:contain;background:#fff;border:1px solid var(--line);padding:3px;flex-shrink:0}
+.pay-cards{display:flex;gap:6px;flex-shrink:0}
+.pay-mn{font-family:var(--fdisplay);font-weight:600;font-size:15px;color:var(--navy)}
+.pay-mnum{font-family:var(--fmono);font-size:12.5px;color:var(--gray)}
+.pay-fields{display:flex;flex-direction:column;gap:11px;margin-top:13px;padding:16px;border-radius:12px;background:var(--white);border:1px solid var(--line)}
+.pay-instruct{font-size:13px;color:var(--gray);line-height:1.5}
+.pay-benef{padding:14px;border-radius:10px;background:var(--azure);border:1px solid var(--platine-soft);text-align:center}
+.pay-benef-l{font-family:var(--fmono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--france);margin-bottom:4px}
+.pay-benef-n{font-family:var(--fdisplay);font-size:18px;font-weight:600;color:var(--navy)}
+.pay-benef-num{font-family:var(--fmono);font-size:12.5px;color:var(--gray);margin-top:2px}
+.pay-input{background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:13px 15px;color:var(--navy);font-family:inherit;font-size:14px;outline:none;width:100%}
+.pay-input:focus{border-color:var(--france)}
+.pay-row{display:flex;gap:10px}.pay-row .pay-input{flex:1}
+.pay-legal{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:10px;background:var(--white);border:1px solid var(--line);cursor:pointer}
+.pay-legal input{margin-top:2px;width:17px;height:17px;accent-color:var(--france);flex-shrink:0;cursor:pointer}
+.pay-legal span{font-size:12.5px;line-height:1.5;color:var(--gray)}
+.pay-legal-link{background:none;border:none;padding:0;color:var(--france);font-family:inherit;font-size:12.5px;font-weight:600;text-decoration:underline;cursor:pointer}
+.pay-legal.shake{border-color:#DC2626;background:#FEF2F2;animation:shk .4s}
+@keyframes shk{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.pay-validate{margin-top:4px;padding:15px;border-radius:10px;border:none;cursor:pointer;background:var(--navy);color:#fff;font-family:inherit;font-size:15px;font-weight:600;transition:all .2s}
+.pay-validate:hover{background:var(--france)}
+.pay-secure{text-align:center;font-size:11px;color:var(--faint);font-family:var(--fmono);margin-top:4px}
+.pay-result{text-align:center;padding:14px 6px}
+.pay-result-ic{width:64px;height:64px;border-radius:16px;background:var(--azure);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 16px}
+.pay-result h3{font-family:var(--fdisplay);font-size:23px;font-weight:600;color:var(--navy);margin-bottom:10px}
+.pay-result p{font-size:14.5px;color:var(--gray);line-height:1.6;margin-bottom:22px;max-width:380px;margin-left:auto;margin-right:auto}
+.consent-head{display:flex;gap:13px;align-items:flex-start;padding:15px;border-radius:12px;background:var(--azure);border:1px solid var(--platine-soft);margin-bottom:16px}
+.consent-ic{font-size:28px;flex-shrink:0}
+.consent-head p{font-size:13.5px;line-height:1.55;color:var(--ink)}
+.consent-note{font-size:11px;color:var(--faint);font-family:var(--fmono);text-align:center;margin-top:13px}
+.parent-choice{display:flex;gap:8px}
+.parent-opt{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:12px;border-radius:9px;border:1px solid var(--line);background:var(--white);color:var(--ink2);font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;transition:all .18s}
+.parent-opt.active{border-color:var(--france);background:var(--azure);color:var(--france)}
+.pay-alert{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);z-index:130;padding:15px 24px;border-radius:12px;background:#DC2626;color:#fff;font-weight:600;font-size:14px;box-shadow:0 12px 36px rgba(220,38,38,.4);opacity:0;pointer-events:none;transition:all .35s;max-width:90vw;text-align:center}
+.pay-alert.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.welcome-toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);z-index:120;padding:15px 26px;border-radius:12px;background:var(--navy);color:#fff;font-weight:600;font-size:14px;box-shadow:0 12px 36px rgba(13,27,62,.3);opacity:0;pointer-events:none;transition:all .35s}
+.welcome-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* LEGAL CONTENT */
+.legal h4{font-family:var(--fdisplay);font-size:16px;font-weight:600;color:var(--navy);margin:18px 0 8px}
+.legal p{font-size:13px;line-height:1.65;color:var(--ink);margin-bottom:10px}
+.legal-intro{font-size:12px;color:var(--france);font-family:var(--fmono);margin-bottom:16px;padding-bottom:13px;border-bottom:1px solid var(--line)}
+
+/* DASHBOARD */
+.dashboard{position:fixed;inset:0;z-index:95;background:var(--ivory);overflow-y:auto;transform:translateY(100%);transition:transform .5s cubic-bezier(.16,1,.3,1)}
+.dashboard.open{transform:translateY(0)}
+.dash-top{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;padding:16px 28px;background:rgba(252,251,248,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);z-index:2}
+.dash-back{padding:9px 18px;border-radius:8px;border:1px solid var(--platine-soft);background:var(--white);color:var(--navy);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.dash-back:hover{border-color:var(--france);color:var(--france)}
+.dash-body{max-width:1000px;margin:0 auto;padding:38px 28px 60px}
+.dash-anchor{display:flex;justify-content:space-between;align-items:flex-start;gap:22px;flex-wrap:wrap;margin-bottom:34px}
+.dash-hello{font-family:var(--fdisplay);font-size:clamp(26px,4vw,38px);font-weight:500;color:var(--navy)}
+.dash-hello span{font-style:italic;color:var(--france)}
+.dash-since{font-family:var(--fmono);font-size:12px;color:var(--france);margin-top:6px}
+.dash-stats{display:flex;gap:12px;flex-wrap:wrap}
+.dash-stat{padding:14px 18px;border-radius:12px;background:var(--white);border:1px solid var(--line);text-align:center;min-width:92px}
+.dash-stat-n{font-family:var(--fdisplay);font-size:23px;font-weight:600;color:var(--navy)}
+.dash-stat-l{font-size:11px;color:var(--gray);margin-top:3px}
+.dash-stitle{font-family:var(--fdisplay);font-size:19px;font-weight:600;color:var(--navy);margin:0 0 8px}
+.dash-ssub{font-size:13px;color:var(--gray);margin:0 0 16px}
+.dash-resume{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--france);border-radius:14px;padding:22px;margin-bottom:34px}
+.dash-resume-t{font-size:14.5px;line-height:1.6;color:var(--ink);margin-bottom:14px}
+.dash-resume-t strong{color:var(--navy)}
+.dash-bar{height:7px;border-radius:99px;background:var(--line);overflow:hidden;margin-bottom:8px}
+.dash-bar div{height:100%;background:linear-gradient(90deg,var(--france),var(--france-bright));border-radius:99px}
+.dash-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--faint);font-family:var(--fmono);margin-bottom:16px;flex-wrap:wrap;gap:6px}
+.dash-resume-btn{padding:13px 22px;border-radius:9px;border:none;cursor:pointer;background:var(--navy);color:#fff;font-family:inherit;font-size:14px;font-weight:600}
+.dash-resume-btn:hover{background:var(--france)}
+.dash-subjects{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:34px}
+@media(max-width:760px){.dash-subjects{grid-template-columns:1fr 1fr}}
+.dsub{padding:18px;border-radius:13px;background:var(--white);border:1px solid var(--line);cursor:pointer;transition:all .25s}
+.dsub:hover{border-color:var(--france);transform:translateY(-3px)}
+.dsub-top{display:flex;align-items:center;gap:8px;margin-bottom:11px}
+.dsub-ic{font-size:18px}.dsub-n{font-size:13px;font-weight:600;color:var(--navy);flex:1}
+.dsub-p{font-family:var(--fmono);font-size:13px;color:var(--france)}
+.dsub-bar{height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.dsub-bar div{height:100%;background:var(--france);border-radius:99px}
+.dash-history{display:flex;flex-direction:column;gap:9px;margin-bottom:34px}
+.dhist{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:14px 18px;border-radius:11px;cursor:pointer;text-align:left;background:var(--white);border:1px solid var(--line);transition:all .2s}
+.dhist:hover{border-color:var(--france);transform:translateX(3px)}
+.dhist-l{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.dhist-day{font-family:var(--fmono);font-size:11px;color:var(--faint);min-width:74px}
+.dhist-t{font-size:14px;font-weight:500;color:var(--navy)}
+.dhist-m{font-size:11px;color:var(--france);padding:2px 8px;border-radius:99px;background:var(--azure)}
+.dhist-go{font-family:var(--fmono);font-size:11px;color:var(--france);flex-shrink:0}
+.dash-gaps{display:flex;flex-direction:column;gap:9px;margin-bottom:34px}
+.dgap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-radius:11px;background:#FEF6F6;border:1px solid #F3D6D6}
+.dgap-l{display:flex;align-items:center;gap:12px}
+.dgap-ic{font-size:18px;flex-shrink:0}
+.dgap-n{font-size:14px;font-weight:500;color:var(--navy)}
+.dgap-m{font-size:11px;color:var(--gray);margin-top:2px}
+.dgap-btn{padding:9px 16px;border-radius:9px;border:none;cursor:pointer;background:var(--navy);color:#fff;font-family:inherit;font-size:13px;font-weight:600;flex-shrink:0}
+.dgap-btn:hover{background:var(--france)}
+.dash-tools{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:760px){.dash-tools{grid-template-columns:repeat(2,1fr)}}
+.dtool{padding:18px 14px;border-radius:12px;cursor:pointer;text-align:center;background:var(--white);border:1px solid var(--line);transition:all .25s}
+.dtool:hover{border-color:var(--france);transform:translateY(-3px)}
+.dtool-ic{font-size:24px;margin-bottom:8px}
+.dtool-n{font-size:12px;font-weight:600;color:var(--ink);line-height:1.2}
+
+::-webkit-scrollbar{width:9px}::-webkit-scrollbar-track{background:var(--ivory)}::-webkit-scrollbar-thumb{background:var(--platine-soft);border-radius:99px}
+/* WHATSAPP */
+.wa-card{display:flex;align-items:center;gap:30px;background:linear-gradient(150deg,#0E5A2E,#128C45);border-radius:20px;padding:40px 44px;box-shadow:0 24px 60px rgba(18,140,69,.18)}
+@media(max-width:720px){.wa-card{flex-direction:column;text-align:center;padding:32px 26px;gap:20px}}
+.wa-icon{width:84px;height:84px;border-radius:20px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.wa-text{flex:1}
+.wa-eyebrow{font-family:var(--fmono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.75);margin-bottom:10px}
+.wa-title{font-family:var(--fdisplay);font-size:clamp(24px,3vw,32px);font-weight:600;color:#fff;margin-bottom:10px}
+.wa-desc{font-size:14.5px;line-height:1.6;color:rgba(255,255,255,.88);max-width:520px;margin-bottom:20px}
+@media(max-width:720px){.wa-desc{margin-left:auto;margin-right:auto}}
+.wa-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 26px;border-radius:10px;background:#fff;color:#0E5A2E;font-family:inherit;font-size:15px;font-weight:600;text-decoration:none;transition:all .25s}
+.wa-btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.18)}
+/* COMPAGNON */
+.compagnon-card{text-align:center;background:linear-gradient(150deg,#0B3D2E,#10583F);border:1px solid rgba(255,255,255,.10);border-radius:20px;padding:46px 40px;box-shadow:0 24px 60px rgba(11,61,46,.22)}
+.compagnon-logo{width:88px;height:88px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 8px 24px rgba(0,0,0,.3))}
+.compagnon-eyebrow{font-family:var(--fmono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#F5B544;margin-bottom:12px}
+.compagnon-title{font-family:var(--fdisplay);font-size:clamp(26px,4vw,42px);font-weight:400;line-height:1.1;color:#fff;margin-bottom:16px}
+.compagnon-title em{font-style:italic;color:#FFD479}
+.compagnon-desc{font-size:15.5px;line-height:1.65;color:rgba(255,255,255,.82);max-width:620px;margin:0 auto 26px}
+.compagnon-feats{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-bottom:30px}
+.compagnon-feat{display:flex;align-items:center;gap:8px;font-size:13.5px;color:rgba(255,255,255,.9);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);padding:10px 16px;border-radius:99px}
+.compagnon-btn{display:inline-flex;align-items:center;gap:10px;padding:15px 32px;border-radius:10px;border:none;cursor:pointer;background:#F5B544;color:var(--navy);font-family:inherit;font-size:15px;font-weight:600;transition:all .25s}
+.compagnon-btn:hover{background:#FFD479;transform:translateY(-2px);box-shadow:0 12px 30px rgba(245,181,68,.3)}
+
+/* ═══════════ Éli AEFE v2 — universe clair : classes, matières, Parcoursup, Grand Oral, examens ═══════════ */
+.universe{position:fixed;inset:0;z-index:90;background:var(--paper);overflow-y:auto;transform:translateY(100%);transition:transform .5s cubic-bezier(.16,1,.3,1);opacity:0;pointer-events:none}
+.universe.open{transform:translateY(0);opacity:1;pointer-events:auto}
+.universe-top{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:rgba(242,239,231,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.universe-title{font-family:var(--fdisplay);font-size:18px;font-weight:600;color:var(--navy)}
+.universe-body{max-width:980px;margin:0 auto;padding:26px 22px 70px}
+.class-hero{text-align:center;padding:14px 16px 26px}
+.class-hero-logo{width:62px;height:62px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center}
+.class-h2{font-family:var(--fdisplay);font-size:clamp(26px,5vw,40px);font-weight:600;color:var(--navy);margin-bottom:8px}
+.class-sub{font-size:15px;color:var(--ink);max-width:520px;margin:0 auto;line-height:1.55}
+.subj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:880px;margin:0 auto 26px}
+@media(max-width:760px){.subj-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:460px){.subj-grid{grid-template-columns:1fr}}
+.subj-card{position:relative;text-align:left;padding:18px;border-radius:14px;cursor:pointer;background:var(--white);border:1px solid var(--line);border-left:4px solid var(--sc);box-shadow:0 4px 14px rgba(13,27,62,.05);transition:all .22s;font-family:inherit}
+.subj-card:hover{transform:translateY(-4px);box-shadow:0 16px 34px rgba(13,27,62,.14)}
+.subj-cat{font-family:var(--fmono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--sc);margin-bottom:7px}
+.subj-name{font-family:var(--fdisplay);font-size:17px;font-weight:600;color:var(--navy);line-height:1.2;margin-bottom:12px}
+.subj-status{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:99px}
+.subj-status .st-dot{width:8px;height:8px;border-radius:50%}
+.st-vert{color:#15803D;background:#DCFCE7}.st-vert .st-dot{background:#16A34A}
+.st-orange{color:#B45309;background:#FEF3C7}.st-orange .st-dot{background:#D97706}
+.st-rouge{color:#B91C1C;background:#FEE2E2}.st-rouge .st-dot{background:#DC2626}
+.subj-special{border-left-color:#6D28D9}
+.class-chat-cta{display:flex;align-items:center;gap:16px;max-width:700px;margin:0 auto;padding:18px 22px;border-radius:16px;background:var(--azure);border:1px solid #C9D8EE}
+.class-chat-logo{width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.class-chat-txt{flex:1;display:flex;flex-direction:column;gap:3px}
+.class-chat-txt strong{font-family:var(--fdisplay);font-size:15px;color:var(--navy);font-weight:600}
+.class-chat-txt span{font-size:12.5px;color:var(--ink);line-height:1.4}
+.class-chat-btn{padding:11px 18px;border-radius:9px;border:none;cursor:pointer;background:var(--france);color:#fff;font-family:inherit;font-size:13.5px;font-weight:600;white-space:nowrap;transition:all .2s}
+.class-chat-btn:hover{background:var(--france-bright);transform:translateY(-2px)}
+@media(max-width:560px){.class-chat-cta{flex-direction:column;text-align:center}.class-chat-txt{align-items:center}}
+/* Dashboard matière clair */
+.subjdash{max-width:700px;margin:0 auto}
+.subjdash-back{background:#fff;border:1px solid var(--line);color:var(--ink);padding:9px 16px;border-radius:9px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:20px;transition:all .2s}
+.subjdash-back:hover{border-color:var(--sc);color:var(--navy)}
+.subjdash-head{display:flex;align-items:center;gap:16px;margin-bottom:22px}
+.subjdash-ic{width:56px;height:56px;border-radius:14px;background:var(--sc);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.subjdash-cat{font-family:var(--fmono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.subjdash-name{font-family:var(--fdisplay);font-size:clamp(24px,4vw,32px);font-weight:600;color:var(--navy);margin-top:2px}
+.subjdash-resume,.subjdash-prog,.subjdash-hist,.subjdash-card{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:14px;box-shadow:0 4px 14px rgba(13,27,62,.04)}
+.prog-title{font-family:var(--fdisplay);font-size:16px;font-weight:600;color:var(--navy);margin-bottom:14px}
+.resume-k{font-family:var(--fmono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--france);margin-bottom:8px}
+.resume-t{font-size:14px;color:var(--navy);line-height:1.55;margin-bottom:16px}
+.subjdash-actions{display:flex;gap:10px;flex-wrap:wrap}
+.sd-btn{flex:1;min-width:180px;padding:13px 18px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:600;transition:all .22s;border:1px solid transparent}
+.sd-primary{background:var(--france);color:#fff}.sd-primary:hover{background:var(--france-bright);transform:translateY(-2px)}
+.sd-ghost{background:#fff;border-color:var(--line);color:var(--navy)}.sd-ghost:hover{border-color:var(--france)}
+.prog-bar{display:flex;height:14px;border-radius:99px;overflow:hidden;margin-bottom:12px;background:#EDEAE2}
+.prog-seg{height:100%}.prog-seg.pv{background:#16A34A}.prog-seg.po{background:#D97706}.prog-seg.pr{background:#DC2626}
+.prog-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink)}
+.prog-legend span{display:flex;align-items:center;gap:6px}
+.lg{width:10px;height:10px;border-radius:3px;display:inline-block}.lgv{background:#16A34A}.lgo{background:#D97706}.lgr{background:#DC2626}
+.subjdash-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:680px){.subjdash-3col{grid-template-columns:1fr}}
+.zone{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:16px}
+.zone-h{display:flex;align-items:center;gap:8px;font-family:var(--fdisplay);font-size:14px;font-weight:600;color:var(--navy);margin-bottom:12px}
+.zone-dot{width:10px;height:10px;border-radius:50%}
+.zone-v .zone-dot{background:#16A34A}.zone-o .zone-dot{background:#D97706}.zone-r .zone-dot{background:#DC2626}
+.zone-item{font-size:12.5px;color:var(--navy);padding:8px 10px;border-radius:8px;background:var(--paper);margin-bottom:7px;line-height:1.35}
+.zone-clic{display:block;width:100%;text-align:left;border:1px solid #F3C9C9;background:#FEF2F2;cursor:pointer;font-family:inherit;transition:all .2s}
+.zone-clic:hover{border-color:#DC2626;transform:translateX(3px)}
+.zone-clic span{color:#B45309;font-family:var(--fmono);font-size:11px}
+.hist-row{display:flex;align-items:center;gap:12px;width:100%;padding:11px 14px;border-radius:10px;background:var(--paper);border:1px solid var(--line);cursor:pointer;margin-bottom:8px;transition:all .2s;font-family:inherit}
+.hist-row:hover{transform:translateX(4px);border-color:var(--sc)}
+.hist-day{font-family:var(--fmono);font-size:10.5px;color:var(--ink);min-width:78px;text-align:left}
+.hist-t{flex:1;text-align:left;font-size:13px;color:var(--navy)}
+.hist-badge{font-size:10.5px;font-weight:600;padding:3px 10px;border-radius:99px}
+.subjdash-chat{display:flex;align-items:center;gap:16px;padding:18px 22px;border-radius:16px;background:var(--azure);border:1px solid #C9D8EE;cursor:pointer}
+/* ═══ HERO générique dashboards spéciaux ═══ */
+.sdash-hero{border-radius:22px;padding:30px 26px;margin-bottom:18px;color:#fff;position:relative;overflow:hidden}
+.sdash-hero-eyebrow{font-family:var(--fmono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.85;margin-bottom:12px}
+.sdash-hero h2{font-family:var(--fdisplay);font-size:clamp(26px,5vw,40px);font-weight:600;margin-bottom:10px;line-height:1.1}
+.sdash-hero p{font-size:15px;line-height:1.55;opacity:.95;max-width:520px}
+.sdash-hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.sdash-hero-btn{padding:13px 22px;border-radius:11px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;border:none;transition:all .22s}
+.sdash-hero-btn.solid{background:#fff;color:var(--navy)}
+.sdash-hero-btn.outline{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.4)}
+.sdash-hero-btn:hover{transform:translateY(-2px)}
+/* Parcoursup (bleu) */
+.hero-pcs{background:linear-gradient(140deg,#0D47A1,#1565C0 55%,#2E7BD6)}
+/* Grand Oral (aubergine) */
+.hero-go{background:linear-gradient(140deg,#2E1065,#3B1E54 45%,#6D28D9)}
+.sdash-steps{display:flex;flex-direction:column;gap:10px}
+.sdash-step{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border-radius:12px;background:var(--paper);border:1px solid var(--line)}
+.sdash-step-n{width:30px;height:30px;border-radius:50%;background:var(--france);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--fmono);font-size:13px;font-weight:600;flex-shrink:0}
+.hero-go ~ * .sdash-step-n,.sdash-step-n.go{background:#6D28D9}
+.sdash-step-t{flex:1}
+.sdash-step-t strong{display:block;font-family:var(--fdisplay);font-size:15px;color:var(--navy);margin-bottom:3px}
+.sdash-step-t span{font-size:13px;color:var(--ink);line-height:1.45}
+.pcs-timeline{display:flex;flex-direction:column;gap:0}
+.pcs-tl{display:flex;gap:14px;padding-bottom:18px;position:relative}
+.pcs-tl:not(:last-child)::before{content:'';position:absolute;left:13px;top:26px;bottom:0;width:2px;background:var(--line)}
+.pcs-tl-dot{width:28px;height:28px;border-radius:50%;background:var(--france);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;z-index:1}
+.pcs-tl.done .pcs-tl-dot{background:#16A34A}.pcs-tl.todo .pcs-tl-dot{background:var(--platine)}
+.pcs-tl-c strong{display:block;font-family:var(--fdisplay);font-size:15px;color:var(--navy)}
+.pcs-tl-c span{font-size:12.5px;color:var(--ink)}
+.go-questions{display:flex;flex-direction:column;gap:10px}
+.go-q{padding:14px 16px;border-radius:12px;background:#F6F1FB;border:1px solid #E4D6F5}
+.go-q-k{font-family:var(--fmono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#6D28D9;margin-bottom:5px}
+.go-q-t{font-size:14px;color:var(--navy);font-weight:500;line-height:1.4}
+/* ═══ EXAMENS AEFE (Brevet / Bac) ═══ */
+.examdash{max-width:720px;margin:0 auto}
+.examdash-hero{text-align:center;border-radius:24px;padding:26px 22px 30px;margin-bottom:18px;color:#fff;position:relative;overflow:hidden}
+.hero-brevet{background:linear-gradient(150deg,#0B3D2E,#0E7C5A 70%)}
+.hero-bac{background:linear-gradient(150deg,#0D1B3E,#1A2B52 60%,#B8860B)}
+.examdash-badge{display:inline-block;font-family:var(--fmono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:6px 14px;border-radius:99px;background:rgba(255,255,255,.16);margin-bottom:14px}
+.cd-num{font-family:var(--fdisplay);font-size:clamp(46px,11vw,72px);font-weight:700;line-height:1}
+.cd-label{font-family:var(--fmono);font-size:12px;opacity:.9;margin-top:8px;text-transform:uppercase;letter-spacing:.06em}
+.examdash-lead{font-size:15px;opacity:.95;max-width:460px;margin:14px auto 20px;line-height:1.5}
+.examdash-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.examdash-card{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:14px;box-shadow:0 4px 14px rgba(13,27,62,.04)}
+.ep-row{display:flex;align-items:center;gap:12px;width:100%;padding:13px 16px;border-radius:11px;background:var(--paper);border:1px solid var(--line);cursor:pointer;margin-bottom:8px;font-family:inherit;transition:all .2s}
+.ep-row:hover{transform:translateX(4px);border-color:var(--france)}
+.ep-status{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.ep-status.st-vert{background:#16A34A}.ep-status.st-orange{background:#D97706}.ep-status.st-rouge{background:#DC2626}
+.ep-name{flex:1;text-align:left;font-size:14px;color:var(--navy)}
+.ep-coef{font-family:var(--fmono);font-size:11px;color:var(--france);padding:3px 9px;border-radius:99px;background:var(--azure)}
+.ep-go{color:var(--platine)}
+.examdash-note{font-size:12px;color:var(--ink);line-height:1.5;margin-top:4px}
+.proto-step{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.proto-n{width:28px;height:28px;border-radius:50%;background:var(--azure);color:var(--france);display:flex;align-items:center;justify-content:center;font-family:var(--fmono);font-size:13px;font-weight:600;flex-shrink:0}
+.proto-t{font-size:13.5px;color:var(--navy)}
+.examblanche{text-align:center;padding:38px 24px;background:var(--white);border:1px solid var(--line);border-radius:22px}
+.examblanche-ic{font-size:50px;margin-bottom:12px}
+.exam-banner{display:flex;align-items:center;gap:16px;max-width:700px;margin:0 auto 24px;padding:18px 22px;border-radius:16px;cursor:pointer;color:#fff;transition:all .25s}
+.exam-banner-brevet{background:linear-gradient(135deg,#0B3D2E,#0E7C5A)}
+.exam-banner-bac{background:linear-gradient(135deg,#0D1B3E,#9A7B2E)}
+.exam-banner:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(13,27,62,.22)}
+.exam-banner-ic{font-size:36px;flex-shrink:0}
+.exam-banner-txt{flex:1;display:flex;flex-direction:column;gap:3px}
+.exam-banner-txt strong{font-family:var(--fdisplay);font-size:16px;font-weight:600}
+.exam-banner-txt span{font-size:12.5px;opacity:.92;line-height:1.4}
+.exam-banner-go{font-size:13.5px;font-weight:700;white-space:nowrap}
+@media(max-width:600px){.exam-banner,.examdash-annales{flex-direction:column;text-align:center}.exam-banner-txt{align-items:center}}
+
+</style>
+</head>
+<body>
+<div class="lightfield"></div>
+
+<!-- defs logo global -->
+<svg width="0" height="0" style="position:absolute"><defs>
+  <radialGradient id="lg1" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#388E3C"/><stop offset="100%" stop-color="#1B5E20"/></radialGradient>
+  <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFE082"/><stop offset="100%" stop-color="#FFA000"/></linearGradient>
+  <linearGradient id="lg3" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#FFA000"/><stop offset="60%" stop-color="#FFD54F"/><stop offset="100%" stop-color="#FFFDE7"/></linearGradient>
+</defs></svg>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <div class="nav-brand" onclick="scrollSec('top')">
+      <svg class="svglogo" width="44" height="44" viewBox="0 0 200 200"><circle cx="100" cy="100" r="86" fill="url(#lg1)"/><rect x="61" y="44" width="13" height="108" rx="6" fill="url(#lg2)"/><rect x="61" y="44" width="78" height="13" rx="6" fill="url(#lg2)"/><rect x="61" y="91" width="60" height="13" rx="6" fill="url(#lg2)"/><rect x="61" y="139" width="78" height="13" rx="6" fill="url(#lg2)"/><path d="M147 44C145 34,141 24,147 12C150 5,156 1,156 1C156 1,167 10,164 24C162 32,156 38,156 44Z" fill="url(#lg3)"/><circle cx="82" cy="172" r="4.5" fill="url(#lg2)" opacity=".9"/><circle cx="100" cy="176" r="5.5" fill="url(#lg2)"/><circle cx="118" cy="172" r="4.5" fill="url(#lg2)" opacity=".9"/></svg>
+      <div class="nav-name">Éli</div>
+    </div>
+    <div class="nav-links">
+      <button class="nav-link" onclick="scrollSec('top')">Accueil</button>
+      <button class="nav-link" onclick="openChat()">Professeur Éli</button>
+      <button class="nav-link" onclick="scrollSec('compagnon')">Mon compagnon</button>
+      <button class="nav-link" onclick="scrollSec('parcours')">Grand Oral & Parcoursup</button>
+      <button class="nav-link" onclick="scrollSec('niveaux')">Niveaux</button>
+      <button class="nav-link" onclick="scrollSec('features')">Fonctionnalités</button>
+      <button class="nav-link" onclick="openParents()">Parents</button>
+      <button class="nav-link" onclick="scrollSec('whatsapp')">WhatsApp</button>
+    </div>
+    <div class="nav-actions">
+      <button class="nav-login" onclick="openAuth('login')">Connexion</button>
+      <button class="nav-cta" onclick="openAuth('signup')">S'inscrire</button>
+      <button class="nav-burger" onclick="openMM()"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<!-- MENU MOBILE -->
+<div class="mobile-menu" id="mm">
+  <div class="mm-head"><div class="nav-name">Éli</div><button class="mm-close" onclick="closeMM()">✕</button></div>
+  <button class="mm-link" onclick="closeMM();scrollSec('top')">Accueil</button>
+  <button class="mm-link" onclick="closeMM();openChat()">Professeur Éli</button>
+  <button class="mm-link" onclick="closeMM();scrollSec('compagnon')">Mon compagnon</button>
+  <button class="mm-link" onclick="closeMM();scrollSec('parcours')">Grand Oral & Parcoursup</button>
+  <button class="mm-link" onclick="closeMM();scrollSec('niveaux')">Niveaux & spécialités</button>
+  <button class="mm-link" onclick="closeMM();scrollSec('features')">Fonctionnalités</button>
+  <button class="mm-link" onclick="closeMM();openParents()">Espace Parents</button>
+  <button class="mm-link" onclick="closeMM();scrollSec('whatsapp')">WhatsApp</button>
+  <button class="mm-cta" onclick="closeMM();openAuth('signup')">S'inscrire</button>
+</div>
+
+<div class="app" id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <div class="hero-eyebrow"><span class="dot"></span>Réseau AEFE · Programme français</div>
+      <h1>Ton professeur particulier, <em>présent partout et à toute heure</em></h1>
+      <p class="hero-lead">De la 6ème à la Terminale, Éli t'accompagne sur tout ton programme français : cours et méthodologie, entraînement au Grand Oral, préparation du Brevet et du Bac, suivi des spécialités, contrôle continu, stratégie Parcoursup et orientation. Il se souvient de chaque session et te guide jour après jour vers la réussite.</p>
+      <div class="hero-cta-row">
+        <button class="btn-primary" onclick="openChat()">Parler à Éli →</button>
+        <button class="btn-outline" onclick="scrollSec('parcours')">Grand Oral & Parcoursup</button>
+      </div>
+      <div class="hero-trust">
+        <div class="hero-trust-item"><div class="hero-trust-n">100 %</div><div class="hero-trust-l">Programme français officiel</div></div>
+        <div class="hero-trust-item"><div class="hero-trust-n">24/7</div><div class="hero-trust-l">Accompagnement continu</div></div>
+        <div class="hero-trust-item"><div class="hero-trust-n">Bac → Sup</div><div class="hero-trust-l">Orientation internationale</div></div>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-card-top">
+        <svg class="hero-card-logo" width="40" height="40" viewBox="0 0 200 200"><circle cx="100" cy="100" r="86" fill="url(#lg1)"/><rect x="61" y="44" width="13" height="108" rx="6" fill="url(#lg2)"/><rect x="61" y="44" width="78" height="13" rx="6" fill="url(#lg2)"/><rect x="61" y="91" width="60" height="13" rx="6" fill="url(#lg2)"/><rect x="61" y="139" width="78" height="13" rx="6" fill="url(#lg2)"/><path d="M147 44C145 34,141 24,147 12C150 5,156 1,156 1C156 1,167 10,164 24C162 32,156 38,156 44Z" fill="url(#lg3)"/><circle cx="82" cy="172" r="4.5" fill="url(#lg2)" opacity=".9"/><circle cx="100" cy="176" r="5.5" fill="url(#lg2)"/><circle cx="118" cy="172" r="4.5" fill="url(#lg2)" opacity=".9"/></svg>
+        <div class="hero-card-id"><div class="hero-card-name">Professeur Éli</div><div class="hero-card-state">● Disponible</div></div>
+        <div class="hero-card-tag">Aperçu</div>
+      </div>
+      <div class="hero-card-body" onclick="openChat()" style="cursor:pointer">
+        <div class="hcb hcb-eli">Bonjour. Sur quelle épreuve souhaitez-vous travailler — le Grand Oral, une spécialité, ou votre dossier Parcoursup ?</div>
+        <div class="hcb hcb-user">Mon Grand Oral, je stresse pour la prise de parole.</div>
+        <div class="hcb hcb-eli">Très bien. Commençons par structurer votre argumentation, puis nous travaillerons le débit et la posture. Quel est votre sujet ?</div>
+      </div>
+      <div class="hero-card-foot" onclick="openChat()" style="cursor:pointer">
+        <div class="hcf-input">Posez votre question à Éli…</div>
+        <div class="hcf-mic"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" fill="#1565C0"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4M8 22h8" stroke="#1565C0" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPAGNON : me reconnecter et reprendre -->
+  <section class="section" id="compagnon">
+    <div class="compagnon-card">
+      <div class="compagnon-logo">
+        <svg width="76" height="76" viewBox="0 0 200 200"><circle cx="100" cy="100" r="86" fill="url(#lg1)"/><rect x="61" y="44" width="13" height="108" rx="6" fill="url(#lg2)"/><rect x="61" y="44" width="78" height="13" rx="6" fill="url(#lg2)"/><rect x="61" y="91" width="60" height="13" rx="6" fill="url(#lg2)"/><rect x="61" y="139" width="78" height="13" rx="6" fill="url(#lg2)"/><path d="M147 44C145 34,141 24,147 12C150 5,156 1,156 1C156 1,167 10,164 24C162 32,156 38,156 44Z" fill="url(#lg3)"/><circle cx="82" cy="172" r="4.5" fill="url(#lg2)" opacity=".9"/><circle cx="100" cy="176" r="5.5" fill="url(#lg2)"/><circle cx="118" cy="172" r="4.5" fill="url(#lg2)" opacity=".9"/></svg>
+      </div>
+      <div class="compagnon-eyebrow">Plus qu'un outil</div>
+      <h2 class="compagnon-title">Éli se souvient de <em>tout ton parcours</em></h2>
+      <p class="compagnon-desc">Éli n'est pas un chat qu'on recommence à zéro à chaque fois. De la 6ème à la Terminale, il se souvient de chaque session, suit ta progression matière par matière, repère tes points faibles et te guide jour après jour vers la réussite. Un véritable compagnon d'apprentissage, du premier jour jusqu'à ton examen.</p>
+      <div class="compagnon-feats">
+        <div class="compagnon-feat"><span>🧭</span> Il reprend là où tu t'es arrêté</div>
+        <div class="compagnon-feat"><span>📘</span> Il suit ta progression par matière</div>
+        <div class="compagnon-feat"><span>🎯</span> Il cible tes lacunes pour les surmonter</div>
+      </div>
+      <button class="compagnon-btn" onclick="openAuth('login')">▶ Me reconnecter et reprendre</button>
+    </div>
+  </section>
+
+  <!-- SPOTLIGHT : Grand Oral & Parcoursup -->
+  <section class="section" id="parcours">
+    <div class="sec-head">
+      <div class="sec-eyebrow">Les deux grands rendez-vous</div>
+      <h2 class="sec-title">Ce qui décide de <em>ton avenir</em></h2>
+      <p class="sec-lead">Le Grand Oral et Parcoursup sont les moments décisifs du lycée français. Éli en fait sa priorité.</p>
+    </div>
+    <div class="spotlight">
+      <div class="spot spot-oral" onclick="openGrandOral()">
+        <div class="spot-deco">🎙</div>
+        <div class="spot-tag">Épreuve finale du Bac</div>
+        <div class="spot-title">Le Grand Oral</div>
+        <div class="spot-desc">Éli joue le jury, t'entraîne à structurer ton propos, à gérer ton stress, ton débit et ta posture. Des simulations réalistes jusqu'à la maîtrise totale.</div>
+        <span class="spot-cta">Préparer mon Grand Oral →</span>
+      </div>
+      <div class="spot spot-pcs" onclick="openParcoursup()">
+        <div class="spot-deco">🎓</div>
+        <div class="spot-tag">Orientation post-bac</div>
+        <div class="spot-title">Parcoursup</div>
+        <div class="spot-desc">Stratégie de vœux, rédaction des lettres de motivation, valorisation de ton dossier. Éli t'accompagne pas à pas vers les formations qui te correspondent.</div>
+        <span class="spot-cta">Construire mon dossier →</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FONCTIONNALITÉS AEFE -->
+  <section class="section" id="features">
+    <div class="sec-head">
+      <div class="sec-eyebrow">Les outils d'Éli</div>
+      <h2 class="sec-title">Un dispositif pensé pour <em>l'exigence française</em></h2>
+      <p class="sec-lead">Chaque outil cible une compétence précise du programme. Clique pour découvrir.</p>
+    </div>
+    <div class="feat-grid" id="featGrid"></div>
+  </section>
+
+  <!-- NIVEAUX & SPÉCIALITÉS -->
+  <section class="section" id="niveaux">
+    <div class="sec-head">
+      <div class="sec-eyebrow">De la 6ème à la Terminale</div>
+      <h2 class="sec-title">Choisis ton niveau et tes <em>spécialités</em></h2>
+      <p class="sec-lead">Le système français te laisse composer ton parcours. Éli s'adapte à tes choix.</p>
+    </div>
+    <div class="levels" id="levelsGrid"></div>
+  </section>
+
+  <!-- WHATSAPP -->
+  <section class="section" id="whatsapp">
+    <div class="wa-card">
+      <div class="wa-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="#fff"><path d="M17.5 14.4c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.01-1.04 2.47 0 1.46 1.06 2.87 1.21 3.07.15.2 2.1 3.2 5.07 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.29.17-1.42-.07-.13-.27-.2-.57-.35z"/><path d="M12 2a10 10 0 0 0-8.5 15.28L2 22l4.84-1.27A10 10 0 1 0 12 2zm0 18.2a8.18 8.18 0 0 1-4.17-1.14l-.3-.18-2.87.75.77-2.8-.2-.31A8.2 8.2 0 1 1 12 20.2z"/></svg>
+      </div>
+      <div class="wa-text">
+        <div class="wa-eyebrow">Apprendre où que tu sois</div>
+        <h3 class="wa-title">Retrouve Éli sur WhatsApp</h3>
+        <p class="wa-desc">Continue tes révisions, pose tes questions et reçois tes rappels d'échéances directement dans WhatsApp. Éli t'accompagne partout, à toute heure.</p>
+        <a class="wa-btn" href="https://wa.me/24107374043" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M17.5 14.4c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.01-1.04 2.47 0 1.46 1.06 2.87 1.21 3.07.15.2 2.1 3.2 5.07 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.29.17-1.42-.07-.13-.27-.2-.57-.35z"/><path d="M12 2a10 10 0 0 0-8.5 15.28L2 22l4.84-1.27A10 10 0 1 0 12 2zm0 18.2a8.18 8.18 0 0 1-4.17-1.14l-.3-.18-2.87.75.77-2.8-.2-.31A8.2 8.2 0 1 1 12 20.2z"/></svg>
+          Continuer sur WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">
+        <svg width="40" height="40" viewBox="0 0 200 200"><circle cx="100" cy="100" r="86" fill="url(#lg1)"/><rect x="61" y="44" width="13" height="108" rx="6" fill="url(#lg2)"/><rect x="61" y="44" width="78" height="13" rx="6" fill="url(#lg2)"/><rect x="61" y="91" width="60" height="13" rx="6" fill="url(#lg2)"/><rect x="61" y="139" width="78" height="13" rx="6" fill="url(#lg2)"/><path d="M147 44C145 34,141 24,147 12C150 5,156 1,156 1C156 1,167 10,164 24C162 32,156 38,156 44Z" fill="url(#lg3)"/><circle cx="82" cy="172" r="4.5" fill="url(#lg2)" opacity=".9"/><circle cx="100" cy="176" r="5.5" fill="url(#lg2)"/><circle cx="118" cy="172" r="4.5" fill="url(#lg2)" opacity=".9"/></svg>
+        <div class="footer-name">Éli</div>
+      </div>
+      <p class="footer-tagline">Aide aux devoirs, entraînement à l'oral, suivi quotidien et préparation aux examens. Éli accompagne chaque élève, partout, à toute heure.</p>
+      <div class="footer-contact">eli-ia@gmail.com<br>Réseau AEFE · International</div>
+      <div class="footer-socials">
+        <a class="fsoc" title="TikTok" onclick="return false"><svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg></a>
+        <a class="fsoc" title="Facebook" onclick="return false"><svg viewBox="0 0 24 24"><path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.89v2.25h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z"/></svg></a>
+        <a class="fsoc" title="LinkedIn" onclick="return false"><svg viewBox="0 0 24 24"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 0 1-2.06-2.07 2.06 2.06 0 1 1 2.06 2.07zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.55C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.72C24 .77 23.2 0 22.22 0z"/></svg></a>
+        <a class="fsoc" title="Instagram" onclick="return false"><svg viewBox="0 0 24 24"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.43.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.43.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.43-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.43-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16M12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63a5.6 5.6 0 0 0-2.03 1.32A5.6 5.6 0 0 0 .63 4.14C.33 4.9.13 5.78.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.26 2.15.56 2.91a5.6 5.6 0 0 0 1.32 2.03 5.6 5.6 0 0 0 2.03 1.32c.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56a5.6 5.6 0 0 0 2.03-1.32 5.6 5.6 0 0 0 1.32-2.03c.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91a5.6 5.6 0 0 0-1.32-2.03A5.6 5.6 0 0 0 19.86.63c-.76-.3-1.64-.5-2.91-.56C15.67.01 15.26 0 12 0zm0 5.84A6.16 6.16 0 1 0 18.16 12 6.16 6.16 0 0 0 12 5.84zM12 16a4 4 0 1 1 4-4 4 4 0 0 1-4 4zm6.41-10.85a1.44 1.44 0 1 0 1.44 1.44 1.44 1.44 0 0 0-1.44-1.44z"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Navigation</h4>
+      <button onclick="scrollSec('top')">Accueil</button>
+      <button onclick="openChat()">Professeur Éli</button>
+      <button onclick="scrollSec('compagnon')">Mon compagnon</button>
+      <button onclick="scrollSec('parcours')">Grand Oral & Parcoursup</button>
+      <button onclick="scrollSec('niveaux')">Niveaux & spécialités</button>
+      <button onclick="scrollSec('features')">Fonctionnalités</button>
+      <button onclick="openParents()">Espace Parents</button>
+      <button onclick="scrollSec('whatsapp')">WhatsApp</button>
+    </div>
+    <div class="footer-col">
+      <h4>Niveaux</h4>
+      <button onclick="openLevel('sixieme')">6ème</button>
+      <button onclick="openLevel('cinquieme')">5ème</button>
+      <button onclick="openLevel('quatrieme')">4ème</button>
+      <button onclick="openLevel('troisieme')">3ème</button>
+      <button onclick="openLevel('seconde')">Seconde</button>
+      <button onclick="openLevel('premiere')">Première</button>
+      <button onclick="openLevel('terminale')">Terminale</button>
+    </div>
+    <div class="footer-col">
+      <h4>Informations</h4>
+      <button onclick="openLegal('apropos')">À propos d'Éli</button>
+      <button onclick="openLegal('faq')">FAQ</button>
+      <button onclick="openLegal('confidentialite')">Confidentialité</button>
+      <button onclick="openLegal('cgu')">Conditions d'utilisation</button>
+      <button onclick="openLegal('mineurs')">Protection des mineurs</button>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 Éli, tous droits réservés.</div>
+    <div class="footer-slogan">L'intelligence au service de ta réussite</div>
+  </div>
+</footer>
+
+<!-- OVERLAY / PANELS / MODALS -->
+<div class="overlay" id="overlay" onclick="closeAll()"></div>
+<aside class="panel" id="panel"><button class="panel-close" onclick="closeAll()">✕</button><div id="panelContent"></div></aside>
+
+<!-- CHAT -->
+<div class="modal chat-modal" id="chatModal">
+  <div class="modal-head">
+    <div class="mh-left">
+      <svg width="30" height="30" viewBox="0 0 200 200"><circle cx="100" cy="100" r="86" fill="url(#lg1)"/><rect x="61" y="44" width="13" height="108" rx="6" fill="url(#lg2)"/><rect x="61" y="44" width="78" height="13" rx="6" fill="url(#lg2)"/><rect x="61" y="91" width="60" height="13" rx="6" fill="url(#lg2)"/><rect x="61" y="139" width="78" height="13" rx="6" fill="url(#lg2)"/><path d="M147 44C145 34,141 24,147 12C150 5,156 1,156 1C156 1,167 10,164 24C162 32,156 38,156 44Z" fill="url(#lg3)"/><circle cx="82" cy="172" r="4.5" fill="url(#lg2)" opacity=".9"/><circle cx="100" cy="176" r="5.5" fill="url(#lg2)"/><circle cx="118" cy="172" r="4.5" fill="url(#lg2)" opacity=".9"/></svg>
+      <div class="modal-title">Professeur Éli</div>
+    </div>
+    <button class="modal-close" onclick="closeAll()">✕</button>
+  </div>
+  <div class="chat-stream" id="chatStream"></div>
+  <div class="chat-bar" id="chatBar">
+    <button class="chat-mic" id="micBtn" onclick="toggleRec()"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" fill="#1565C0"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4M8 22h8" stroke="#1565C0" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
+    <input class="chat-input" id="chatInput" placeholder="Écris à Éli…" onkeydown="if(event.key==='Enter')sendChat()"/>
+    <button class="chat-send" onclick="sendChat()"><svg width="19" height="19" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button>
+  </div>
+</div>
+
+<!-- AUTH -->
+<div class="modal" id="authModal">
+  <div class="modal-head"><div class="modal-title" id="authTitle">Rejoindre Éli AEFE</div><button class="modal-close" onclick="closeAll()">✕</button></div>
+  <div class="modal-body">
+    <div class="auth-tabs"><button class="auth-tab active" id="tabS" onclick="switchAuth('signup')">Inscription</button><button class="auth-tab" id="tabL" onclick="switchAuth('login')">Connexion</button></div>
+    <div class="uform" id="formS">
+      <input type="text" placeholder="Prénom de l'élève"/>
+      <input type="tel" placeholder="Numéro de téléphone WhatsApp"/>
+      <label class="field-label">Date de naissance</label>
+      <input type="date" id="birth"/>
+      <select id="levelSel">
+        <option value="">Niveau</option>
+        <optgroup label="— Collège —"><option>6ème</option><option>5ème</option><option>4ème</option><option>3ème</option></optgroup><optgroup label="— Lycée —"><option>Seconde</option><option>Première</option><option>Terminale</option></optgroup>
+      </select>
+      <button class="usubmit" onclick="submitSignup()">Créer mon compte</button>
+    </div>
+    <div class="uform" id="formL" style="display:none">
+      <input type="tel" placeholder="Numéro de téléphone WhatsApp"/>
+      <button class="usubmit" onclick="loginReturn()">Me connecter</button>
+      <div class="unote">Retrouve ton parcours là où tu t'es arrêté</div>
+    </div>
+  </div>
+</div>
+
+<!-- OFFERS / PAYMENT -->
+<div class="modal" id="offersModal">
+  <div class="modal-head"><div class="modal-title" id="offersTitle">Choisis ton offre</div><button class="modal-close" onclick="closeAll()">✕</button></div>
+  <div class="modal-body"><div id="offersBody"></div></div>
+</div>
+
+<!-- PARENTS -->
+<div class="modal" id="parentsModal">
+  <div class="modal-head"><div class="modal-title" id="parentsTitle">Espace Parents</div><button class="modal-close" onclick="closeAll()">✕</button></div>
+  <div class="modal-body"><div id="parentsBody"></div></div>
+</div>
+
+<!-- LEGAL -->
+<div class="modal" id="legalModal">
+  <div class="modal-head"><div class="modal-title" id="legalTitle">Information</div><button class="modal-close" onclick="closeLegal()">✕</button></div>
+  <div class="modal-body"><div class="legal" id="legalContent"></div></div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="universe" id="universe">
+  <div class="universe-top">
+    <button class="dash-back" id="uniBack" onclick="closeUniverse()">← Retour</button>
+    <div class="universe-title" id="uniTitle"></div>
+    <div style="width:90px"></div>
+  </div>
+  <div class="universe-body" id="universeBody"></div>
+</div>
+
+<div class="dashboard" id="dashboard">
+  <div class="dash-top">
+    <button class="dash-back" onclick="closeDashboard()">← Accueil</button>
+    <div class="nav-name" style="font-size:20px">Éli</div>
+    <div style="width:90px"></div>
+  </div>
+  <div class="dash-body">
+    <div class="dash-anchor">
+      <div>
+        <h2 class="dash-hello">Bonjour 👋 <span>poursuivons</span></h2>
+        <p class="dash-since">Accompagné par Éli depuis le 12 septembre · Terminale</p>
+      </div>
+      <div class="dash-stats">
+        <div class="dash-stat"><div class="dash-stat-n">6h10</div><div class="dash-stat-l">cette semaine</div></div>
+        <div class="dash-stat"><div class="dash-stat-n">42</div><div class="dash-stat-l">questions</div></div>
+        <div class="dash-stat"><div class="dash-stat-n">9/10</div><div class="dash-stat-l">assiduité</div></div>
+      </div>
+    </div>
+    <h3 class="dash-stitle">Reprendre mon parcours</h3>
+    <div class="dash-resume">
+      <div class="dash-resume-t">Dernière session : préparation du <strong>Grand Oral</strong> — structuration de l'argumentation. Tu as travaillé 2 des 3 axes de ton plan.</div>
+      <div class="dash-bar"><div style="width:66%"></div></div>
+      <div class="dash-meta"><span>Progression : 66 %</span><span>Prochaine étape : travailler le débit et la conclusion</span></div>
+      <button class="dash-resume-btn" onclick="closeDashboard();openChat()">Reprendre avec Éli →</button>
+    </div>
+    <h3 class="dash-stitle">Mes spécialités</h3>
+    <p class="dash-ssub">Ta progression, alignée sur le programme officiel.</p>
+    <div class="dash-subjects" id="dashSubjects"></div>
+    <h3 class="dash-stitle">Mon historique</h3>
+    <p class="dash-ssub">Reprends une session là où tu l'as laissée.</p>
+    <div class="dash-history" id="dashHistory"></div>
+    <h3 class="dash-stitle">Mes points à consolider</h3>
+    <p class="dash-ssub">Éli a repéré tes axes de progrès.</p>
+    <div class="dash-gaps" id="dashGaps"></div>
+    <h3 class="dash-stitle">Mes outils</h3>
+    <div class="dash-tools" id="dashTools"></div>
+  </div>
+</div>
+
+<script>
+/* ═══ DONNÉES ═══ */
+const FEATURES=[
+  {ic:'🎙️',n:'Atelier Grand Oral',d:"Éli joue le jury : entraînement à la prise de parole, gestion du stress, structure de l'exposé."},
+  {ic:'📝',n:'Aide aux devoirs',d:"Un exercice bloque, une leçon n'est pas claire ? Éli t'aide pas à pas, sans jamais donner la réponse toute faite."},
+  {ic:'📚',n:'Spécialités sur mesure',d:"Maths, PC, SVT, SES, HGGSP, NSI, HLP, LLCE… Éli s'adapte à ta combinaison de spécialités."},
+  {ic:'🗂️',n:'Fiches & révisions',d:"Éli génère tes fiches de cours et tes quiz pour mémoriser, t'entraîner et réviser efficacement, toute l'année."},
+  {ic:'📊',n:'Contrôle continu',d:"Suivi du contrôle continu coefficienté : Éli cible ce qui pèse le plus dans ta moyenne."},
+  {ic:'🌍',n:'Orientation internationale',d:"Prépas, grandes écoles, universités à l'étranger : Éli éclaire les voies post-bac du réseau français."},
+];
+const LEVELS={
+  sixieme:{tag:'Cycle 3',name:'6ème',desc:"L'entrée au collège français. Éli installe les bases solides et la méthode de travail.",
+    specs:['Français','Mathématiques','Histoire-Géo','Sciences (SVT/Physique/Techno)','Langues vivantes','EMC']},
+  cinquieme:{tag:'Cycle 4',name:'5ème',desc:"Le cycle des approfondissements démarre. Éli accompagne la montée en exigence.",
+    specs:['Français','Mathématiques','Histoire-Géo','Physique-Chimie','SVT','Technologie','LV1 & LV2']},
+  quatrieme:{tag:'Cycle 4',name:'4ème',desc:"Une année charnière. Éli consolide les acquis et renforce les méthodes.",
+    specs:['Français','Mathématiques','Histoire-Géo','Physique-Chimie','SVT','Technologie','LV1 & LV2']},
+  troisieme:{tag:'Cycle 4 · Brevet',name:'3ème',desc:"L'année du Brevet (DNB) et de l'orientation. Éli prépare l'examen et le choix du lycée.",
+    specs:['Français','Mathématiques','Histoire-Géo','Physique-Chimie','SVT','Technologie','Oral du Brevet','Orientation lycée']},
+  seconde:{tag:'Tronc commun',name:'Seconde',desc:"L'année de consolidation et du choix des spécialités. Éli t'aide à bien t'orienter.",
+    specs:['Français','Mathématiques','Histoire-Géo','SVT','Physique-Chimie','SES','Langues','Test d\'orientation spécialités']},
+  premiere:{tag:'Choix de 3 spécialités',name:'Première',desc:"Épreuves anticipées de français et lancement des spécialités. Éli structure ta méthode.",
+    specs:['Maths','Physique-Chimie','SVT','SES','HGGSP','NSI','HLP','LLCE','Français (écrit & oral anticipés)']},
+  terminale:{tag:'2 spécialités · Grand Oral',name:'Terminale',desc:"L'année du Bac, du Grand Oral et de Parcoursup. Éli vise l'excellence et l'orientation.",
+    specs:['Maths','Physique-Chimie','SVT','SES','HGGSP','NSI','HLP','LLCE','Philosophie','Grand Oral','Parcoursup']},
+};
+const LEVEL_GROUPS=[
+  {label:'Collège',keys:['sixieme','cinquieme','quatrieme','troisieme']},
+  {label:'Lycée',keys:['seconde','premiere','terminale']},
+];
+
+/* ═══ RENDER ═══ */
+const fg=document.getElementById('featGrid');
+FEATURES.forEach((f,i)=>{
+  const el=document.createElement('div');el.className='feat';
+  el.innerHTML=`<div class="feat-num">0${i+1}</div><div class="feat-ic">${f.ic}</div><div class="feat-name">${f.n}</div><div class="feat-desc">${f.d}</div><span class="feat-arrow">→</span>`;
+  el.onclick=()=>openFeat(i);
+  fg.appendChild(el);
+});
+const lg=document.getElementById('levelsGrid');
+LEVEL_GROUPS.forEach(grp=>{
+  const h=document.createElement('div');h.className='level-group-label';h.textContent=grp.label;
+  lg.appendChild(h);
+  const row=document.createElement('div');row.className='levels-row';
+  grp.keys.forEach(k=>{
+    const l=LEVELS[k];const el=document.createElement('div');el.className='level';
+    const isCollege=grp.label==='Collège';
+    el.innerHTML=`<div class="level-tag">${l.tag}</div><div class="level-name">${l.name}</div><div class="level-desc">${l.desc}</div><span class="level-cta">${isCollege?'Choisir ma matière':'Choisir mes spécialités'} →</span>`;
+    el.onclick=()=>openClassPage(k);
+    row.appendChild(el);
+  });
+  lg.appendChild(row);
+});
+
+/* ═══ HELPERS ═══ */
+const overlay=document.getElementById('overlay');
+function showOverlay(){overlay.classList.add('show')}
+function closeAll(){
+  overlay.classList.remove('show');
+  document.getElementById('panel').classList.remove('open');
+  ['chatModal','authModal','offersModal','parentsModal','legalModal'].forEach(id=>document.getElementById(id).classList.remove('show'));
+}
+function scrollSec(id){const e=document.getElementById(id);if(e)e.scrollIntoView({behavior:'smooth'})}
+function openMM(){document.getElementById('mm').classList.add('open')}
+function closeMM(){document.getElementById('mm').classList.remove('open')}
+
+/* FEATURES */
+function openFeat(i){
+  const f=FEATURES[i];
+  document.getElementById('panelContent').innerHTML=`
+    <div class="panel-ic">${f.ic}</div>
+    <div class="panel-title">${f.n}</div>
+    <p class="panel-text">${f.d}</p>
+    <button class="panel-cta" onclick="closeAll();openChat()">Travailler avec Éli →</button>`;
+  document.getElementById('panel').classList.add('open');showOverlay();
+}
+/* SPOTLIGHT */
+function openSpot(which){
+  const data=which==='oral'
+    ?{ic:'🎙️',t:'Le Grand Oral',x:"L'épreuve qui intimide le plus — et celle où Éli excelle.",list:['Éli joue le rôle du jury et te pose de vraies questions','Travail de la structure : accroche, plan, conclusion','Maîtrise du stress, du débit, du regard et de la posture','Simulations chronométrées dans les conditions de l\'épreuve']}
+    :{ic:'🎓',t:'Parcoursup',x:"Ton orientation se joue ici. Éli t'accompagne à chaque étape.",list:['Stratégie de vœux adaptée à ton profil et tes notes','Rédaction et relecture de tes lettres de motivation','Valorisation de ton dossier et de tes activités','Décryptage des attendus de chaque formation']};
+  document.getElementById('panelContent').innerHTML=`
+    <div class="panel-ic">${data.ic}</div>
+    <div class="panel-title">${data.t}</div>
+    <p class="panel-text">${data.x}</p>
+    <ul class="panel-list">${data.list.map(x=>`<li>${x}</li>`).join('')}</ul>
+    <button class="panel-cta" onclick="closeAll();openChat()">Commencer avec Éli →</button>`;
+  document.getElementById('panel').classList.add('open');showOverlay();
+}
+/* LEVELS → spécialités → chat */
+function openLevel(k){
+  const l=LEVELS[k];
+  const isCollege=['sixieme','cinquieme','quatrieme','troisieme'].includes(k);
+  document.getElementById('panelContent').innerHTML=`
+    <div class="panel-ic">${isCollege?'📘':'🎓'}</div>
+    <div class="panel-title">${l.name}</div>
+    <p class="panel-text" style="color:var(--france);font-family:var(--fmono);font-size:12px;letter-spacing:.1em">${l.tag}</p>
+    <p class="panel-text">${l.desc}</p>
+    <h4 style="font-family:var(--fdisplay);font-size:15px;margin:18px 0 6px;color:var(--navy)">${isCollege?'Choisis ta matière pour commencer':'Choisis ta spécialité pour commencer'}</h4>
+    <div class="panel-specs">${l.specs.map(s=>`<button class="panel-spec" onclick="startSpec('${s.replace(/'/g,"\\'")}','${l.name}')">${s}</button>`).join('')}</div>
+    <button class="panel-cta" onclick="closeAll();openChat()">Parler à Éli →</button>`;
+  document.getElementById('panel').classList.add('open');showOverlay();
+}
+function startSpec(spec,level){
+  closeAll();openChat();
+  setTimeout(()=>{const s=document.getElementById('chatStream');s.innerHTML='';pushMsg(`Très bien — ${level}, spécialité ${spec}. Sur quel point précis du programme veux-tu travailler aujourd'hui ?`,'eli');},300);
+}
+
+/* CHAT + paywall furtif */
+let freeUsed=false;
+function openChat(){closeMM();resetChat();document.getElementById('chatModal').classList.add('show');showOverlay();}
+function resetChat(){
+  document.getElementById('chatBar').style.display='flex';
+  document.getElementById('chatStream').innerHTML=`
+    <div class="chat-welcome">
+      <div class="chat-orb">${eliLogo(80)}</div>
+      <h3>Bonjour, je suis Éli</h3>
+      <p>Ton mentor pour le Bac français, le Grand Oral et Parcoursup. Pose ta question ou parle-moi.</p>
+      <button class="chat-mic-big" onclick="document.getElementById('chatInput').focus()"><svg width="32" height="32" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" fill="#fff"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4M8 22h8" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
+      <div class="chat-mic-label">Appuie et parle</div>
+    </div>`;
+}
+function pushMsg(t,who){
+  const s=document.getElementById('chatStream');const w=s.querySelector('.chat-welcome');if(w)w.remove();
+  const m=document.createElement('div');m.className='chat-msg '+(who==='eli'?'chat-eli':'chat-user');m.textContent=t;s.appendChild(m);s.scrollTop=s.scrollHeight;
+}
+function sendChat(){
+  const i=document.getElementById('chatInput');const t=i.value.trim();if(!t)return;
+  pushMsg(t,'user');i.value='';
+  if(!freeUsed){freeUsed=true;setTimeout(()=>pushMsg("Excellente question. Avant de te répondre, dis-moi : qu'as-tu déjà tenté de ton côté ? Nous allons construire ensemble.",'eli'),500);}
+  else{setTimeout(showPaywall,400);}
+}
+function toggleRec(){const b=document.getElementById('micBtn');b.classList.toggle('rec');if(b.classList.contains('rec')){setTimeout(()=>{b.classList.remove('rec');document.getElementById('chatInput').value="Comment réussir mon Grand Oral ?";},1400);}}
+function showPaywall(){
+  document.getElementById('chatBar').style.display='none';
+  document.getElementById('chatStream').innerHTML=`
+    <div class="paywall">
+      <div class="paywall-ic">🎓</div>
+      <h3>Éli a bien plus à t'apporter</h3>
+      <p>Débloque l'accompagnement complet vers le Bac, le Grand Oral et Parcoursup.</p>
+      <div class="paywall-price">10 000 <span>FCFA / mois</span></div>
+      <div class="paywall-benefits">
+        <div class="pwb">Éli illimité, jour et nuit</div>
+        <div class="pwb">Atelier Grand Oral & Parcoursup</div>
+        <div class="pwb">Toutes tes spécialités suivies</div>
+        <div class="pwb">Rapport de progrès pour les parents</div>
+      </div>
+      <button class="paywall-cta" onclick="openOffersModal()">Voir nos offres</button>
+      <button class="paywall-skip" onclick="closeAll()">Plus tard</button>
+    </div>`;
+}
+
+/* OFFRES + PAIEMENT */
+function openOffersModal(){
+  document.getElementById('chatModal').classList.remove('show');
+  document.getElementById('offersTitle').textContent='Choisis ton offre';
+  document.getElementById('offersBody').innerHTML=`
+    <p style="color:var(--gray);font-size:14px;margin-bottom:16px;text-align:center">Un tarif unique, pensé pour toutes les familles du réseau.</p>
+    <div class="offers">
+      <div class="offer" onclick="openPayment('mensuel')"><div class="offer-head"><div class="offer-name">Mensuel</div><div class="offer-tag">Flexible</div></div><div class="offer-price">10 000 <span>FCFA</span></div><div class="offer-per">par mois</div></div>
+      <div class="offer feat" onclick="openPayment('trimestriel')"><div class="offer-flag">Le plus choisi</div><div class="offer-head"><div class="offer-name">Trimestriel</div></div><div class="offer-price">25 000 <span>FCFA</span></div><div class="offer-per">3 mois · économise 5 000</div></div>
+      <div class="offer" onclick="openPayment('annuel')"><div class="offer-head"><div class="offer-name">Annuel</div><div class="offer-tag">Le meilleur prix</div></div><div class="offer-price">75 000 <span>FCFA</span></div><div class="offer-per">Année académique complète</div></div>
+    </div>
+    <button class="paywall-skip" onclick="closeAll()">Plus tard</button>`;
+  document.getElementById('offersModal').classList.add('show');showOverlay();
+}
+const OFFER_LABELS={mensuel:'Mensuel · 10 000 FCFA',trimestriel:'Trimestriel · 25 000 FCFA',annuel:'Annuel · 75 000 FCFA'};
+function openPayment(offer){
+  document.getElementById('offersTitle').textContent='Paiement';
+  document.getElementById('offersBody').innerHTML=`
+    <p style="text-align:center;color:var(--gray);font-size:13px;margin-bottom:4px">Offre choisie</p>
+    <p style="text-align:center;font-family:var(--fdisplay);font-size:19px;color:var(--navy);font-weight:600;margin-bottom:18px">${OFFER_LABELS[offer]}</p>
+    <div class="pay-section">📱 Mobile Money</div>
+    <div class="pay-method" onclick="selectPay(this,'airtel')"><img src="${LOGO_AIRTEL}" alt="Airtel"/><div><div class="pay-mn">Airtel Money</div><div class="pay-mnum">077 37 40 43</div></div></div>
+    <div class="pay-method" onclick="selectPay(this,'moov')"><img src="${LOGO_MOOV}" alt="Moov"/><div><div class="pay-mn">Moov Money</div><div class="pay-mnum">066 38 75 44</div></div></div>
+    <div id="payA"></div>
+    <div class="pay-section" style="margin-top:18px">💳 Carte bancaire</div>
+    <div class="pay-method" onclick="selectPay(this,'carte')">
+      <div class="pay-cards">
+        <svg viewBox="0 0 48 32" width="44" height="29"><rect width="48" height="32" rx="4" fill="#fff" stroke="#e6e6e6"/><text x="24" y="21" font-family="Arial" font-size="13" font-weight="bold" font-style="italic" fill="#1A1F71" text-anchor="middle">VISA</text></svg>
+        <svg viewBox="0 0 48 32" width="44" height="29"><rect width="48" height="32" rx="4" fill="#fff" stroke="#e6e6e6"/><circle cx="20" cy="16" r="8" fill="#EB001B"/><circle cx="28" cy="16" r="8" fill="#F79E1B"/><path d="M24 10.2a8 8 0 0 0 0 11.6 8 8 0 0 0 0-11.6z" fill="#FF5F00"/></svg>
+      </div>
+      <div><div class="pay-mn">Visa · Mastercard</div><div class="pay-mnum">Paiement sécurisé</div></div>
+    </div>
+    <div id="payB"></div>
+    <button class="paywall-skip" style="margin-top:16px" onclick="openOffersModal()">← Changer d'offre</button>`;
+  document.getElementById('offersModal').classList.add('show');showOverlay();
+}
+function legalBlock(){return `<label class="pay-legal" id="payLegalWrap"><input type="checkbox" id="payConsent" onchange="document.getElementById('payLegalWrap').classList.remove('shake')"/><span>J'accepte les <button type="button" class="pay-legal-link" onclick="event.preventDefault();openLegal('cgu')">conditions d'utilisation</button> et la <button type="button" class="pay-legal-link" onclick="event.preventDefault();openLegal('confidentialite')">confidentialité</button> d'Éli.</span></label>`;}
+function selectPay(el,m){
+  document.querySelectorAll('.pay-method').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');
+  if(m==='airtel'||m==='moov'){
+    document.getElementById('payB').innerHTML='';
+    const num=m==='airtel'?'077 37 40 43':'066 38 75 44',lab=m==='airtel'?'Airtel Money':'Moov Money';
+    document.getElementById('payA').innerHTML=`<div class="pay-fields"><div class="pay-benef"><div class="pay-benef-l">Bénéficiaire</div><div class="pay-benef-n">Stecy Arsène</div><div class="pay-benef-num">${lab} · ${num}</div></div><p class="pay-instruct">Envoie le montant au numéro ci-dessus, puis renseigne tes informations.</p><input class="pay-input" type="text" placeholder="Ton nom complet"/><input class="pay-input" type="tel" placeholder="Ton numéro de téléphone"/>${legalBlock()}<button class="pay-validate" onclick="tryPay()">Valider le paiement</button></div>`;
+  }else{
+    document.getElementById('payA').innerHTML='';
+    document.getElementById('payB').innerHTML=`<div class="pay-fields"><p class="pay-instruct">Paiement sécurisé par carte.</p><input class="pay-input" type="text" placeholder="Nom sur la carte"/><input class="pay-input" type="text" inputmode="numeric" maxlength="19" placeholder="Numéro de carte" oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/(.{4})/g,'$1 ').trim()"/><div class="pay-row"><input class="pay-input" type="text" inputmode="numeric" maxlength="5" placeholder="MM/AA" oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/(.{2})/,'$1/').slice(0,5)"/><input class="pay-input" type="text" inputmode="numeric" maxlength="4" placeholder="CVV"/></div>${legalBlock()}<button class="pay-validate" onclick="tryPay()">Payer en sécurité</button><p class="pay-secure">🔒 Transaction chiffrée et sécurisée</p></div>`;
+  }
+}
+function tryPay(){const c=document.getElementById('payConsent');if(!c||!c.checked){const w=document.getElementById('payLegalWrap');if(w)w.classList.add('shake');showPayAlert();return;}paySuccess();}
+function showPayAlert(){let a=document.getElementById('payAlert');if(!a){a=document.createElement('div');a.id='payAlert';a.className='pay-alert';document.body.appendChild(a);}a.textContent='⚠️ Merci d\'accepter les conditions avant de payer.';a.classList.add('show');setTimeout(()=>a.classList.remove('show'),3200);}
+function paySuccess(){
+  document.getElementById('offersTitle').textContent='Paiement confirmé';
+  document.getElementById('offersBody').innerHTML=`<div class="pay-result"><div class="pay-result-ic">✅</div><h3>Transaction réussie</h3><p>Ton accès complet à Éli AEFE est activé. Bienvenue dans l'excellence.</p><button class="pay-validate" onclick="openDashboard()">Accéder à mon espace →</button></div>`;
+}
+
+/* AUTH + mineur */
+function openAuth(mode){closeMM();switchAuth(mode==='login'?'login':'signup');document.getElementById('authModal').classList.add('show');showOverlay();}
+function switchAuth(w){const il=w==='login';document.getElementById('tabS').classList.toggle('active',!il);document.getElementById('tabL').classList.toggle('active',il);document.getElementById('formS').style.display=il?'none':'flex';document.getElementById('formL').style.display=il?'flex':'none';document.getElementById('authTitle').textContent=il?'Content de te revoir':'Rejoindre Éli AEFE';}
+function computeAge(d){if(!d)return null;const b=new Date(d),n=new Date();let a=n.getFullYear()-b.getFullYear();const m=n.getMonth()-b.getMonth();if(m<0||(m===0&&n.getDate()<b.getDate()))a--;return a;}
+function submitSignup(){const age=computeAge(document.getElementById('birth').value);if(age!==null&&age<16){openParentalConsent();}else{closeAll();openOffersModal();}}
+function openParentalConsent(){
+  closeAll();
+  document.getElementById('offersTitle').textContent='Accord parental requis';
+  document.getElementById('offersBody').innerHTML=`
+    <div class="consent-head"><div class="consent-ic">👨‍👩‍👧</div><p>L'élève a moins de 16 ans : l'accord d'un parent est nécessaire. Renseignez vos informations et choisissez comment recevoir le code de validation.</p></div>
+    <div class="uform">
+      <div><label class="field-label">Nom et prénom du parent</label><input class="pay-input" type="text" placeholder="Votre nom et prénom" style="margin-top:6px"/></div>
+      <div>
+        <label class="field-label">Recevoir le code de validation par</label>
+        <div class="parent-choice" style="margin-top:8px">
+          <button type="button" class="parent-opt active" id="pcWa" onclick="consentChannel('wa')"><svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366"><path d="M17.5 14.4c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.01-1.04 2.47 0 1.46 1.06 2.87 1.21 3.07.15.2 2.1 3.2 5.07 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.29.17-1.42-.07-.13-.27-.2-.57-.35z"/><path d="M12 2a10 10 0 0 0-8.5 15.28L2 22l4.84-1.27A10 10 0 1 0 12 2zm0 18.2a8.18 8.18 0 0 1-4.17-1.14l-.3-.18-2.87.75.77-2.8-.2-.31A8.2 8.2 0 1 1 12 20.2z"/></svg> WhatsApp</button>
+          <button type="button" class="parent-opt" id="pcMail" onclick="consentChannel('mail')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M3 6l9 6 9-6"/></svg> Adresse mail</button>
+        </div>
+        <input class="pay-input" id="consentChannelInput" type="tel" placeholder="Numéro WhatsApp du parent" style="margin-top:10px"/>
+      </div>
+      <button class="pay-validate" onclick="parentalCode()">Envoyer le code de validation</button>
+    </div>
+    <p class="consent-note">🔒 Conforme à la réglementation sur la protection des mineurs.</p>`;
+  document.getElementById('offersModal').classList.add('show');showOverlay();
+}
+function consentChannel(c){
+  document.getElementById('pcWa').classList.toggle('active',c==='wa');
+  document.getElementById('pcMail').classList.toggle('active',c==='mail');
+  const i=document.getElementById('consentChannelInput');
+  if(c==='wa'){i.type='tel';i.placeholder='Numéro WhatsApp du parent';}
+  else{i.type='email';i.placeholder='Adresse email du parent';}
+  i.value='';
+}
+function parentalCode(){
+  document.getElementById('offersTitle').textContent='Code de validation';
+  document.getElementById('offersBody').innerHTML=`<div class="consent-head"><div class="consent-ic">📲</div><p>Un code à 6 chiffres a été envoyé au parent via le moyen choisi. Saisis-le pour valider l'accès.</p></div><div class="uform"><input class="pay-input" type="text" inputmode="numeric" maxlength="6" placeholder="Code reçu" style="text-align:center;font-size:22px;letter-spacing:.3em;font-family:var(--fmono)"/><button class="pay-validate" onclick="openDashboard()">Valider et accéder</button></div><button class="paywall-skip" onclick="openParentalConsent()">← Renvoyer le code</button>`;
+}
+function loginReturn(){closeAll();openDashboard();welcomeBack();}
+function welcomeBack(){let t=document.getElementById('wToast');if(!t){t=document.createElement('div');t.id='wToast';t.className='welcome-toast';document.body.appendChild(t);}t.textContent='👋 Bon retour parmi nous';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+
+/* PARENTS */
+function openParents(){
+  closeMM();
+  document.getElementById('parentsTitle').textContent='Espace Parents';
+  document.getElementById('parentsBody').innerHTML=`<div class="consent-head"><div class="consent-ic">📊</div><p>Chaque semaine, Éli transmet un rapport détaillé : progrès, axes de travail et recommandations pour accompagner votre enfant vers le Bac et Parcoursup.</p></div><button class="pay-validate" style="width:100%" onclick="parentForm()">Recevoir le rapport hebdomadaire</button>`;
+  document.getElementById('parentsModal').classList.add('show');showOverlay();
+}
+function parentForm(){
+  document.getElementById('parentsBody').innerHTML=`
+    <p style="color:var(--gray);font-size:14px;line-height:1.6;margin-bottom:16px">Renseignez les informations pour activer le suivi hebdomadaire :</p>
+    <div class="uform">
+      <div>
+        <label class="field-label">Numéro WhatsApp de l'enfant</label>
+        <input class="pay-input" type="tel" placeholder="Ex. 07 00 00 00" style="margin-top:6px"/>
+      </div>
+      <div>
+        <label class="field-label">Prénom du parent</label>
+        <input class="pay-input" type="text" placeholder="Votre prénom" style="margin-top:6px"/>
+      </div>
+      <div>
+        <label class="field-label">Comment souhaitez-vous recevoir le suivi ?</label>
+        <div class="parent-choice" style="margin-top:8px">
+          <button type="button" class="parent-opt active" id="optWa" onclick="parentChannel('wa')"><svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366"><path d="M17.5 14.4c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.01-1.04 2.47 0 1.46 1.06 2.87 1.21 3.07.15.2 2.1 3.2 5.07 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.29.17-1.42-.07-.13-.27-.2-.57-.35z"/><path d="M12 2a10 10 0 0 0-8.5 15.28L2 22l4.84-1.27A10 10 0 1 0 12 2zm0 18.2a8.18 8.18 0 0 1-4.17-1.14l-.3-.18-2.87.75.77-2.8-.2-.31A8.2 8.2 0 1 1 12 20.2z"/></svg> WhatsApp</button>
+          <button type="button" class="parent-opt" id="optMail" onclick="parentChannel('mail')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M3 6l9 6 9-6"/></svg> Adresse mail</button>
+        </div>
+        <input class="pay-input" id="parentChannelInput" type="tel" placeholder="Votre numéro WhatsApp" style="margin-top:10px"/>
+      </div>
+      <button class="pay-validate" onclick="parentDone()">Activer le suivi</button>
+    </div>`;
+}
+function parentChannel(c){
+  document.getElementById('optWa').classList.toggle('active',c==='wa');
+  document.getElementById('optMail').classList.toggle('active',c==='mail');
+  const i=document.getElementById('parentChannelInput');
+  if(c==='wa'){i.type='tel';i.placeholder='Votre numéro WhatsApp';}
+  else{i.type='email';i.placeholder='Votre adresse email';}
+  i.value='';
+}
+function parentDone(){document.getElementById('parentsBody').innerHTML=`<div class="pay-result"><div class="pay-result-ic">✅</div><h3>Suivi activé</h3><p>Vous recevrez chaque semaine le rapport d'Éli. Merci de votre confiance.</p><button class="pay-validate" onclick="closeAll()">Terminer</button></div>`;}
+
+/* LEGAL */
+const LEGAL={
+  apropos:{t:"À propos d'Éli AEFE",h:`<p class="legal-intro">Éli · Programme AEFE</p><h4>Notre vocation</h4><p>Éli AEFE est le professeur particulier intelligent dédié aux élèves du réseau d'enseignement français à l'étranger. De la 6ème à la Terminale, il accompagne chaque élève du collège jusqu'au Baccalauréat, au Grand Oral et dans Parcoursup.</p><h4>Une exigence partagée</h4><p>Où que vous étudiiez dans le monde, le programme français reste le même. Éli porte cette exigence avec rigueur, en s'adaptant à la combinaison de spécialités et au rythme de chaque élève.</p><h4>Bien plus que des révisions</h4><p>Méthodologie, préparation orale, stratégie d'orientation internationale : Éli accompagne l'élève sur l'ensemble de son parcours, à toute heure.</p>`},
+  faq:{t:"Questions fréquentes",h:`<p class="legal-intro">Tout savoir sur Éli AEFE</p><h4>Éli suit-il le programme français officiel ?</h4><p>Oui. Éli est aligné sur les programmes de l'Éducation nationale française appliqués dans le réseau AEFE, spécialités comprises.</p><h4>Comment Éli prépare-t-il le Grand Oral ?</h4><p>Il joue le rôle du jury, t'entraîne à structurer ton propos, à gérer ton stress et ton débit, avec des simulations dans les conditions de l'épreuve.</p><h4>Et Parcoursup ?</h4><p>Éli t'aide sur la stratégie de vœux, la rédaction des lettres et la valorisation de ton dossier.</p><h4>Combien ça coûte ?</h4><p>10 000 FCFA/mois, 25 000 FCFA/trimestre ou 75 000 FCFA pour l'année académique. Paiement par Mobile Money ou carte.</p><h4>Éli donne-t-il les réponses ?</h4><p>Non. Il guide par les bonnes questions pour que l'élève construise sa propre maîtrise — la seule qui tient le jour de l'épreuve.</p>`},
+  confidentialite:{t:"Confidentialité",h:`<p class="legal-intro">Protection des données personnelles</p><h4>1. Cadre</h4><p>Éli traite les données dans le respect des réglementations applicables à la protection des données personnelles, dont le RGPD pour les élèves concernés.</p><h4>2. Données collectées</h4><p>Prénom, contact WhatsApp, niveau, spécialités et historique d'apprentissage — uniquement pour personnaliser l'accompagnement pédagogique.</p><h4>3. Étanchéité</h4><p>Les conversations avec Éli sont strictement confidentielles. Elles ne sont jamais revendues ni exploitées à des fins commerciales.</p><h4>4. Tes droits</h4><p>Accès, rectification, opposition, suppression et export de tes données sur simple demande à eli-ia@gmail.com.</p>`},
+  cgu:{t:"Conditions d'utilisation",h:`<p class="legal-intro">Conditions Générales — Éli AEFE</p><h4>1. Objet</h4><p>Les présentes conditions régissent l'accès à la plateforme Éli AEFE. Toute utilisation implique leur acceptation.</p><h4>2. Accès</h4><p>Un accès de découverte gratuit, puis un accès complet par abonnement. Le compte est personnel.</p><h4>3. Usage loyal</h4><p>Éli est un outil d'accompagnement pédagogique. L'élève s'engage à un usage conforme à sa vocation et à ne pas contourner ses mécanismes.</p><h4>4. Paiements</h4><p>Les paiements s'effectuent par Mobile Money ou carte bancaire, de manière sécurisée. Un justificatif est délivré.</p>`},
+  mineurs:{t:"Protection des mineurs",h:`<p class="legal-intro">Engagement de protection renforcée</p><h4>1. Priorité</h4><p>S'adressant à un public scolaire, Éli place la protection des mineurs au cœur de sa conception.</p><h4>2. Consentement parental</h4><p>Pour tout élève âgé de moins de seize (16) ans, l'activation du compte est subordonnée à l'accord vérifiable d'un parent ou tuteur légal, recueilli par code de validation avant tout accès.</p><h4>3. Environnement protégé</h4><p>Les échanges restent adaptés à l'âge de l'élève et ne sont jamais exposés à des tiers.</p><h4>4. Contrôle parental</h4><p>Les parents suivent la progression et exercent leurs droits à tout moment via eli-ia@gmail.com.</p>`},
+};
+function openLegal(k){const l=LEGAL[k];document.getElementById('legalTitle').textContent=l.t;document.getElementById('legalContent').innerHTML=l.h;document.getElementById('legalModal').classList.add('show');if(!document.getElementById('offersModal').classList.contains('show'))showOverlay();}
+function closeLegal(){document.getElementById('legalModal').classList.remove('show');}
+
+/* DASHBOARD */
+function openDashboard(){
+  closeAll();
+  const SUB=[{n:'Mathématiques',ic:'📐',p:74},{n:'Physique-Chimie',ic:'⚗️',p:61},{n:'SES',ic:'📈',p:80},{n:'HGGSP',ic:'🌍',p:55},{n:'Philosophie',ic:'💭',p:43},{n:'Grand Oral',ic:'🎙️',p:66}];
+  const ds=document.getElementById('dashSubjects');ds.innerHTML='';
+  SUB.forEach(s=>{const el=document.createElement('div');el.className='dsub';el.innerHTML=`<div class="dsub-top"><span class="dsub-ic">${s.ic}</span><span class="dsub-n">${s.n}</span><span class="dsub-p">${s.p}%</span></div><div class="dsub-bar"><div style="width:${s.p}%"></div></div>`;el.onclick=()=>{closeDashboard();openChat();};ds.appendChild(el);});
+  const HIST=[{d:'Aujourd\'hui',t:'Structuration du Grand Oral',m:'Grand Oral'},{d:'Hier',t:'Dissertation de philosophie',m:'Philosophie'},{d:'Mardi',t:'Lettre de motivation Parcoursup',m:'Parcoursup'},{d:'Lundi',t:'Étude de doc en HGGSP',m:'HGGSP'}];
+  const dh=document.getElementById('dashHistory');dh.innerHTML='';
+  HIST.forEach(h=>{const el=document.createElement('button');el.className='dhist';el.innerHTML=`<div class="dhist-l"><span class="dhist-day">${h.d}</span><span class="dhist-t">${h.t}</span><span class="dhist-m">${h.m}</span></div><span class="dhist-go">Rouvrir →</span>`;el.onclick=()=>{closeDashboard();openChat();};dh.appendChild(el);});
+  const GAPS=[{n:'Transition entre les axes du Grand Oral',m:'Grand Oral'},{n:'Problématisation en dissertation',m:'Philosophie'},{n:'Calcul intégral',m:'Mathématiques'}];
+  const dg=document.getElementById('dashGaps');dg.innerHTML='';
+  GAPS.forEach(g=>{const el=document.createElement('div');el.className='dgap';el.innerHTML=`<div class="dgap-l"><span class="dgap-ic">⚠️</span><div><div class="dgap-n">${g.n}</div><div class="dgap-m">${g.m}</div></div></div><button class="dgap-btn" onclick="closeDashboard();openChat()">Surmonter →</button>`;dg.appendChild(el);});
+  const TOOLS=[{ic:'📝',n:'Aide aux devoirs',fi:1},{ic:'🗂️',n:'Fiches & révisions',fi:3},{ic:'🎙️',n:'Grand Oral',fi:0},{ic:'📚',n:'Spécialités',fi:2}];
+  const dt=document.getElementById('dashTools');dt.innerHTML='';
+  TOOLS.forEach(t=>{const el=document.createElement('div');el.className='dtool';el.innerHTML=`<div class="dtool-ic">${t.ic}</div><div class="dtool-n">${t.n}</div>`;el.onclick=()=>openFeat(t.fi);dt.appendChild(el);});
+  document.getElementById('dashboard').classList.add('open');
+}
+function closeDashboard(){document.getElementById('dashboard').classList.remove('open')}
+
+/* LOGO HELPER (autonome) */
+function eliLogo(size){const u='g'+Math.random().toString(36).slice(2,7);return `<svg width="${size}" height="${size}" viewBox="0 0 200 200"><defs><radialGradient id="${u}1" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#388E3C"/><stop offset="100%" stop-color="#1B5E20"/></radialGradient><linearGradient id="${u}2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFE082"/><stop offset="100%" stop-color="#FFA000"/></linearGradient><linearGradient id="${u}3" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#FFA000"/><stop offset="60%" stop-color="#FFD54F"/><stop offset="100%" stop-color="#FFFDE7"/></linearGradient></defs><circle cx="100" cy="100" r="86" fill="url(#${u}1)"/><rect x="61" y="44" width="13" height="108" rx="6" fill="url(#${u}2)"/><rect x="61" y="44" width="78" height="13" rx="6" fill="url(#${u}2)"/><rect x="61" y="91" width="60" height="13" rx="6" fill="url(#${u}2)"/><rect x="61" y="139" width="78" height="13" rx="6" fill="url(#${u}2)"/><path d="M147 44C145 34,141 24,147 12C150 5,156 1,156 1C156 1,167 10,164 24C162 32,156 38,156 44Z" fill="url(#${u}3)"/><circle cx="82" cy="172" r="4.5" fill="url(#${u}2)" opacity=".9"/><circle cx="100" cy="176" r="5.5" fill="url(#${u}2)"/><circle cx="118" cy="172" r="4.5" fill="url(#${u}2)" opacity=".9"/></svg>`;}
+
+/* Logos paiement (placeholders légers, remplacés par vrais base64 ci-dessous) */
+var LOGO_AIRTEL="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCADhAOEDASIAAhEBAxEB/8QAHQABAAMBAQEBAQEAAAAAAAAAAAYHCAQFAwIBCf/EAD8QAAEDAwIDBAUICQUBAAAAAAEAAgMEBREGEgcTIQgxQVEUImFxgRUyN0J0kaGzFjZSYnJzdYKxIzM4Y7LB/8QAHAEBAAEFAQEAAAAAAAAAAAAAAAQBAgMFBgcI/8QAOxEAAgEDAwEFBAgDCQEAAAAAAAECAwQRBSExEgZBUWFxE4GRsQcUFSIywdHwNKGyIzM1NmJyc8Lh8f/aAAwDAQACEQMRAD8AqFERcCfXQREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEX3t9FWXGtiobfST1dVM7bFDBGXvefINHUq7tC9mzUt0Yyq1RXwWSB2DyGATVBHtwdrfvJ8ws1G2q13imsmq1PWrHS4dV3UUfBd79EtyikWy7P2deG9FAGVdPcrm/xfUVjmn7o9oX0unZ54aVdM6KmoK+3vI6SwVr3OHwk3D8FP+xrjGcr9+45J/SVpHX09M8eOFj+rP8jGCK2uMHA6+6Ip5LvbZzeLIzrJK2PbNTj/ALGjOW/vD4hvTNSrX1qM6Mumawzs9O1O11Kiq9rNSj8vJrlMIiLETwiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCm/CXhpfeIl1fBb8UtvgI9LrpG5ZFn6oH1n4+qPiQo1pey1motRUFjt7QamunbDHnubk9XH2AZJ9gK37ofTNs0hpeisFpj209MzBeQN0r/AK0jvNxPX8B0AWy06x+sycpfhX8ziO2nal6LQjSof3s+PJeP6f8AmDzOHHDzTGg7f6PY6IekvaBPWTetPN73eA/dGB7MqWoi6qEIwXTFYR4Hc3Na6qOrWk5SfLe7CKDcROKujdDh0N1uPpFwAyKGkAkm/uGcM/uI9mVUze1LEbo1rtHPFv3Yc8VwM23zDdgGfZn4qPVvaFKXTOW5t7Dsvq2oUva29FuPi8LPplrPuNITRxzRPiljbJG9pa9jhkOB6EEeIWEeOmkI9FcSLhaaVu2hlxVUYznbE/Pq/wBrg5vuatyWS5Ud5s9HdrfLzaSsgZPC/GMscARkeBwe5ZV7aMkLuJFqjaBzW2hm8jyM0uB/n71D1eEZW/X4HS/Rzc1qGru33xJPK81uveuPeUYiIuXPdwiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgLC7OVyt9q4yWKquUkcULnywtlecBj3xPY0/EkD4rc6/wA1lM7VxV4iWu3Nt9Hqy4tp2ja1sjhIWjyDnAkD3Hottp+oxtoOE157Hnva/sZW1u5hc29RJpdLUs4wm3lYz48YNy6hvln09bJLle7jTUFIzvkmeGgnyHiT7BklZi4vdoW43jnWjRHOtlAcskr3erUyjuyzH+2Pb87u+b3KtNOWTXHFTUhp4J6271bBmWqrKhzo6dhPe57s7R34A6nHQHCm+t+zxqnTmmJ73T3KhunokRlqaeFrmPawDLizPzsDJ8DgdAT0UiteXVzBujFqPj3/AL9DT6Z2b0PRLqENSrxnWeMRf4V4ZW/u6sLyKalkkllfLK90kj3FznOOS4nqST4lflFanZx4cya31cyvr4CbFbJGyVJe31Z397YR4HPe793y3BaWjSlWmoR5Z6XqN/Q021nc1niMV/8AEvN8I1Twdt1RauFum6Cra5k8dvjdIxwwWFw3bT7RnHwWOuO2p49WcUbxc6eQPo45PRaVwOQY4/V3A+TiHOH8S0d2nOJMWlNMSadtdQPly6RFnqOw6mgOQ6Tp1Dj1Dfifq9ccrb6tXSUbeL45PPPo+0qpOpV1eusOpnp9G8t/HZe8IiLSHqQREQBERAEREAREQBERAEREAREQBERAEREAREQBfunhlqJ44IWOklkcGMY3vc4nAAX4XqaRr4LVqyz3SpBMFHXwVEoAzlrJGuPT3BVik2kzFWlKFOUorLSeEbp4TaLotC6Ko7LTsYanaJK2YDrNOQNzvcO4ewBV32k+LdFp21VmkLJIypvVZC6GpeDltHG9uDn/ALCD0HhnJ8AbduMs920tUTabuFMKiro3Ot9XnfEHOYeXJ0zluSD4qgbVwP0ppTdqPirq2Cqy8yOhMpjjleSSdzyeZKT34ABJ811t0qkaap0FhePckfPOhSsq15O91STlNPKgk3Kcv0Xht4cbOqeDnCq+cQrk2RrJKKyRPxU17m9DjvZGD85/4DvPgDoDiLxC0rwc0tFpPStPTzXWKLbBSNO5sBPXmzkdSTndjvd7Acqu+JPH8ig/RzhrRNtFtiZym1vKDH7B0xFHjEYx4n1uvc0jKoSeWWeeSeeR8ssji973uLnOcTkkk9SSfFab6zStIuFDeT5l+h6WtGvu0VeNxqq9nRjvGlnd+c3+XPdt39F6ulwvV2qbrdauWsrap5kmmkOXOP8A8AGAAOgAAGAFyIi1TbbyzvYQjCKjFYS4QREQvCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIvrSU1RWVMdLSU8tRPK4NjiiYXvefIAdSV2X2xXqw1DKe92iutssjdzGVVO6IuHmNwGVXpeM42Mbq01NU3JdT4Wd/gdFo1Zqmz0fodo1LebfTdf9GmrpImAk5J2tcBn2rzrjXV1xqnVVxrKisqHDBlnldI8j3kkrnRVc5NYb2LYW9GE3OMEpPl4WfiERFaZgiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIpJwwtdiveu7VaNR1dRSW6rm5T5YXBrg4g7BkggAuwCcdMq6EXOSiu8wXNeNvRlWkm1FNvG728ERtFrN1b2bdIu+TXw2KrkYcOc6kfcDnxy/a8fDPwXqav4QcPteaRbddI0lDbqmeDm0FXQt5cMh8GvYMDBPQ9A4fAhbL7KlJPomm13I4h9vaFOcXcW1SnTk8KUlhfv0bKM7Ll+0/p/ieKrUFRBSxzUUkFNUzkBkUrnMOS49G5aHtyfPHirN7XmqtKV+j6Gy0dfRXG6+mtnZ6PK2QwMDXBxcW5xnIGD39/gqe4GaTt2peKlNpzUdLK6n2z8+ESFjtzGE4JHUdR4Kwe1HoPSWjNMWM6bs8dC+arkbK/mPke8BmcFzyT3rJRlVVjNJLH8yLqdKwn2pt5SlP2jSaSx07ZxvnPdukt/Ez8iv7gLwKo9TWam1VquoebfUZdS0MD9plaCRukeOoGQfVbg+OR3Ke3W69nLTdY+y1dDp500B5cm22Oqiwg4IdIGOyQQc9SfNYKemzlBTqSUU/E2t720t6VzK1taM60489Cyl+/THmVn2cuE+mtfWWvut9qLiHUlWIWQ08rWMcNgd62Wk+PgQoZx803aNJcS62x2OnfBRQwwuYx0jnnLowSSSc95Wg+yjW0VxtWrK620Edvopr059PTMGBFHsbtb3nrjGfblfjtBScLhbNRtuQtH6XmhIi5jCZ9+wcvB88YwpsrOnKzTWE/Hx5OYo9pLyj2lqU6inKGyUFv056d2uNt8syGiuns58IKbXAm1BqLnNslPLyooGOLHVUgwXesOoYMgZHUnIyMFXZDYuBkuoXaMitemn3ZoLTTCIGXIHVvM/bAByN27ooVDTalWCm2knxnvOm1XttaWFzK2hTlUlDeXSto+vp39y8TFS0dwF4LaO1ZoOh1NfH3KeoqJJWugZOGRAMkc0Yw3d1A/aUW7SPCaj0LLS3zT/NFlrJeS6CRxeaaXBIAcepa4A4zkgtPU5CvLsrfQnaP5tT+e9Z7Cz6bp06yzhfoantZ2jdbQqd7p1Rx6ppZWzW0sp+G6Mg66oaW163v1soozHS0dzqaeBhcXbWMlc1oyep6AdSvGUi4ofSZqn+s1n571HVqqqxNpeJ6BYycranKTy3FfIIiKwlBERAEREAREQBERAEREAREQBSnhjoa8a/1KyzWrbE1reZU1MgOyCPOC4+Z8A3xPkMkRZaT7EdTRB+qKM7RWuFPIMnq6McwHHsBIz/ABBSrKjGtXjCXBoO0+pVtM0urc0FmSxjyy0s+7OT34+zzw3sltE+ob7XnuD6ierjp4t3sGOnuJKtbhzaLBYdHUVq0vVtq7TCZORM2dswdukc53rt6HDi4fDCzx2zbffpdXWitMFTLZhQ8uFzGkxsm3u3g47nEcv3gDyKuDsz0tVR8FbFBWU01PMDUOMcrCxwBqJCDg9cEEEewrobZ043MqUKeMLn4Hj2t07uvotG/ubt1HOX4O5bS8+VjHC5KR4L9O1XcgO7065f5kUz7bH6sae+2yf+AobwY/5WXP7fc/8AMimXbY/VjT322T/wFDj/AANX1fzR0df/ADVY/wDHH+mRY3Z5+hjTX2Z35jlijWP63Xn7fP8AmOW1+zz9DGmvszvzHLFGsf1uvP2+f8xyx6n/AA9L0/JErsN/jGof7n/VI0x2Kv1Jvn9SH5TVU3as+mm5/wAin/KarV7FE8TtI3+mDwZWV7HubnqGujAB+O133Kt+1parjBxYqrjLRTto6qmhMM+w7HbWBpG7uyC09O/u81W4WdOhj98lNJkods7lSeMxf/U0vwTt8Nr4SaYpomCNrrbFUPH78reY4/e8qvLVwR0hQaspdSjXFbLWwVza0l00PryB+85wO4nv96mPZ6vtLqLg/ZeW8GSipxb6hgOSx0QDRn3s2u9zgseax0Xf9MalqrJWWus3xTOZC8QuLZ2Z9V7CBhwIwenuPXopN1WhCjTl0dS+XBotB064utRvaH1r2M8vKwn1LMs8tcfmay7TEttuPBe+RxVtLLNEYJYw2VrjkTMzgZ/ZJX67K30J2j+bU/nvWSrrobVtq003Ud0sNbQ218wgbJUR7HFxBI9Q+sG9PnEY6jr1WseyjNFLwWtrI3hzoaioZIB9V3Nc7H3OB+KpaXEq931Sj0/d/My9oNHpaV2e9jRrKqvbJ5WNn0tNbN+Bk7ih9Jmqf6zWfnvUdUu4x2q5WzibqT5Qop6YTXWpmidIwgSMfI5zXNPcQWkFRFc/WTVSSfiz17TJxnZ0pReV0r5IIiLGTgiIgCIiAIiIAiIgCIiAIiIAvX0fqS8aT1BT3yx1Rp6uA+WWvae9jh4tPiPiMEAryEVYycXlcmOrShWg6dRZi9mnw0ads3ajoTRAXjStQyqAAJpKhro3nzw4At93X3qNa37SuobpSSUemrVDZGvBaal8vOmx5t6BrT8HexUOinS1O5lHp6jlqPYfRKNX2qo5fg22vg3j45Jbwv1tLovXcWqp6N92lY2XfG+oLHSOkaQXF5a45yc93VSbjZxfPEq2W6i/R35K9CmdLv8ATedvy3GMctuPxVWIo8bmrGm6Sf3WberoljVvYX0of2sVhPL2W/dnHe+4vXh72hjpHRls04NIem+gxGPn/KXL35cTnbyjjv8AMqlLxWfKN3rLhy+V6TUPm2bs7dzicZ6ZxlcqJVuatWKjN5S4K2OiWVhWqV7eHTKpvJ5bzvnvbS3fcSrhjry98P8AUButndHI2VnLqaabJjnZnODjuI8HDqOvgSDa2tO0XBqTQ90sLtJyUtRX0r6cyCuD2M3DG75gJ934rP6K6leVqUHCL2Zgvuzmm39zG6r081I43Ta44zh7+8mPCziLf+Ht3fWWh0c1NPtFVRzZ5cwB7+nVrhk4cO7PcR0V6U/ajshpA6o0rcWVOOrI6hjmZ/iIB/BZaRXUL+vQj0wexg1TsppeqVfbXFP73im1n1xz8y2eLXHK/a6tU1jht1Ja7RMWmWL/AHpZNpyMvcAAMgH1QD07yF5HB3ive+HE9RDTU0VxtlU4Pmo5XlnrgY3scAdrsAA9CCAOnQYr1FY7us6ntXL7xJh2e02Fm7GNFeyfK33fjnnPnnJdXGfjdSa/0aywU+np6F5qWTulfUh4G0HoAGjPf7FSqIrK9edeXVN7kjS9KtdKoewtY4jnPLe79QiIsRsgiIgCIiAIiIAiIgCIiAIiIAiIgC9jSmmrvqiqqaSy04qKingE7ot2HOaZGRgN8zukb+K8dTzg/VT0VNriemkMcn6K1LA4HBAdPTtOPgSstGMZzSlwQNTr1be2lUpY6tsZ43aR8qjhhqE0vOtFZZr+9s0cE8FqrmzyU75HbWbx0ABd03AlufFc190Bc7XY6m8Q3aw3aCjcxta2214nfS7ztaZAAOhd6uWkjPiu7hFWVNFb9cy00r43HTEzctOPnTwNPxw4/evnwtJ+RtdNz6p03IceGRUwYUhU6UksLlPv4waed1f0Z1OqomqcoL8OHJSxnO+2M7Y9+e/ztO6JuV3tHyzPX2qzWx0hihqrpU8lk7x85sYALn4z1IGB5rk1TpW66dnpG1fo1TTVzS+irKSds1PUtBwdjx0yD0IOCD3gZCkPFcb7BoKekz8mHTzI4y0/6fpDZpPSAB3btxG73tX2jD4+BFubV5a6fVRfQh/e6JtPtlLM/V3mMHHTI81R0obwxulnPw/aMkNQucQruS6ZycenHGHJc55WMy7ueMHO7hbe6armpbxeNO2SVk74Ym3G4iE1BY8sLoxgnZuaQHODQcd6j8mktRM1g7SPyXM69tmMJpWkE7gM5znG3b627OMdc46r3ePdXPW8YNSyVErpCytdC3J7msAa0D3AKw45Kc8XdZiopZq6aXR0Qip4puXLOfQ6Uvax21xDjGJO4E4yr/YUpTcVth4+f6EP7VvqFvCvUak503PCWMPMEt87r7++cccpFa1nDy5Mt9XV229aevbqKIz1VPbLgJpoom/Ok24G5remSwuAz5LwbxY6+1W+1XCpbG6lutOailkjfua4Ne5jmk+Dg5pyPDIU40JqbTlu1RS3HTfDy7VNyphJJHG29mQFgjdzMtEHVuzdn2ZXPpKmqNZcN7jpWlgfU3ay1AuVqib1e+GQtjqIm57gDy5PbhytdGnNYhy8+Pd6pd2STDUL2hLNwsQTjlvpTxLK4jKSSUul5eNm/DJD5bFXxaXg1HK2NlFUVb6SHc7D5HsaHOLW+LRuAJ8zheYprxeq6eG9Umk7dK2S3aap/QGOZ82WozuqJcfvSlw9zWqFKNVioS6V3fPvNzp9epcUFWmsdWWl/pf4c+eMZ8wiIsZNCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAu213W4WuOujoajktr6V1JUjY13MiLmuLeoOOrGnIwenf3riRE2t0WThGoumSyjstl1r7ZFXRUNRyWV9MaWpGxruZEXNeW9QcesxpyMHp39SlsutwtkVdFQ1BhZX0xpakBoPMiLmuLeo6dWNORg9PeuNFVSku8tlQpyzmK3xnbnHGfQkOm9Z36w2+S20k1LUW6STmvoq6kiqYC/GNwZI0hpx4jBOBlcupNTXvUVbDV3euM76dgjp2NjbHHC0dzWMYA1o9wC8hFc6s3HpzsYY2NtGq6yprrffhZ+J13q5116u1VdrnP6RW1cplnl2NbveTknDQAPgF1z6lvs2o4tROuUrLrFyuXUxgRuby2NjZjaAOjWgd3XxzkryUVOuXOTJ9Wo4UehYSwtlw8ZXpstvJEsunEPU9wt9VROnoKRlawsrpKK3QU0tWCckSPjYHOB8RnB8QV1cJLrDpquu2rHXCOCrtlvkbQU/NAfUVMw5TPV+uxgc57v4W+ahKLIq8+tTby0RKml2zt5W9OKjGXOEt13r3rbyXB/XOc9xc5xc4nJJOSSv4iLCbHgIiIVCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiA/9k=",LOGO_MOOV="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCADhAOEDASIAAhEBAxEB/8QAHAABAAEFAQEAAAAAAAAAAAAAAAcDBAUGCAIB/8QARxAAAQMDAgQDBQYCBgYLAAAAAQACAwQFEQYhBxIxQRNRcSIyYYGhFCNCUpHBYrEIFXKCktEWFySiwuElMzQ1U1RzsrPS8P/EABsBAQACAwEBAAAAAAAAAAAAAAAGBwEEBQMC/8QANxEAAQMCAwUFBwMEAwAAAAAAAQACAwQRBSExEkFRYXEGE5GhsRQiI4HB4fAyQtEkgqLxFnKy/9oADAMBAAIRAxEAPwDstERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERWN1vFptLWuulzo6IO93x5ms5vTJ3Wj8WuITdPRus9nkY+7Pb7b8BzaZp7kdC89h26nsDAtXUVFXVSVVXPJUTyHL5ZHFznH4kqNYr2jjo391ENpw14D+SpRhHZmStjE0rtlp04nnyC6otuqNN3KcQUF9t1RM44bGyobzn0bnJWYXHRAIwQCpM4YcS6m0TR2vUNRLU21xDY6h5Ln0/qermfUdttlrUHalksgZUN2b793z4dVtYj2SfDGZKZ21bcdflx6KeUXmGSOaJk0MjJI3tDmPYchwPQgjqF6UuUNOSIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiLQeK+votM0jrbbXskvEzNu4p2n8bvj5D5nbrc8UddU+lKD7NSlk13nZmGM7iIdPEf8ADyHc/AFc6VdTUVlVLVVUz555nF8kjzlznHqSotj2OezAwQH3zqeH39FLez2A+1EVFQPcGg4/b1XmaWSeaSeaR8ssji973nLnOJyST3JXhEVfqxrWRERYRb/wt4hT6amZbLm589me7bu6mJ/E3zb5t+Y3yD0DSVEFXTR1VLMyaCVofHIx2WuB6EFcfrd+GOvqrStSKOr56i0SOy+IbuhJ6vZ+7e/r1lWB48ae0FQfc3Hh9vToolj/AGeFTeopxZ+8cfv69V0cioW6tpbjQw11DOyoppm80cjDkOCrqfghwuFXTmlpsdUREWVhERERERERERERERERERERERERERERERERFqXErWtJpK2YZyT3Sdp+zU5Ow/jf5NH1Ow7kV+IWsKHSVp8aTlmrpgRS02d3nzPk0dz8uq5svNyrbxc57lcZ3T1MzsvcfoAOwHQBRvHcbFG3uYj8Q+X34ePWT9n8CNa4TTD4Y/y+3Hw6U7jW1dxr5q+unfUVM7ueSR/Vx/YdgBsBsFboirokuNzqrLa0NAAGSIiLCyiIiIiIiItv4b65rdJVvhvD6m1TOzPT53afzsz0d8Oh/Qjouz3Khu9uhuFuqGVFNM3LHt/kfIjoQdwuRVtHD7Wdw0jceeLmnoJnD7TSk7O/ib5OA79+h7ESXBMddSEQzG7PT7cvBRfHez7a0GaAWk/9ffn4rp1FY2G72++WuK5WyobPTyjYjq092kdiPJXysNj2vaHNNwVWz2OY4tcLEIiIvpfKIiIiIiIiIiIiIiIiIiIiIiIiLX9d6qoNJ2Y1tX95O/LaanBw6Z/7Adz29SAa2stS2/S9mfca92T7sMLT7cz+zR+57Bc0aov1x1HeJbpcpeaR+zGN9yJnZrR2A+pySuBjeMtoWd3HnIfLmfopFgOBur395JlGPPkPqVS1Bd6++3aa53ObxaiU9tmsb2a0dmjy/ckqwRFWz3ue4ucbkqz2Maxoa0WARF5lkZFG6SR7WMaMlzjgBeKapgqWF9PNHK0HBLHAjPyX2IZCwyBp2Rle2V+ui+TNGHiMuG0c7Xz8FVRUJK2kjqBTyVMLZSQAwvAcc9Nl9qaumpgDUVEcXN05nAZ9F9ikqCWtDDd2YyOfTj8l5mrgAc4vFm5HMZdeHzVZFRpqqmqQTTzxy468rgceqVNXS0uPtFRFFnoHOAJT2Wfve52Dt8LG/hqs+1Qd1322NnjcW8dFWRUIq2klifLHUxPYwZe4PBDR8fJeqapp6lpdTzRygHBLHA4/RH0k8YcXsIDcjcHLrwRlVA8gNeCTpYjPpxVVFQlrKSKcQS1MTJXYwxzwHHPTZV18PhkjAc9pAOlxa/Tivtk0chLWOBI1sdOvBbDoXVty0ldPtVGfFppCBU0zjhso/Zw7H+Y2XSOmb7bdRWmO5WufxIn7Oadnxu7tcOxH/MZBBXJqzejdTXPS12Fdb35a7AngcfYmb5HyPkeo9Mg9vBcbfQu7uTOM+XMfUfh4OOYCyvb3keUg8+R+h/B1Uiw+kdSWzU9pbcLbLntLE734nflcP36HsswrHjkZKwPYbgqspYnxPLHixG5ERF9rzRERERERERERERERERYrVV/t2m7PLc7lLyxt9ljB78r+zGjuTj5bk7AqrqG8W+w2ma53KYRU8Q9XOPZrR3J8lzTrnVNfqy8muq/u4I8tpqcHLYWfu47ZPf0AA4mM4w3D49lubzoOHM/ma72B4K/EZNp2UY1PHkPzJUdYakuOqLy+417sD3YYWnLIWflH7nufkBhld2egmul2o7bTlolqp2QsLujS4gZOOw6n0W/1/B2/0tDPVC42+Ywxuk8NnPzPwM4G3Uqv46Wrri6ZrS7iVYslXR0AbC5wbwCjVEByMhbrovhxetUWg3SnqKWlpzIWR+PzZkx1IwOmcj1BWvT00tS/YhbcrZqaqGlZ3kztkKPb/wD9zVf/AKZWtaXr2UdXIyZ/LDIzJJ6AgEj6ZH6KROK+lqrSUElBWVdPUSy0pm+5zhrSSBnI+BUa0lvnr7S2WljD5Ip3RkAgZaWtOd/Ik/qrP7L09OMFqKXEDstdJskkgbJ2WkG+moHzVZ9p6md2MU9VQe85rNoAAnaG0QRbXQlUoJ31V7hqJMh0lQx2PL2hgfIbK8oaZt11BUtqnvIHO7Y74DgAPgMFeKinFHe7dTEjmYIeb4uLyT9V7hqHWa/1D6iFzg7nAA6kFwIIz16KU1cnfROOH5PMPw7Wva+6/K3kovSx9zK0YhmwS/Eve17b7c7+aVNOLVqSmjpXvAJYfaO+HOII+I2S3UzbvfakVcjyBzO2O+zgAPTBR87rxqGCWnhe0M5Mh3ZrXEknHTqV8pal1kvdQamFxDuYADqQXZBGevRa7va/ZDGD/W9yN429eP5mthvsntQkI/o++O47GmWX5klZSx2zUMEMDnujkLGuDj1a93K5p8xhXGmi6gvlRb5He9loJPUt3B+YJKoOmfedQwS08LmNjcwnm7Na7JJx07q51Sx1Fc6e4xbFwLST05gMfUH6LUne+pbHhNYfizQ53tcPbm29v7jzstqBjKZ0mLUg+FDNla9th2TreQ5XVO1j+s9Ty1R3jjcXjywPZZ/n8ltiwmjqUQWwzke1O7I2/CNh+5+azar3tjVsmxEwRfohAjb/AG6+dx8grA7H0j4cOE8v65iZHf3aeVj8yiIiiqlKy2ldQXLTV2ZcbZLyvG0kbvclb+Vw8vqOy6R0Tqq26rtQrKF3JKzAqKdx9uF3kfMHse/rkDlhZHTt6uNgu0Vztc5inj2IO7Xt7tcO7T/zGCAV3MHxqSgdsuzYdRw5j8zXBxrA48RZtNykGh48j+ZLrRFregdYW7Vts8enIhrIgBU0rnZdGfMebT2P8jstkVkwzRzsEkZuCqvngkp5DHILOCIiL1XkiIiIiIiIit7nW0ttt89fWyiGmp4zJI89gP5+iuFGf9Ievkp9JUlDG4tFXVjxPi1gLsf4uU/JalfU+y0z5uA89y3MPpfa6lkN/wBR8t/kos4g6vrtW3bx5eaGiiJFLTZ2YPzO83Hue3QfHWURVNPPJPIZJDclXFBBHTxiOMWaFt3B2m+1cSLS0jLYnSSu+HLG7H1wul1An9Hil8XWdXVEZbBQuHo5z24+gcpykrYY7nBb3H76eGSZg/hYWA//ACBT7suwR0Jcf3OP0CrrtY8yV4YP2tH1Poub6jSFTUcTKnStK0xgVbsOA2igPth3yYR88DuukbZRU1tt9PQUcYip6eMRxtHYAYCtqey0EGoKq+si/wBtqoGQyPP5Wknb1yM/2W+SuLXWxXGhjrafeGXLo3Z2e3Jw4fAjBHwK3cLwuOgc873E2/63yH8rRxbFpMQbGP2tAvzcRmfLJQLxkhqr9xSltVDSvq6hkEVOyJozn2fEPXYAc+5OwV1beCl7NLzT3C20bzv4TGufj1IAGfTK33htSwVeqtXagdGDO65voo3kdGRAA49Tj/CFUq9Z1reLFLpCmpad9KY/v5DzeIHeGZNt8AABu2D17LlDD6Z+1PVOJEjyAATbMkDTfkuw7EqqPZpqRoBiYCSQL5AE67s1ButNGXTS1ZGLtSwPbJ/1NTF7TH47AkAgjyIC2i3cGdRXGBrrk+3UbHDPhykyvHqAOX6qUOLlNBW2G3UUzGudUXelijyOhc/B/wB3mWa1tdpLFpS43aERulpoS6MSAlpedm5xjbJCyzBKeKeR0j3FrACM9Nb+mVrLD8eqZqeNsbWh7yQctdLeN873UL3TgzfrbSOltk1BWtYMmGIGJ5/sg7H9QtCorPV3m4MtdNb3VdU9xa2AsGQR1znYY7k4wuneHl6rNQ6PobvXwwxVE/PzNiBDfZe5oIBJIyB5rE8OrXRs1Dqu9RRNEs91kp2ux0awNLsery7PngLzmwOGaWGaneQH5nM3ta9xfO+7PivSDH54IpoalgcWZDLK97WNsrb8uCjy3cEr0KUGS4WykeRkRRsc4D1IA+gK1e86EvVBqWh0/cKen8WukDKabPNC/fBIOM7Z3GMjy3GZyN11dLxKFshtYZp6Jn3tU+MjnJjzlrs7nnIbgA9CrvU7Kao1XpemdymojqZqkDuI2wPaT/ifGvSbBaWUF8W01wcASSc8wDr1yIXnDjtZE4Ml2XNc0uAAGWRI06Zg7lCmqOGV60zYZrtWVlsdTwFjSyF7+Y8zg0AAtA7+fQKrpzhbqC+WSlu1NV22KGpbzsbK94eBkjfDSO3mpB/pD1fgaJp6cHeorWNI/ha1zv5gLcdIU4tmjLVTyez9noIg/wBQwZ+uV5MwKkfXviz2WtBOe8nj0Xq/H6yPD2TXG05xAy3AcOq5auVK+guVVQyPZI+mmfC5zCS1xa4tJGe2yy2k9J3vU02LbSkU7TiSql9mGPzy7ufgMlWlHdoIqiWultVLW1UsjpearLnxtLjn3AQD1/FkfBVL1qW+3iIQV9ylfTNADaePEcLQOgDGgN29FEoxTA7TySOAy8SdPkCpjIakjZjsDvJz8ANfmQtp4iaOtWn9I2i4WutbcHSVMkNRVscCyV2Ng0AkANMbxjruckqP1JFtP9Z8ArjBjmktVwD2DyaXNcT+kj/0UbrYxRkYeySNuyHNBtw3HzC1sKfIWSRyu2nNcRc7948ishp28VthvNPdaB5bNA7JbnAkb3YfgRt9eoXVlproLna6W40xJhqoWTR564cARn9VyGuoOFrJI+HlkbLnmNK1wz+U7j6ELvdkp395JF+21/np5/RR7tlAzu45v3Xt8tfL6rZURFOVAUREREREREUf8ebTLcdEfaoGlz7fOKhwHUx4LXfpkH0aVIC+PY2RjmPaHNcMOaRkEeRWtWUzaqB0Lv3Cy2qKqdSVDJm/tN1x2ikjitw6ksL5bxZY3SWpx5pIhu6l/wA2fHt381G6qiso5aOUxSix9eYVv0VbDWxCWE3B8uRUzf0baXEF7riPefDC0/2Q5x/9wWY4gaghs3FHSzqiZsNOyCcVDnHAayXDQT8AWA/JRhonX910lbJqC30VDMyaYzOfM15dkta3GzhthqxetNS1uqruy518UEUrIGwhsIIbyguPcnu4rvsxmGDDWQRH3wQdMsnbSjr8FmnxOSeUe44Ea55t2VL/ABS4gWqPSVRS2C601XXVn3A+zyBxiYR7Ttum2w+JB7KQLXTR22zUtIMNjpadkfwAa0D9lyTTS+BUxT8jX+G9r+V3R2DnB+CkOu4w6jqqKeldQWuMTRujLmsky3Ixke11W3Q9pIzI+WpyNgAAOF7+K06/sxIIo4aXMXJJJF87W8M1IvA+ZlVof7YCDNUVs8s48nufnB+XKqdp0fdIuLdw1XWPpjRvjIp+V5LySxrBkY2wAe/koY0XrC9aTmkdbJI3wSkGWnmaXRuI77EEHHcH1zgLb67jRfZacspLVQU0pGPEc50mPQbfXKzS4zQvpom1Fw6Ox01I3/llirwTEGVUzqaxbJca6A52/wBXyUiayqIarW+krIHB0gqpK+Ro/A2OJ4aT6uJA9CrPj1Vin4eTxE4NTURRD5O5/wDgUM2PWN3tmqJNSSOjuFwkjcxz6rJG+OgaRjAGABsB2V3rnXt21dbYaCvpqOCKKXxQYGuBLuUt3y49nFec2PwS004zDn3sOVgNfEr0h7Ozw1VOci1lrnncnTwCnvh/S/YtDWWncOVzaGJzwezi0OP1JWO4R1UNdo0VsbgX1FbVSy+Yc6d5Gf7paov/ANcGoRRfZY7da42CPw2lrJMtGMbe2ta0TrG9aSkf/VskclPKQZaaYF0biBjmGCCHY2yPhnOAtn/kNJFLEGXLQCDlppY+S1j2brJYpi+wc5wIz1/VceanO5ycSHXeemt8OnWUBeTDVS+IXNZ2BaHbuH6FaZwtN7k4tXL/AEpklddYqB7QJMYx4jPcxty46Y23PxWNr+NF9lpzHR2qgpZCMeI5zpMfEDb65Ws6Rn1Xftd09Zbq2WW7ufzvqZN2sZ0cXDoGYOMAdwBvha9TilPJUxGBz3kOvbd8hlmN3qtimwmpjpZhO1kYLbX39Sc8jv8ARSxxo0te9UNs8FqhjkhhlkNRzShhbzcoDt+uBzdN+i2jXNQLfoi8Tx4aYqCUM8geQhv1wsda63X77nDSXGy2eOmDx41bFUuLXNHXkjPtZPbPRY/jld2W3Q8lM2QNqa2ZkcQ74a4PcfTDcf3gu9KYooqirFwSM7i2gsLX/LqPxNmllpqMlpDTlY3yJub2/wBgKBLXZrtciG2211tX2zDA5w+ZAwFsVNw/uUXK+/XO02GI/wDnKtniH0Y07n4EhXNp1lbDTiC7UU8mNuZ0MVS0/wBw8mP1K2i0au0vS70moaO1Z7Q6c5HD5t5godR0VA4Avkv1Ib5Eg+am1ZW17CQxlugLvMAj/FU6eC06Z0Jf6O1xXy9sraUtqKo0ng00R5S0PaXgZ97O3N0HRREpf1lrGyVelbjSUutrncauoi5GQuoRFGQSOYbQtO4yN3d1HOkNOXHU95ZbrezH4ppnD2IWfmP7Duf1WMVY2WWKGns6wsALHUnLInrmVnCXuihlnqbtubkm40AzzDemQCuNBaWrNV31lDC1zKVhDqucDaNn/wBjggD59AV1DTQxU9PHTwMbHFEwMYxvRrQMAD5LGaU0/btNWeO2W2PlY32pJHe/K/u5x7k/ToNgsspnguFDD4TtZvdr/A6KD45i5xKYbOTG6fyevkiIi7K4aIiIiIiIiIiIi+Pa17Cx7Q5rhggjIIUGcWOG7rUZb5p+Fz7fu6opmjJp/NzR3Z5j8Pp0nRDuMFc/EcOir4tiTXcd4/N4XRwzE5sPl7yPTeNx/NxXHSKXOLPDX7N41+05T5h3fU0Ubfc83xjy829u22wiMbjIVZV1BNRS93KOh3HorVoMQhr4hLEeo3g8CiIi0luoiIiIiIiIiIiIstpfUV201cDW2mp8J7hyyMcOZkg8nDv/ADHYrEovuOR8bg9hsRvXxJGyVpY8XB3FSu3jZdBT8rrDRmfHvidwbn+zjP1Uf6q1FddTXL7fdZw94HLHGwcscTfJo7eu5PmsQi3KnE6uqZsTPJH5wWlS4VR0jy+GMA8c/roiIr+wWivvt1htltgMtRKduzWju5x7NHn++FpMY57g1ouSt572saXONgFV0vYrjqO8RWu2xc8r93vPuRM7vcewH12A3K6X0bpq3aWs7LfQMy4+1NM4e3M/8x/YdgqGg9KUGk7OKOlAkqJMOqagjDpXfs0b4Hb1JJ2FWRgeDChZ3kmch8uQ+qrHHscdXv7uPKMefM/QIiIpAo4iIiIiIiIiIiIiIiIiIiIiiDizw18Txr9pun+83fVUUY9/zfGPPzb37b7GX0WlXUEVdEY5R0O8dFvYfiE1BKJYj1G4jmuOhuinHizw2Fx8a+6ehDa7d9TStGBP5ub5P8x+L16we4Fri1wLXA4IIwQfJVliGHTUEuxJpuO4/nBWrhuJw4hF3kZz3jePzcV8REXPXQREREREREREREREVxb6OquNdDQ0MD6ipneGRxsG7j+3nk7AblZALjYarBIaLnRe7Pba273KG3W6B09TM7lYwfUk9gOpK6T4eaOotJWrwo+WaumANVU43efyjyaOw+at+GmiaXSVt5pOSe6TtH2mcDYfwM8mj6nc9gNvVi4Fggo299MPfPl9+Ph1rXtBjxrXGCE/DH+X24ePQiIpIouiIiIiIiIiIiIiIiIiIiIiIiIiIiIijTivw5jvbZb1Y42x3QDmlhGzan/J/wAe/fzUlotWso4qyIxSi49OYW3RVs1FKJYjY+vIrjyRj4pXxSsdHIxxa9jmkOaRsQQehXldCcU+HkGo4n3S1NZBeGN3HRtSB0a7yd5O+R2wRAFTBPS1MlNUwvhnicWSRvbhzXDqCFWWJ4XNh8my/Np0PH78lamFYtDiMW0zJw1HD7c1SREXMXUREREREXuGOSaZkMMb5JZHBrGMblznE4AAHUlZS9l6pKeoq6qKlpYXzTyuDI42DLnOPQBdFcLdCwaVoftVWGTXedmJZBuIm/8Aht+Hme5+ACtuE+gY9NUouVyYyS8TN37imafwN/i8z8htud/VgYDgfswFROPfOg4ff0Vc9ocf9pJp6c+4NTx+3qiIilKiSIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiLRuJ+gKXVNOa6iDKe8RtwyQ7NmA6Mf+zu3ot5ReFTTRVUZilFwVsUtVLSSiWI2IXINfSVNBWy0VbA+nqYXcskbxgtP/AO/VUF0pxK0JRaso/GiLKa6wtxDUY2ePyP8ANvx6jqO4POt1t9barjNb7jTvp6qF3K+N3b4jzB7EbFVliuEy4fJY5sOh+h5q08IxiLEo7jJ41H1HJWqIi5K7C+sa572sY1znOIDWtGSSegA7lT5wi4ftsMLL1eImuusjfu4zuKVp/wCM9z26Dvm24P8AD3+qmRX++wf9IOHNTU7x/wBnB/E4fnP+769JRU8wDAu6tU1A97cOHM8/TrpX/aLH+9vS0x93eePIcuPHpqREUuUMRERERERERERERERERERERERERERERERERERERERERERERYPVmk7HqeBsd1pA+RgxHPGeWWP0d5fA5HwWcRecsTJWlkguDuK9IppIXh8ZII3hRJPwSojPmDUNSyHPuvp2ud/iBA+i2nSHDfTmnKhlZHFLW1rDlk9SQ7kPm1oAAPxwT8VuSLQhwahhftsjF/mfVdGfG6+dndvlNvkPRERF01ykRERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERF/9k=";
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeAll();closeDashboard();if(document.getElementById('universe'))document.getElementById('universe').classList.remove('open');}});
+/* ═══════════ Éli AEFE v2 — classes, matières, dashboards Parcoursup/Grand Oral, examens ═══════════ */
+const CAT_COLOR={'Français':'#6D28D9','Maths':'#1565C0','Sciences':'#0E7C5A','Sciences humaines':'#C2410C','Langues':'#0891B2','Économie':'#B45309','Philo':'#7C3AED','Arts':'#DB2777','Sport':'#059669','Spécialité':'#1565C0','EMC':'#0E7490','Numérique':'#0F766E'};
+const PROG_AEFE={
+  sixieme:[['Français','Français'],['Mathématiques','Maths'],['Histoire-Géographie','Sciences humaines'],['Sciences & Technologie','Sciences'],['Anglais (LV1)','Langues'],['EMC','EMC'],['Arts plastiques','Arts'],['Éducation musicale','Arts'],['EPS','Sport']],
+  cinquieme:[['Français','Français'],['Mathématiques','Maths'],['Histoire-Géographie','Sciences humaines'],['Physique-Chimie','Sciences'],['SVT','Sciences'],['Technologie','Sciences'],['Anglais (LV1)','Langues'],['LV2','Langues'],['EMC','EMC'],['Arts plastiques','Arts'],['EPS','Sport']],
+  quatrieme:[['Français','Français'],['Mathématiques','Maths'],['Histoire-Géographie','Sciences humaines'],['Physique-Chimie','Sciences'],['SVT','Sciences'],['Technologie','Sciences'],['Anglais (LV1)','Langues'],['LV2','Langues'],['EMC','EMC'],['Arts plastiques','Arts'],['EPS','Sport']],
+  troisieme:[['Français','Français'],['Mathématiques','Maths'],['Histoire-Géographie','Sciences humaines'],['Physique-Chimie','Sciences'],['SVT','Sciences'],['Technologie','Sciences'],['Anglais (LV1)','Langues'],['LV2','Langues'],['EMC','EMC'],['EPS','Sport']],
+  seconde:[['Français','Français'],['Mathématiques','Maths'],['Histoire-Géographie','Sciences humaines'],['SES','Économie'],['Physique-Chimie','Sciences'],['SVT','Sciences'],['SNT (Numérique)','Numérique'],['Anglais (LV1)','Langues'],['LV2','Langues'],['EMC','EMC'],['EPS','Sport']],
+  premiere:[['Maths (spé)','Spécialité'],['Physique-Chimie (spé)','Spécialité'],['SVT (spé)','Spécialité'],['SES (spé)','Spécialité'],['HGGSP (spé)','Spécialité'],['NSI (spé)','Spécialité'],['HLP (spé)','Spécialité'],['LLCE (spé)','Spécialité'],['Français (écrit & oral)','Français'],['Histoire-Géographie','Sciences humaines'],['Enseignement scientifique','Sciences'],['Anglais (LV1)','Langues'],['LV2','Langues'],['EMC','EMC'],['EPS','Sport']],
+  terminale:[['Maths (spé)','Spécialité'],['Physique-Chimie (spé)','Spécialité'],['SVT (spé)','Spécialité'],['SES (spé)','Spécialité'],['HGGSP (spé)','Spécialité'],['NSI (spé)','Spécialité'],['HLP (spé)','Spécialité'],['LLCE (spé)','Spécialité'],['Philosophie','Philo'],['Histoire-Géographie','Sciences humaines'],['Enseignement scientifique','Sciences'],['Anglais (LV1)','Langues'],['LV2','Langues'],['EMC','EMC'],['EPS','Sport'],['Grand Oral','Épreuve'],['Parcoursup','Orientation']],
+};
+function demoStatus(i){const m=['vert','vert','orange','vert','rouge','orange','vert','vert','orange','vert','vert','rouge','vert','orange','vert','vert','orange'];return m[i%m.length];}
+function catIcon(cat){const m={'Français':'📖','Maths':'📐','Sciences':'🔬','Sciences humaines':'🌍','Langues':'🗣️','Économie':'📈','Philo':'💭','Arts':'🎨','Sport':'🤸','EMC':'⚖️','Numérique':'💻','Spécialité':'⭐','Épreuve':'🎙️','Orientation':'🎓'};return m[cat]||'📘';}
+function demoChapter(s){const m={'Mathématiques':'Les fonctions','Maths (spé)':'La dérivation','Philosophie':'La conscience','Français':'Le roman & ses personnages','Français (écrit & oral)':"L'argumentation",'SES (spé)':'Les marchés concurrentiels','HGGSP (spé)':'Les frontières','Physique-Chimie (spé)':'Les ondes','SVT (spé)':'La génétique','Histoire-Géographie':'La mondialisation'};return m[s]||'Chapitre en cours';}
+function demoStrong(s){const m={'Mathématiques':['Calcul','Géométrie'],'Philosophie':['Analyse de notions'],'Français':['Commentaire de texte','Lecture']};return m[s]||['Bases du programme','Méthodologie acquise'];}
+function demoImprove(s){const m={'Mathématiques':['Les probabilités'],'Philosophie':['La problématisation'],'Français':['La dissertation']};return m[s]||['Chapitre à consolider'];}
+function demoRed(s){const m={'Mathématiques':['Calcul intégral'],'Philosophie':['Construire un plan dialectique'],'Français':["L'analyse stylistique"]};return m[s]||['Notion clé à retravailler'];}
+function demoHistory(s){return [['Hier','Quiz : '+demoChapter(s),'vert'],['Il y a 3 j','Méthode avec Éli','orange'],['Semaine dernière','Première leçon du chapitre','vert'],['Il y a 10 j','Évaluation diagnostique','rouge']];}
+
+function closeUniverse(){document.getElementById('universe').classList.remove('open');}
+let CURRENT_CLASS='',CURRENT_SUBJECT='';
+
+function examForClass(k){if(k==='troisieme')return 'brevet';if(k==='terminale')return 'bac';return '';}
+
+function openClassPage(k){
+  const lvl=(typeof LEVELS!=='undefined'&&LEVELS[k])?LEVELS[k].name:k;
+  CURRENT_CLASS=lvl;CURRENT_CLASS_KEY=k;closeAll();
+  const subs=PROG_AEFE[k]||[];
+  const uni=document.getElementById('universe');
+  uni.classList.add('open');
+  document.getElementById('uniTitle').textContent='📚 '+lvl;
+  const exk=examForClass(k);
+  const eb=exk?`<div class="exam-banner exam-banner-${exk}" onclick="openExamAEFE('${exk}')"><span class="exam-banner-ic">${EXAM_AEFE[exk].ico}</span><div class="exam-banner-txt"><strong>Tu prépares le ${EXAM_AEFE[exk].name} cette année</strong><span>Ton espace examen dédié : compte à rebours, épreuves coefficientées, annales et protocole J-7.</span></div><span class="exam-banner-go">Mon espace ${EXAM_AEFE[exk].name} →</span></div>`:'';
+  document.getElementById('universeBody').innerHTML=`
+    <div class="class-hero"><div class="class-hero-logo">${eliLogo(58)}</div><h2 class="class-h2">${lvl}</h2><p class="class-sub">Voici toutes tes matières. Choisis-en une pour voir ta progression et travailler avec Éli.</p></div>
+    ${eb}
+    <div class="subj-grid">
+      ${subs.map((s,i)=>{const st=demoStatus(i);
+        if(s[1]==='Épreuve')return `<button class="subj-card subj-special" style="--sc:#6D28D9" onclick="openGrandOral()"><div class="subj-cat">Épreuve du Bac</div><div class="subj-name">🎙️ ${s[0]}</div><div class="subj-status st-orange"><span class="st-dot"></span>Atelier dédié</div></button>`;
+        if(s[1]==='Orientation')return `<button class="subj-card subj-special" style="--sc:#1565C0" onclick="openParcoursup()"><div class="subj-cat">Orientation</div><div class="subj-name">🎓 ${s[0]}</div><div class="subj-status st-orange"><span class="st-dot"></span>Tableau de bord</div></button>`;
+        const col=CAT_COLOR[s[1]]||'#1565C0';return `<button class="subj-card" style="--sc:${col}" onclick="openSubject(${i})"><div class="subj-cat">${s[1]}</div><div class="subj-name">${s[0]}</div><div class="subj-status st-${st}"><span class="st-dot"></span>${st==='vert'?'Acquis':st==='orange'?'À renforcer':'À travailler'}</div></button>`;}).join('')}
+    </div>
+    <div class="class-chat-cta"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Une question générale sur ton année ?</strong><span>Éli peut t'aider à réviser, t'organiser ou choisir par où commencer.</span></div><button class="class-chat-btn" onclick="openChatContext('${lvl.replace(/'/g,"\\'")}','')">Parler à Éli →</button></div>`;
+  uni.scrollTop=0;
+}
+let CURRENT_CLASS_KEY='';
+function openSubject(i){
+  const subs=PROG_AEFE[CURRENT_CLASS_KEY]||[];const s=subs[i];if(!s)return;
+  CURRENT_SUBJECT=s[0];const col=CAT_COLOR[s[1]]||'#1565C0';const st=demoStatus(i);
+  const vert=st==='vert'?68:st==='orange'?45:22,orange=st==='vert'?22:35,rouge=100-vert-orange;
+  document.getElementById('uniTitle').textContent=s[0]+' · '+CURRENT_CLASS;
+  document.getElementById('universeBody').innerHTML=subjectDashHTML(s,col,vert,orange,rouge,CURRENT_CLASS,`openClassPage('${CURRENT_CLASS_KEY}')`);
+  document.getElementById('universe').scrollTop=0;
+}
+function subjectDashHTML(s,col,vert,orange,rouge,classLabel,backCall){
+  const subj=s[0];const cls=classLabel.replace(/'/g,"\\'");const subjE=subj.replace(/'/g,"\\'");
+  const forts=demoStrong(subj),amel=demoImprove(subj),rouges=demoRed(subj),hist=demoHistory(subj);
+  return `
+    <div class="subjdash" style="--sc:${col}">
+      <button class="subjdash-back" onclick="${backCall}">← Toutes mes matières</button>
+      <div class="subjdash-head"><div class="subjdash-ic">${catIcon(s[1])}</div><div><div class="subjdash-cat">${s[1]} · ${classLabel}</div><h2 class="subjdash-name">${subj}</h2></div></div>
+      <div class="subjdash-resume"><div class="resume-k">📌 Ton dernier cours</div><div class="resume-t">La dernière fois, tu travaillais « <b>${demoChapter(subj)}</b> ». Tu étais à mi-parcours du chapitre.</div><div class="subjdash-actions"><button class="sd-btn sd-primary" onclick="openChatContext('${cls}','${subjE}')">▶ Poursuivre : ${demoChapter(subj)}</button><button class="sd-btn sd-ghost" onclick="openChatContext('${cls}','${subjE}')">＋ Nouveau chapitre</button></div></div>
+      <div class="subjdash-prog"><div class="prog-title">Ma progression</div><div class="prog-bar"><div class="prog-seg pv" style="width:${vert}%"></div><div class="prog-seg po" style="width:${orange}%"></div><div class="prog-seg pr" style="width:${rouge}%"></div></div><div class="prog-legend"><span><i class="lg lgv"></i>Acquis ${vert}%</span><span><i class="lg lgo"></i>À renforcer ${orange}%</span><span><i class="lg lgr"></i>Lacunes ${rouge}%</span></div></div>
+      <div class="subjdash-3col">
+        <div class="zone zone-v"><div class="zone-h"><span class="zone-dot"></span>Points forts</div>${forts.map(x=>`<div class="zone-item">${x}</div>`).join('')}</div>
+        <div class="zone zone-o"><div class="zone-h"><span class="zone-dot"></span>À améliorer</div>${amel.map(x=>`<div class="zone-item">${x}</div>`).join('')}</div>
+        <div class="zone zone-r"><div class="zone-h"><span class="zone-dot"></span>Zones rouges</div>${rouges.map(x=>`<button class="zone-item zone-clic" onclick="openChatContext('${cls}','${subjE}')">${x}<span> · Surmonter →</span></button>`).join('')}</div>
+      </div>
+      <div class="subjdash-hist"><div class="prog-title">📜 Mon historique en ${subj}</div>${hist.map(hh=>`<button class="hist-row" onclick="openChatContext('${cls}','${subjE}')"><span class="hist-day">${hh[0]}</span><span class="hist-t">${hh[1]}</span><span class="hist-badge st-${hh[2]}">${hh[2]==='vert'?'Réussi':hh[2]==='orange'?'À revoir':'Difficile'}</span></button>`).join('')}</div>
+      <div class="subjdash-chat" onclick="openChatContext('${cls}','${subjE}')"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Je suis ton assistant ${subj}</strong><span>Pose-moi n'importe quelle question sur ce cours, niveau ${classLabel}.</span></div><button class="class-chat-btn" onclick="event.stopPropagation();openChatContext('${cls}','${subjE}')">Ouvrir →</button></div>
+    </div>`;
+}
+function openChatContext(classLabel,subject){
+  openChat();
+  setTimeout(()=>{const s=document.getElementById('chatStream');s.innerHTML='';
+    if(subject){pushMsg(`Je suis Éli, ton assistant ${subject} (niveau ${classLabel}). Pose-moi ta question sur ce cours : je t'explique, je t'interroge, et on transforme tes lacunes en points forts. Par quoi veux-tu commencer ?`,'eli');}
+    else{pushMsg(`Bonjour ! Je suis Éli, ton mentor pour la classe de ${classLabel}. Tu veux réviser une matière, t'organiser, ou que je te propose par où commencer aujourd'hui ?`,'eli');}
+  },320);
+}
+
+/* ═══ PARCOURSUP — tableau de bord dédié ═══ */
+function openParcoursup(){
+  closeAll();const uni=document.getElementById('universe');uni.classList.add('open');
+  document.getElementById('uniTitle').textContent='🎓 Parcoursup';
+  const tl=[['done','Déc.','Découverte des formations','Explorer le catalogue et les attendus'],['done','Janv.','Création du dossier','Profil, bulletins, projet de formation'],['current','Mars','Saisie des vœux','Jusqu\'à 10 vœux — Éli t\'aide à les choisir'],['todo','Avril','Confirmation & lettres','Finaliser les projets motivés'],['todo','Juin','Réponses & choix','Analyser les propositions, décider sereinement']];
+  document.getElementById('universeBody').innerHTML=`
+    <div class="sdash-hero hero-pcs">
+      <div class="sdash-hero-eyebrow">Ton orientation post-bac</div>
+      <h2>Parcoursup, étape par étape</h2>
+      <p>De la stratégie de vœux à la lettre de motivation, Éli t'accompagne à chaque étape pour bâtir un dossier solide et choisir ta voie en confiance.</p>
+      <div class="sdash-hero-actions"><button class="sdash-hero-btn solid" onclick="openChatContext('Parcoursup','Stratégie de vœux')">🎯 Travailler ma stratégie</button><button class="sdash-hero-btn outline" onclick="openChatContext('Parcoursup','Lettre de motivation')">✍️ Rédiger une lettre</button></div>
+    </div>
+    <div class="subjdash-card"><div class="prog-title">🗓️ Mon calendrier Parcoursup</div><div class="pcs-timeline">
+      ${tl.map(t=>`<div class="pcs-tl ${t[0]}"><div class="pcs-tl-dot">${t[0]==='done'?'✓':t[0]==='current'?'▶':'•'}</div><div class="pcs-tl-c"><strong>${t[1]} — ${t[2]}</strong><span>${t[3]}</span></div></div>`).join('')}
+    </div></div>
+    <div class="subjdash-card"><div class="prog-title">🧭 Ce qu'Éli prépare avec toi</div><div class="sdash-steps">
+      <div class="sdash-step"><span class="sdash-step-n">1</span><div class="sdash-step-t"><strong>Stratégie de vœux</strong><span>Une sélection adaptée à ton profil, tes notes et tes ambitions — vœux sûrs, cibles et ambitieux.</span></div></div>
+      <div class="sdash-step"><span class="sdash-step-n">2</span><div class="sdash-step-t"><strong>Projet de formation motivé</strong><span>Rédaction et relecture de chaque lettre, alignée sur les attendus de la formation.</span></div></div>
+      <div class="sdash-step"><span class="sdash-step-n">3</span><div class="sdash-step-t"><strong>Valorisation du dossier</strong><span>Mettre en avant tes activités, engagements et points forts.</span></div></div>
+      <div class="sdash-step"><span class="sdash-step-n">4</span><div class="sdash-step-t"><strong>Décryptage des attendus</strong><span>Comprendre ce que chaque formation attend vraiment pour viser juste.</span></div></div>
+    </div></div>
+    <div class="subjdash-chat" onclick="openChatContext('Parcoursup','')"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Je suis ton conseiller Parcoursup</strong><span>Pose-moi tes questions sur tes vœux, tes lettres ou ton orientation.</span></div><button class="class-chat-btn" onclick="event.stopPropagation();openChatContext('Parcoursup','')">Parler à Éli →</button></div>`;
+  uni.scrollTop=0;
+}
+
+/* ═══ GRAND ORAL — tableau de bord dédié ═══ */
+function openGrandOral(){
+  closeAll();const uni=document.getElementById('universe');uni.classList.add('open');
+  document.getElementById('uniTitle').textContent='🎙️ Grand Oral';
+  document.getElementById('universeBody').innerHTML=`
+    <div class="sdash-hero hero-go">
+      <div class="sdash-hero-eyebrow">L'épreuve qui intimide — celle où Éli excelle</div>
+      <h2>Maîtrise ton Grand Oral</h2>
+      <p>Éli joue le rôle du jury, t'entraîne sur tes deux questions, structure ton propos et t'aide à dompter le stress, le débit et la posture.</p>
+      <div class="sdash-hero-actions"><button class="sdash-hero-btn solid" onclick="goSimulate()">🎤 Lancer une simulation</button><button class="sdash-hero-btn outline" onclick="openChatContext('Grand Oral','Structure de mon exposé')">🧩 Structurer mon exposé</button></div>
+    </div>
+    <div class="subjdash-card"><div class="prog-title">🗂️ Mes deux questions</div><div class="go-questions">
+      <div class="go-q"><div class="go-q-k">Question 1 · adossée à tes spécialités</div><div class="go-q-t">« En quoi… ? » — Éli t'aide à problématiser et à bâtir un plan clair.</div></div>
+      <div class="go-q"><div class="go-q-k">Question 2 · ouverture sur ton projet</div><div class="go-q-t">Relie ta question à ton orientation et à ton projet post-bac.</div></div>
+    </div></div>
+    <div class="subjdash-card"><div class="prog-title">🧩 Les 3 temps de l'épreuve</div><div class="sdash-steps">
+      <div class="sdash-step"><span class="sdash-step-n go">1</span><div class="sdash-step-t"><strong>L'exposé (5 min)</strong><span>Accroche, problématique, plan en deux ou trois temps, conclusion qui ouvre.</span></div></div>
+      <div class="sdash-step"><span class="sdash-step-n go">2</span><div class="sdash-step-t"><strong>L'échange avec le jury (10 min)</strong><span>Éli te pose de vraies questions et t'apprend à rebondir avec assurance.</span></div></div>
+      <div class="sdash-step"><span class="sdash-step-n go">3</span><div class="sdash-step-t"><strong>Le projet d'orientation (5 min)</strong><span>Expliquer en quoi cette question éclaire ton projet d'avenir.</span></div></div>
+    </div></div>
+    <div class="subjdash-card"><div class="prog-title">🎯 Ce qu'Éli travaille avec toi</div><div class="prog-bar"><div class="prog-seg pv" style="width:55%"></div><div class="prog-seg po" style="width:30%"></div><div class="prog-seg pr" style="width:15%"></div></div><div class="prog-legend"><span><i class="lg lgv"></i>Contenu maîtrisé</span><span><i class="lg lgo"></i>Débit & posture</span><span><i class="lg lgr"></i>Gestion du stress</span></div></div>
+    <div class="subjdash-chat" onclick="openChatContext('Grand Oral','')"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Je suis ton jury d'entraînement</strong><span>Pose-moi tes questions ou lance une simulation chronométrée.</span></div><button class="class-chat-btn" onclick="event.stopPropagation();goSimulate()">Simuler →</button></div>`;
+  uni.scrollTop=0;
+}
+function goSimulate(){openChat();setTimeout(()=>{const s=document.getElementById('chatStream');s.innerHTML='';pushMsg("Très bien, mettons-nous dans les conditions du Grand Oral. 🎙️ Présente-moi ta première question en une phrase, puis lance ton accroche : je joue le jury et je te chronomètre.",'eli');},320);}
+
+/* ═══ EXAMENS AEFE : Brevet (DNB) & Bac ═══ */
+const EXAM_AEFE={
+  brevet:{ico:'📐',name:'Brevet (DNB)',full:'Diplôme National du Brevet',theme:'brevet',jdays:55,date:'Juin 2026',
+    hero:"L'examen de fin de collège. Éli t'entraîne sur les épreuves et soigne ton contrôle continu.",
+    epreuves:[['Français',100,'orange'],['Mathématiques',100,'rouge'],['Sciences (PC · SVT · Techno)',50,'vert'],['Histoire-Géo · EMC',50,'orange'],['Oral du Brevet',100,'vert']],
+    note:"Le contrôle continu compte pour 400 points sur 800. Éli suit aussi ta moyenne de l'année.",
+    protocole:['J-7 : fiches des repères Histoire-Géo','J-5 : annales de Maths','J-3 : épreuve blanche de Français','J-2 : préparation de l\'oral','Jour J : relis bien chaque consigne']},
+  bac:{ico:'🎓',name:'Bac',full:'Baccalauréat général',theme:'bac',jdays:80,date:'Juin 2026',
+    hero:"L'aboutissement du lycée. Éli adapte tout à tes spécialités, au Grand Oral et à la philo.",
+    epreuves:[['Spécialité 1',16,'orange'],['Spécialité 2',16,'rouge'],['Philosophie',8,'vert'],['Grand Oral',10,'orange'],['Français (anticipé · 1re)',10,'vert']],
+    note:"Le contrôle continu représente 40 % de la note finale. Éli pilote aussi tes moyennes.",
+    protocole:['J-7 : sujets probables de tes spécialités','J-5 : annales corrigées','J-3 : épreuve blanche chronométrée','J-2 : Grand Oral à blanc','Jour J : méthode et gestion du temps']},
+};
+function openExamAEFE(k){
+  const e=EXAM_AEFE[k];closeAll();const uni=document.getElementById('universe');uni.classList.add('open');
+  document.getElementById('uniTitle').textContent=e.ico+' Préparation '+e.name;
+  const tot=e.epreuves.reduce((a,x)=>a+x[1],0);
+  document.getElementById('universeBody').innerHTML=`
+    <div class="examdash">
+      <div class="examdash-hero hero-${e.theme}">
+        <div class="examdash-badge">${e.ico} ${e.full}</div>
+        <div class="cd-num">J-${e.jdays}</div><div class="cd-label">avant le ${e.name} · ${e.date}</div>
+        <p class="examdash-lead">${e.hero}</p>
+        <div class="examdash-actions"><button class="sdash-hero-btn solid" onclick="openChatContext('${e.name}','')">🎤 Préparer avec Éli</button><button class="sdash-hero-btn outline" onclick="examBlancheAEFE('${k}')">📝 Épreuve blanche</button></div>
+      </div>
+      <div class="examdash-card"><div class="prog-title">📊 Mes épreuves & coefficients</div>
+        ${e.epreuves.map(ep=>`<button class="ep-row" onclick="openChatContext('${e.name}','${ep[0].replace(/'/g,"\\'")}')"><span class="ep-status st-${ep[2]}"></span><span class="ep-name">${ep[0]}</span><span class="ep-coef">${k==='brevet'?ep[1]+' pts':'coef '+ep[1]}</span><span class="ep-go">→</span></button>`).join('')}
+        <div class="examdash-note">${e.note}</div>
+      </div>
+      <div class="examdash-card"><div class="prog-title">🗓️ Mon protocole J-7</div>
+        ${e.protocole.map((p,idx)=>`<div class="proto-step"><span class="proto-n">${idx+1}</span><span class="proto-t">${p}</span></div>`).join('')}
+      </div>
+      <div class="subjdash-chat" onclick="openChatContext('${e.name}','')"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Je suis ton coach ${e.name}</strong><span>10 ans d'annales, épreuves blanches et suivi du contrôle continu jusqu'au jour J.</span></div><button class="class-chat-btn" onclick="event.stopPropagation();openChatContext('${e.name}','')">Parler à Éli →</button></div>
+    </div>`;
+  uni.scrollTop=0;
+}
+function examBlancheAEFE(k){
+  const e=EXAM_AEFE[k];
+  document.getElementById('universeBody').innerHTML=`
+    <div class="examdash">
+      <button class="subjdash-back" onclick="openExamAEFE('${k}')">← Retour à ma préparation</button>
+      <div class="examblanche"><div class="examblanche-ic">📝</div><h2 class="class-h2">Épreuve blanche — ${e.name}</h2><p class="class-sub">Éli te place dans les conditions réelles : sujet chronométré, puis correction détaillée et bilan de tes points faibles.</p><button class="class-chat-btn" style="margin-top:18px" onclick="openChatContext('${e.name}','Épreuve blanche')">Commencer l'épreuve →</button></div>
+    </div>`;
+  document.getElementById('universe').scrollTop=0;
+}
+
+
+/* ═══════════ Éli AEFE v3 — dashboards des outils + retour à l'endroit cliqué ═══════════ */
+const FEAT_DASH=[
+  null,
+  {bg:'linear-gradient(140deg,#0D47A1,#1565C0)',steps:[['Prends ton exercice en photo',"Un énoncé bloque ? Montre-le à Éli, en photo ou en texte."],['Éli t\'explique pas à pas',"Il décompose le raisonnement et te guide vers la solution, étape par étape."],['Jamais la réponse toute faite',"Tu comprends la méthode pour refaire seul la prochaine fois."]]},
+  {bg:'linear-gradient(140deg,#0B3D2E,#0E7C5A)',steps:[['Ta combinaison de spécialités',"Maths, PC, SVT, SES, HGGSP, NSI, HLP, LLCE… Éli s'adapte à tes choix."],['Cours & méthodo adaptés',"Le programme officiel de chaque spécialité, expliqué à ton niveau."],['Entraînement ciblé',"Exercices et sujets type Bac pour chaque spécialité."]]},
+  {bg:'linear-gradient(140deg,#4C1D95,#6D28D9)',steps:[['Fiches générées par Éli',"Des fiches claires et synthétiques pour chaque chapitre."],['Quiz adaptatifs',"Plus tu te trompes sur une notion, plus Éli te la fait travailler."],['Révision espacée',"Éli planifie tes rappels au bon moment pour ancrer durablement."]]},
+  {bg:'linear-gradient(140deg,#0D1B3E,#1A2B52)',steps:[['Suivi coefficienté',"Éli suit tes moyennes et le poids de chaque matière dans ta moyenne."],['Ce qui pèse le plus',"Tu sais où concentrer tes efforts pour ta note de contrôle continu."],['Anticipe les évaluations',"Préparation ciblée avant chaque contrôle important."]]},
+  {bg:'linear-gradient(140deg,#7a4a04,#C2410C)',steps:[['Prépas & grandes écoles',"Éli éclaire les voies sélectives du système français."],['Universités à l\'étranger',"Pistes, attendus et équivalences pour étudier hors de France."],['Dossiers & calendriers',"Échéances, pièces à fournir et stratégie pour ne rien manquer."]]},
+];
+function openFeatChat(i){const f=FEATURES[i];openChat();setTimeout(()=>{const s=document.getElementById('chatStream');s.innerHTML='';pushMsg("Je suis Éli. On va utiliser « "+f.n+" » ensemble. Dis-moi ta classe et ta matière, et on s'y met.",'eli');},320);}
+function openFeat(i){
+  if(i===0){openGrandOral();return;}
+  const f=FEATURES[i];const d=FEAT_DASH[i]||{bg:'linear-gradient(140deg,#0D1B3E,#1A2B52)',steps:[]};
+  closeAll();const uni=document.getElementById('universe');uni.classList.add('open');
+  document.getElementById('uniTitle').textContent=f.ic+' '+f.n;
+  document.getElementById('universeBody').innerHTML=`
+    <div class="examdash">
+      <div class="sdash-hero" style="background:${d.bg}">
+        <div class="sdash-hero-eyebrow">Outil Éli</div>
+        <h2>${f.n}</h2>
+        <p>${f.d}</p>
+        <div class="sdash-hero-actions"><button class="sdash-hero-btn solid" onclick="openFeatChat(${i})">Travailler avec Éli →</button></div>
+      </div>
+      <div class="subjdash-card"><div class="prog-title">Comment ça marche</div><div class="sdash-steps">
+        ${d.steps.map((st,idx)=>`<div class="sdash-step"><span class="sdash-step-n">${idx+1}</span><div class="sdash-step-t"><strong>${st[0]}</strong><span>${st[1]}</span></div></div>`).join('')}
+      </div></div>
+      <div class="subjdash-chat" onclick="openFeatChat(${i})"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Parler à Éli — ${f.n}</strong><span>Pose-moi tes questions, je t'accompagne pas à pas.</span></div><button class="class-chat-btn" onclick="event.stopPropagation();openFeatChat(${i})">Ouvrir →</button></div>
+    </div>`;
+  uni.scrollTop=0;
+}
+
+</script>
+</body>
+</html>
