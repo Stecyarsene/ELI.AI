@@ -1102,7 +1102,9 @@ body.bougie .universe{background:#10161C}
     <!-- Inscription -->
     <div class="signup-form" id="formSignup">
       <input type="text" placeholder="Ton prénom" />
+      <input type="email" placeholder="Ton adresse email" />
       <input type="tel" placeholder="Numéro de téléphone WhatsApp" />
+      <input type="password" placeholder="Choisis un mot de passe (min. 6 caractères)" />
       <label class="signup-field-label">Ta date de naissance</label>
       <input type="date" id="signupBirth" />
       <select id="signupClass">
@@ -1130,8 +1132,13 @@ body.bougie .universe{background:#10161C}
     </div>
     <!-- Connexion -->
     <div class="signup-form" id="formLogin" style="display:none">
-      <input type="tel" placeholder="Ton numéro de téléphone WhatsApp" />
+      <input type="email" id="loginEmail" placeholder="Ton adresse email" />
+      <input type="password" id="loginPassword" placeholder="Ton mot de passe" />
       <button class="signup-submit" onclick="loginReturn()">Me connecter</button>
+      <div class="signup-or" style="text-align:center;margin:10px 0;opacity:.6">— ou par téléphone —</div>
+      <input type="tel" id="loginPhone" placeholder="Ton numéro (+241...)" />
+      <input type="text" id="loginOtp" placeholder="Code reçu par SMS" style="display:none" />
+      <button class="signup-submit" id="loginPhoneBtn" onclick="loginByPhone()" style="background:transparent;border:1px solid rgba(255,255,255,.3)">Recevoir un code SMS</button>
       <div class="signup-note">Retrouve ton parcours là où tu t'es arrêté</div>
     </div>
   </div>

@@ -777,7 +777,9 @@ body{background:var(--ivory);color:var(--navy);font-family:var(--fbody);min-heig
     <div class="auth-tabs"><button class="auth-tab active" id="tabS" onclick="switchAuth('signup')">Inscription</button><button class="auth-tab" id="tabL" onclick="switchAuth('login')">Connexion</button></div>
     <div class="uform" id="formS">
       <input type="text" placeholder="Prénom de l'élève"/>
+      <input type="email" placeholder="Ton adresse email"/>
       <input type="tel" placeholder="Numéro de téléphone WhatsApp"/>
+      <input type="password" placeholder="Choisis un mot de passe (min. 6 caractères)"/>
       <label class="field-label">Date de naissance</label>
       <input type="date" id="birth"/>
       <select id="levelSel">
@@ -787,8 +789,13 @@ body{background:var(--ivory);color:var(--navy);font-family:var(--fbody);min-heig
       <button class="usubmit" onclick="submitSignup()">Créer mon compte</button>
     </div>
     <div class="uform" id="formL" style="display:none">
-      <input type="tel" placeholder="Numéro de téléphone WhatsApp"/>
+      <input type="email" id="loginEmail" placeholder="Ton adresse email"/>
+      <input type="password" id="loginPassword" placeholder="Ton mot de passe"/>
       <button class="usubmit" onclick="loginReturn()">Me connecter</button>
+      <div style="text-align:center;margin:10px 0;opacity:.6">— ou par téléphone —</div>
+      <input type="tel" id="loginPhone" placeholder="Ton numéro (+241...)"/>
+      <input type="text" id="loginOtp" placeholder="Code reçu par SMS" style="display:none"/>
+      <button class="usubmit" id="loginPhoneBtn" onclick="loginByPhone()" style="background:transparent;border:1px solid rgba(0,0,0,.2)">Recevoir un code SMS</button>
       <div class="unote">Retrouve ton parcours là où tu t'es arrêté</div>
     </div>
   </div>
