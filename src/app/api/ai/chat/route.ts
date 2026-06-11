@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
   const system = buildSystemPrompt(p, (prog as Progress[] | null) ?? [], body.focusSubject ?? null);
   const upstream = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?alt=sse&key=${process.env.GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${process.env.GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
