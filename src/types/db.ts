@@ -13,3 +13,14 @@ export interface Progress {
 }
 export interface Plan { id: string; program: Program; label: string; amount_fcfa: number; duration_days: number; }
 export interface Payment { tx_id: string; user_id: string; program: Program; plan_id: string; amount_fcfa: number; status: 'pending' | 'success' | 'failed'; }
+
+export type FicheKind = 'revision' | 'quiz' | 'examen';
+export interface Fiche {
+  id: number; user_id: string; program: Program; subject: string;
+  kind: FicheKind; title: string; body: Record<string, unknown>;
+  status: 'pret' | 'archive'; created_at: string;
+}
+export interface Bilan {
+  chapitre_travaille?: string; reussites?: string[]; erreurs_types?: string[];
+  statut_propose?: Status; prochaine_etape?: string;
+}

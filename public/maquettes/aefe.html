@@ -1203,12 +1203,20 @@ const PROG_AEFE={
   premiere:[['Maths (spé)','Spécialité'],['Physique-Chimie (spé)','Spécialité'],['SVT (spé)','Spécialité'],['SES (spé)','Spécialité'],['HGGSP (spé)','Spécialité'],['NSI (spé)','Spécialité'],['HLP (spé)','Spécialité'],['LLCE (spé)','Spécialité'],['Français (écrit & oral)','Français'],['Histoire-Géographie','Sciences humaines'],['Enseignement scientifique','Sciences'],['Anglais (LV1)','Langues'],['LV2','Langues'],['EMC','EMC'],['EPS','Sport']],
   terminale:[['Maths (spé)','Spécialité'],['Physique-Chimie (spé)','Spécialité'],['SVT (spé)','Spécialité'],['SES (spé)','Spécialité'],['HGGSP (spé)','Spécialité'],['NSI (spé)','Spécialité'],['HLP (spé)','Spécialité'],['LLCE (spé)','Spécialité'],['Philosophie','Philo'],['Histoire-Géographie','Sciences humaines'],['Enseignement scientifique','Sciences'],['Anglais (LV1)','Langues'],['LV2','Langues'],['EMC','EMC'],['EPS','Sport'],['Grand Oral','Épreuve'],['Parcoursup','Orientation']],
 };
+function eliHydrateProgress(){var get=window.eliAuthedFetch;if(typeof get!=='function')return Promise.resolve(false);return get('/api/progress',{method:'GET'}).then(function(r){return r&&r.ok?r.json():null;}).then(function(j){if(!j||!Array.isArray(j.progress))return false;var map={};j.progress.forEach(function(p){map[p.subject]=p;});window.__ELI_PROGRESS__=map;window.__ELI_HYDRATED__=true;return true;}).catch(function(){return false;});}
+window.eliHydrateProgress=eliHydrateProgress;
+window.__ELI_PROGRESS__=window.__ELI_PROGRESS__||{};window.__ELI_HYDRATED__=false;
+function realStatus(subj){var p=window.__ELI_PROGRESS__[subj];return p&&p.status?p.status:null;}
+function realChapter(subj){var p=window.__ELI_PROGRESS__[subj];return p&&p.last_chapter?p.last_chapter:null;}
+function realStrong(subj){var p=window.__ELI_PROGRESS__[subj];return p&&Array.isArray(p.strengths)&&p.strengths.length?p.strengths:null;}
+function realImprove(subj){var p=window.__ELI_PROGRESS__[subj];return p&&Array.isArray(p.improvements)&&p.improvements.length?p.improvements:null;}
+function realGapAll(subj){var p=window.__ELI_PROGRESS__[subj];return p&&Array.isArray(p.red_zones)&&p.red_zones.length?p.red_zones:null;}
 function demoStatus(i){const m=['vert','vert','orange','vert','rouge','orange','vert','vert','orange','vert','vert','rouge','vert','orange','vert','vert','orange'];return m[i%m.length];}
 function catIcon(cat){const m={'Français':'📖','Maths':'📐','Sciences':'🔬','Sciences humaines':'🌍','Langues':'🗣️','Économie':'📈','Philo':'💭','Arts':'🎨','Sport':'🤸','EMC':'⚖️','Numérique':'💻','Spécialité':'⭐','Épreuve':'🎙️','Orientation':'🎓'};return m[cat]||'📘';}
-function demoChapter(s){const m={'Mathématiques':'Les fonctions','Maths (spé)':'La dérivation','Philosophie':'La conscience','Français':'Le roman & ses personnages','Français (écrit & oral)':"L'argumentation",'SES (spé)':'Les marchés concurrentiels','HGGSP (spé)':'Les frontières','Physique-Chimie (spé)':'Les ondes','SVT (spé)':'La génétique','Histoire-Géographie':'La mondialisation'};return m[s]||'Chapitre en cours';}
-function demoStrong(s){const m={'Mathématiques':['Calcul','Géométrie'],'Philosophie':['Analyse de notions'],'Français':['Commentaire de texte','Lecture']};return m[s]||['Bases du programme','Méthodologie acquise'];}
-function demoImprove(s){const m={'Mathématiques':['Les probabilités'],'Philosophie':['La problématisation'],'Français':['La dissertation']};return m[s]||['Chapitre à consolider'];}
-function demoRed(s){const m={'Mathématiques':['Calcul intégral'],'Philosophie':['Construire un plan dialectique'],'Français':["L'analyse stylistique"]};return m[s]||['Notion clé à retravailler'];}
+function demoChapter(s){const m={'Mathématiques':'Les fonctions','Maths (spé)':'La dérivation','Philosophie':'La conscience','Français':'Le roman & ses personnages','Français (écrit & oral)':"L'argumentation",'SES (spé)':'Les marchés concurrentiels','HGGSP (spé)':'Les frontières','Physique-Chimie (spé)':'Les ondes','SVT (spé)':'La génétique','Histoire-Géographie':'La mondialisation'};return realChapter(s)||m[s]||'Chapitre en cours';}
+function demoStrong(s){const m={'Mathématiques':['Calcul','Géométrie'],'Philosophie':['Analyse de notions'],'Français':['Commentaire de texte','Lecture']};return realStrong(s)||m[s]||['Bases du programme','Méthodologie acquise'];}
+function demoImprove(s){const m={'Mathématiques':['Les probabilités'],'Philosophie':['La problématisation'],'Français':['La dissertation']};return realImprove(s)||m[s]||['Chapitre à consolider'];}
+function demoRed(s){const m={'Mathématiques':['Calcul intégral'],'Philosophie':['Construire un plan dialectique'],'Français':["L'analyse stylistique"]};return realGapAll(s)||m[s]||['Notion clé à retravailler'];}
 function demoHistory(s){return [['Hier','Quiz : '+demoChapter(s),'vert'],['Il y a 3 j','Méthode avec Éli','orange'],['Semaine dernière','Première leçon du chapitre','vert'],['Il y a 10 j','Évaluation diagnostique','rouge']];}
 
 function closeUniverse(){document.getElementById('universe').classList.remove('open');}
@@ -1229,7 +1237,7 @@ function openClassPage(k){
     <div class="class-hero"><div class="class-hero-logo">${eliLogo(58)}</div><h2 class="class-h2">${lvl}</h2><p class="class-sub">Voici toutes tes matières. Choisis-en une pour voir ta progression et travailler avec Éli.</p></div>
     ${eb}
     <div class="subj-grid">
-      ${subs.map((s,i)=>{const st=demoStatus(i);
+      ${subs.map((s,i)=>{const st=realStatus(s[0])||demoStatus(i);
         if(s[1]==='Épreuve')return `<button class="subj-card subj-special" style="--sc:#6D28D9" onclick="openGrandOral()"><div class="subj-cat">Épreuve du Bac</div><div class="subj-name">🎙️ ${s[0]}</div><div class="subj-status st-orange"><span class="st-dot"></span>Atelier dédié</div></button>`;
         if(s[1]==='Orientation')return `<button class="subj-card subj-special" style="--sc:#1565C0" onclick="openParcoursup()"><div class="subj-cat">Orientation</div><div class="subj-name">🎓 ${s[0]}</div><div class="subj-status st-orange"><span class="st-dot"></span>Tableau de bord</div></button>`;
         const col=CAT_COLOR[s[1]]||'#1565C0';return `<button class="subj-card" style="--sc:${col}" onclick="openSubject(${i})"><div class="subj-cat">${s[1]}</div><div class="subj-name">${s[0]}</div><div class="subj-status st-${st}"><span class="st-dot"></span>${st==='vert'?'Acquis':st==='orange'?'À renforcer':'À travailler'}</div></button>`;}).join('')}
@@ -1240,7 +1248,7 @@ function openClassPage(k){
 let CURRENT_CLASS_KEY='';
 function openSubject(i){
   const subs=PROG_AEFE[CURRENT_CLASS_KEY]||[];const s=subs[i];if(!s)return;
-  CURRENT_SUBJECT=s[0];const col=CAT_COLOR[s[1]]||'#1565C0';const st=demoStatus(i);
+  CURRENT_SUBJECT=s[0];const col=CAT_COLOR[s[1]]||'#1565C0';const st=realStatus(s[0])||demoStatus(i);
   const vert=st==='vert'?68:st==='orange'?45:22,orange=st==='vert'?22:35,rouge=100-vert-orange;
   document.getElementById('uniTitle').textContent=s[0]+' · '+CURRENT_CLASS;
   document.getElementById('universeBody').innerHTML=subjectDashHTML(s,col,vert,orange,rouge,CURRENT_CLASS,`openClassPage('${CURRENT_CLASS_KEY}')`);
