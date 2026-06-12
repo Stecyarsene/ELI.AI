@@ -11,7 +11,9 @@ export async function GET(req: Request) {
   const user = await userFromRequest(req);
   if (!user) return Response.json({ error: 'unauthorized' }, { status: 401 });
 
-  const subject = new URL(req.url).searchParams.get('subject');
+  const url = new URL(req.url);
+  const subject = url.searchParams.get('subject');
+  const kind = url.searchParams.get('kind');
   let q = supabaseAdmin()
     .from('fiches')
     .select('*')
@@ -19,6 +21,7 @@ export async function GET(req: Request) {
     .order('created_at', { ascending: false })
     .limit(100);
   if (subject) q = q.eq('subject', subject);
+  if (kind === 'revision' || kind === 'quiz' || kind === 'examen') q = q.eq('kind', kind);
 
   const { data, error } = await q;
   if (error) return Response.json({ error: 'db_error' }, { status: 500 });

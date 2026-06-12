@@ -82,6 +82,11 @@ export const orientationInput = z.object({
 
 export const bougieInput = z.object({ on: z.boolean() }).strict();
 
+export const examPdfInput = z.object({
+  exam: z.string().min(1).max(60),
+  subject: z.string().min(1).max(120),
+}).strict();
+
 /** Helper : parse sûr → {ok,data} | {ok:false,error}. Jamais d'exception non gérée. */
 export function safeParse<T>(schema: z.ZodSchema<T>, data: unknown): { ok: true; data: T } | { ok: false; error: string } {
   const r = schema.safeParse(data);

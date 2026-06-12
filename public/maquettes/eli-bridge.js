@@ -10,11 +10,15 @@
   var PROGRAM = (SELF && SELF.getAttribute('data-program')) || 'national';
   var SB_URL = '', SB_ANON = '', sbPromise = null;
 
+  function loadSupabaseModule() {
+    // Bundle local (même origine) = pas de round-trip externe au premier clic ; repli CDN si absent.
+    return import('/maquettes/vendor/supabase-js.mjs').catch(function () { return import('https://esm.sh/@supabase/supabase-js@2'); });
+  }
   function getSb() {
     if (sbPromise) return sbPromise;
     sbPromise = fetch('/api/config').then(function (r) { return r.json(); }).then(function (cfg) {
       SB_URL = cfg.supabaseUrl; SB_ANON = cfg.supabaseAnon;
-      return import('https://esm.sh/@supabase/supabase-js@2');
+      return loadSupabaseModule();
     }).then(function (m) { return m.createClient(SB_URL, SB_ANON); });
     return sbPromise;
   }
@@ -123,9 +127,17 @@
     return v;
   }
 
-  // Nettoyage live (pendant le stream) : on coupe avant tout bloc technique et on enlève les balises voix.
+  // Nettoyage d'affichage ROBUSTE : aucune balise technique ne doit jamais apparaître,
+  // ni en streaming (tags partiels en fin de flux) ni en final (tag mal fermé).
   function cleanForDisplay(t) {
-    return String(t || '').split(/\[BILAN\]|\[FICHE\]/i)[0].replace(/\[VOIX\]|\[\/VOIX\]/gi, '');
+    return String(t || '')
+      .replace(/\[BILAN\][\s\S]*?\[\/BILAN\]/gi, '')          // blocs complets
+      .replace(/\[FICHE\][\s\S]*?\[\/FICHE\]/gi, '')
+      .replace(/\[\/?VOIX\]/gi, '')                            // balises voix (ouvrante/fermante)
+      .replace(/\[(?:BILAN|FICHE)\][\s\S]*$/i, '')             // bloc technique ouvert, pas encore fermé (stream)
+      .replace(/\[\/?[A-Z]{0,6}$/, '')                          // tag technique PARTIEL en fin de flux ([VOI, [BIL, [/VOIX…)
+      .replace(/[ \t]+\n/g, '\n')
+      .trim();
   }
 
   // Extrait, poste (progress/fiches) puis RETIRE les blocs [BILAN]/[FICHE] ; renvoie le texte visible.
@@ -277,9 +289,11 @@
             var parts = splitVoice(full);
             var hasVoiceTag = /\[VOIX\]/i.test(full);
             var body = (parts.written && parts.written !== parts.speech) ? parts.written : '';
-            var toRead = hasVoiceTag ? (parts.speech + (body ? '\n\n' + body : '')) : (parts.written || parts.speech);
+            var dispSpeech = cleanForDisplay(parts.speech);
+            var dispBody = cleanForDisplay(body);
+            var toRead = hasVoiceTag ? (dispSpeech + (dispBody ? '\n\n' + dispBody : '')) : (cleanForDisplay(parts.written) || dispSpeech);
             if (!spoken) { speakAll(toRead); spoken = true; }
-            if (bubble) bubble.textContent = body ? ('🔊 ' + parts.speech + '\n\n' + body) : ('🔊 ' + parts.speech);
+            if (bubble) bubble.textContent = dispBody ? ('🔊 ' + dispSpeech + '\n\n' + dispBody) : ('🔊 ' + dispSpeech);
             if (st) st.scrollTop = st.scrollHeight;
             return;
           }
@@ -407,6 +421,8 @@
           if (typeof window.eliHydrateProgress === 'function') window.eliHydrateProgress();
           // Engagement (flamme/série) + continuité + enregistrement push
           if (window.__eliEngageOnce__ !== true) { window.__eliEngageOnce__ = true; c.rpc('touch_engagement', { p_minutes: 1 }).then(function (er) { if (er && er.data) renderStreak(er.data); }).catch(function () {}); }
+          // Périmètre réel (classe, examen, série) pour piloter l'affichage examen/normal des piliers
+          c.rpc('my_scope').then(function (sr) { if (sr && sr.data) { window.__ELI_SCOPE__ = sr.data; if (typeof window.eliApplyScope === 'function') try { window.eliApplyScope(sr.data); } catch (e) {} } }).catch(function () {});
           renderContinuity(progress);
           renderResumable();
           renderBougie(!!(profile && profile.bougie));
@@ -661,6 +677,93 @@
     }).catch(function () { mount.innerHTML = '<div style="opacity:.7;color:#16243a">Connecte-toi pour gérer tes vœux.</div>'; });
   }
 
+  /* ───────── Calendrier examens : compte à rebours DYNAMIQUE (recalcul quotidien) ───────── */
+  var ELI_EXAM_DATES = {
+    // National (Gabon) — calendrier officiel 2026 (Min. Éducation nationale / union.ga)
+    cep:           { date: '2026-06-15', label: 'CEP',           provisional: false },
+    bepc:          { date: '2026-06-22', label: 'BEPC',          provisional: true  },
+    bac:           { date: '2026-06-30', label: 'BAC',           provisional: false },
+    bac_general:   { date: '2026-06-30', label: 'BAC général',   provisional: false },
+    bac_technique: { date: '2026-06-30', label: 'BAC technique', provisional: true  },
+    // AEFE — calendrier français 2026 (education.gouv.fr)
+    brevet:        { date: '2026-06-26', label: 'Brevet (DNB)',  provisional: false },
+    bac_aefe:      { date: '2026-06-15', label: 'Bac',           provisional: false }
+  };
+  function eliDaysUntil(key) {
+    var e = ELI_EXAM_DATES[key]; if (!e || !e.date) return null;
+    var target = new Date(e.date + 'T00:00:00');
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    return Math.max(0, Math.round((target - today) / 86400000));
+  }
+  function eliExamMeta(key) { return ELI_EXAM_DATES[key] || null; }
+  function eliRefreshCountdowns() {
+    var els = document.querySelectorAll('[data-exam-cd]');
+    for (var i = 0; i < els.length; i++) {
+      var k = els[i].getAttribute('data-exam-cd'); var d = eliDaysUntil(k);
+      if (d != null) els[i].textContent = 'J-' + d;
+    }
+  }
+  function eliLoadExamDates() {
+    fetch('/api/exams').then(function (r) { return r.json(); }).then(function (j) {
+      var items = (j && j.items) || [];
+      items.forEach(function (it) { if (it.exam_key) ELI_EXAM_DATES[it.exam_key] = { date: it.exam_date, label: it.label, provisional: !!it.provisional }; });
+      eliRefreshCountdowns();
+    }).catch(function () { eliRefreshCountdowns(); });
+  }
+  window.eliDaysUntil = eliDaysUntil; window.eliExamMeta = eliExamMeta; window.eliRefreshCountdowns = eliRefreshCountdowns;
+
+  /* ───────── Examens : fiches(kind=examen) réelles + PDF par épreuve ───────── */
+  function eliExamLabelFromTitle() {
+    var t = document.getElementById('uniTitle'); var x = t ? (t.textContent || '') : '';
+    return x.replace(/^[^A-Za-zÀ-ÿ]+/, '').replace(/^Pr[ée]paration\s+/i, '').trim() || 'Examen';
+  }
+  function eliGenExamPdf(exam, subject, btn) {
+    var old = btn ? btn.textContent : '';
+    if (btn) { btn.textContent = '…'; btn.disabled = true; }
+    authedFetch('/api/exam/pdf', { method: 'POST', body: JSON.stringify({ exam: exam, subject: subject }) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) { if (j && j.signedUrl) showPdfToast(j.signedUrl); else showPdfToast(''); })
+      .catch(function () {})
+      .then(function () { if (btn) { btn.textContent = old || '📄 PDF'; btn.disabled = false; } });
+  }
+  function eliMaybeMountExam() {
+    var body = document.getElementById('universeBody'); if (!body) return;
+    if (!body.querySelector('.examdash-epreuves') && !body.querySelector('.examdash-countdown')) return;
+    var exam = eliExamLabelFromTitle();
+    // 1) Bouton PDF par épreuve
+    var rows = body.querySelectorAll('.ep-row');
+    Array.prototype.forEach.call(rows, function (row) {
+      if (row.getAttribute('data-eli-pdf')) return;
+      row.setAttribute('data-eli-pdf', '1');
+      var nameEl = row.querySelector('.ep-name'); if (!nameEl) return;
+      var subject = (nameEl.textContent || '').trim();
+      var b = document.createElement('button');
+      b.type = 'button'; b.textContent = '📄 PDF';
+      b.style.cssText = 'margin-left:8px;padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.2);color:inherit;font-size:11.5px;cursor:pointer;font-family:inherit';
+      b.onclick = function (ev) { ev.stopPropagation(); eliGenExamPdf(exam, subject, b); };
+      row.appendChild(b);
+    });
+    // 2) Panneau « Mes fiches d'examen » (réel) + Empty State
+    if (body.querySelector('#eliExamFiches')) return;
+    var card = document.createElement('div'); card.id = 'eliExamFiches'; card.className = 'examdash-card';
+    card.style.cssText = 'margin-top:16px;padding:18px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12)';
+    card.innerHTML = '<div class="prog-title">📑 Mes fiches d\'examen</div><div id="eliExamFichesList" style="opacity:.75;font-size:14px;margin-top:8px">Chargement…</div>';
+    body.appendChild(card);
+    authedFetch('/api/fiches?kind=examen').then(function (r) { return r.json(); }).then(function (j) {
+      var fiches = (j && j.fiches) || []; var list = card.querySelector('#eliExamFichesList');
+      if (!list) return;
+      if (!fiches.length) { list.innerHTML = "Pas encore de fiche d'examen. Éli en crée au fil de tes révisions — et tu peux générer une fiche PDF par épreuve via le bouton 📄 ci-dessus."; return; }
+      list.style.opacity = '1';
+      list.innerHTML = fiches.map(function (f) {
+        var sE = String(f.subject || '').replace(/'/g, "\\'");
+        return '<button class="eli-fiche-row" data-subj="' + sE + '" style="display:block;width:100%;text-align:left;margin:6px 0;padding:11px 13px;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:inherit;cursor:pointer;font-family:inherit"><strong>' + (f.title || f.subject) + '</strong> <span style="opacity:.65;font-size:12px">· ' + f.subject + '</span></button>';
+      }).join('');
+      Array.prototype.forEach.call(list.querySelectorAll('.eli-fiche-row'), function (b) {
+        b.onclick = function () { var subj = b.getAttribute('data-subj'); window.__eliFocusSubject__ = subj; if (typeof window.openChatContext === 'function') window.openChatContext('', subj); };
+      });
+    }).catch(function () { var l = card.querySelector('#eliExamFichesList'); if (l) l.textContent = "Connecte-toi pour retrouver tes fiches d'examen."; });
+  }
+
   /* ───────── Installation ───────── */
   function install() {
     if (typeof window.submitSignup === 'function') window.__origSubmitSignup__ = window.submitSignup;
@@ -689,6 +792,9 @@
     ['openParcoursup', 'openPillar', 'openMonAvenir'].forEach(function (fn) {
       if (typeof window[fn] === 'function') { var of = window[fn]; window[fn] = function () { var rv = of.apply(this, arguments); try { setTimeout(eliMaybeMountOrientation, 60); } catch (e) {} return rv; }; }
     });
+    ['openExamAEFE', 'openExamDash'].forEach(function (fn) {
+      if (typeof window[fn] === 'function') { var oe = window[fn]; window[fn] = function () { var rv = oe.apply(this, arguments); try { setTimeout(function () { eliMaybeMountExam(); eliRefreshCountdowns(); }, 60); } catch (e) {} return rv; }; }
+    });
     ['closeChat', 'closeMM', 'closeAll', 'closeOverlay'].forEach(function (fn) {
       if (typeof window[fn] === 'function') {
         var o = window[fn];
@@ -703,6 +809,11 @@
       });
     }).catch(function () {});
   }
+
+  // Warm-up Supabase : résout config + module + client pendant l'idle (pas au 1er clic, sans gêner le 1er paint).
+  try { var _warm = function () { try { getSb(); } catch (e) {} }; (window.requestIdleCallback ? requestIdleCallback(_warm, { timeout: 1500 }) : setTimeout(_warm, 300)); } catch (e) {}
+  // Dates d'examens : charge le calendrier réel et rafraîchit les compte-à-rebours chaque jour.
+  try { eliLoadExamDates(); setInterval(eliRefreshCountdowns, 60000); } catch (e) {}
 
   if (document.readyState === 'complete' || document.readyState === 'interactive') setTimeout(install, 400);
   else window.addEventListener('DOMContentLoaded', function () { setTimeout(install, 400); });

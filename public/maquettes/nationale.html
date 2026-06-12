@@ -2374,7 +2374,7 @@ function openExamDash(k){
     <div class="examdash">
       <div class="examdash-hero">
         <div class="examdash-badge">${e.ico} ${e.full}</div>
-        <div class="examdash-countdown"><div class="cd-num">J-${e.jdays}</div><div class="cd-label">avant le ${e.name} · ${e.date}</div></div>
+        <div class="examdash-countdown"><div class="cd-num" data-exam-cd="${k==='bac'?'bac_general':k}">J-${(window.eliDaysUntil&&window.eliDaysUntil(k==='bac'?'bac_general':k))||e.jdays}</div><div class="cd-label">avant le ${e.name} · ${e.date}${(window.eliExamMeta&&window.eliExamMeta(k==='bac'?'bac_general':k)&&window.eliExamMeta(k==='bac'?'bac_general':k).provisional)?' · date prévisionnelle':''}</div></div>
         <p class="examdash-lead">${e.hero}</p>
         <div class="examdash-actions">
           <button class="examdash-btn primary" onclick="openChatContext('${e.level} · ${e.name}','')">🎤 Préparer avec Éli</button>

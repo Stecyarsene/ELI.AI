@@ -27,14 +27,18 @@ export interface Bilan {
 
 /** Retour de la RPC my_scope() — périmètre pédagogique autorisé de l'élève. */
 export interface Scope {
-  program: Program; class_key: string; serie: string | null;
-  country_code: string | null; is_technical: boolean;
+  program: Program; class_key: string; class_label: string; cycle: string | null;
+  serie: string | null; country_code: string | null; is_technical: boolean;
+  is_exam_class: boolean; exam_name: string | null; has_series: boolean;
   curriculum: CurriculumPayload;
 }
-/** Format attendu du payload `curriculum` (jsonb). Tolérant : tout champ est optionnel. */
+/** Format attendu du payload `curriculum` (jsonb). Tolérant : tout champ est optionnel.
+ *  Forme ingérée par set_curriculum : { source, updated, subjects:[{name, chapters:[{order,title,notions[]}]}] } */
 export interface CurriculumPayload {
-  version?: number;
-  subjects?: Record<string, { chapters?: string[]; objectifs?: string[] }>;
+  version?: number; source?: string; updated?: string;
+  subjects?:
+    | Record<string, { chapters?: string[]; objectifs?: string[] }>
+    | { name: string; chapters?: { order?: number; title?: string; notions?: string[] }[] }[];
 }
 export interface Engagement {
   user_id: string; streak_current: number; streak_best: number;

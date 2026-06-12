@@ -1372,7 +1372,7 @@ function openExamAEFE(k){
     <div class="examdash">
       <div class="examdash-hero hero-${e.theme}">
         <div class="examdash-badge">${e.ico} ${e.full}</div>
-        <div class="cd-num">J-${e.jdays}</div><div class="cd-label">avant le ${e.name} · ${e.date}</div>
+        <div class="cd-num" data-exam-cd="${k==='bac'?'bac_aefe':k}">J-${(window.eliDaysUntil&&window.eliDaysUntil(k==='bac'?'bac_aefe':k))||e.jdays}</div><div class="cd-label">avant le ${e.name} · ${e.date}</div>
         <p class="examdash-lead">${e.hero}</p>
         <div class="examdash-actions"><button class="sdash-hero-btn solid" onclick="openChatContext('${e.name}','')">🎤 Préparer avec Éli</button><button class="sdash-hero-btn outline" onclick="examBlancheAEFE('${k}')">📝 Épreuve blanche</button></div>
       </div>

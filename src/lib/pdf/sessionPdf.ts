@@ -69,3 +69,38 @@ export async function buildSessionPdf(d: SessionPdfData): Promise<Uint8Array> {
   page.drawText('Généré par Éli · ton compagnon d\'apprentissage', { x: M, y: 28, size: 8, font, color: rgb(0.6, 0.6, 0.6) });
   return pdf.save();
 }
+
+export interface ExamPdfData {
+  examName: string; subject: string; intro: string;
+  sections: { heading: string; items: string[] }[];
+}
+
+/** PDF de révision d'une épreuve d'examen (fiches kind=examen, ou axes de révision déduits). */
+export async function buildExamPdf(d: ExamPdfData): Promise<Uint8Array> {
+  const pdf = await PDFDocument.create();
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+  const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
+  let page = pdf.addPage([595, 842]);
+  const M = 50, W = 595 - M * 2;
+  let y = 842;
+  page.drawRectangle({ x: 0, y: 842 - 90, width: 595, height: 90, color: GREEN });
+  page.drawText('Éli', { x: M, y: 842 - 56, size: 26, font: bold, color: GOLD });
+  page.drawText('Fiche d\'épreuve · ' + d.examName, { x: M + 56, y: 842 - 54, size: 14, font: bold, color: rgb(1, 1, 1) });
+  y = 842 - 120;
+  const line = (txt: string, size: number, f = font, color = rgb(0.1, 0.1, 0.1)) => {
+    for (const l of wrap(txt, f, size, W)) {
+      if (y < M + 40) { page = pdf.addPage([595, 842]); y = 842 - M; }
+      page.drawText(l, { x: M, y, size, font: f, color }); y -= size + 6;
+    }
+  };
+  line(d.subject, 20, bold, GREEN);
+  y -= 4;
+  if (d.intro) { line(d.intro, 11, font, rgb(0.35, 0.35, 0.35)); y -= 8; }
+  for (const sec of d.sections) {
+    line(sec.heading, 13, bold, GREEN); y -= 2;
+    for (const it of sec.items) line('•  ' + it, 11);
+    y -= 10;
+  }
+  page.drawText('Généré par Éli · révise à ton rythme', { x: M, y: 28, size: 8, font, color: rgb(0.6, 0.6, 0.6) });
+  return pdf.save();
+}

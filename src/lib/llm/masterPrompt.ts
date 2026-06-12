@@ -1,5 +1,23 @@
 import type { Profile, Progress, Scope, SchoolStatus } from '@/types/db';
 
+/** Extrait les titres de chapitres officiels pour une matière (gère payload Record OU tableau set_curriculum). */
+function chaptersForSubject(scope: Scope | null | undefined, subject: string | null): string[] | null {
+  const subs = scope?.curriculum?.subjects;
+  if (!subs || !subject) return null;
+  if (Array.isArray(subs)) {
+    const hit = subs.find((s) => s.name && s.name.toLowerCase() === subject.toLowerCase());
+    if (!hit || !hit.chapters) return null;
+    return hit.chapters.map((c) => c.title || '').filter(Boolean);
+  }
+  const rec = (subs as Record<string, { chapters?: string[] }>)[subject];
+  return rec && rec.chapters && rec.chapters.length ? rec.chapters : null;
+}
+function curriculumHasContent(scope: Scope | null | undefined): boolean {
+  const subs = scope?.curriculum?.subjects;
+  if (!subs) return false;
+  return Array.isArray(subs) ? subs.length > 0 : Object.keys(subs).length > 0;
+}
+
 /** Profils pédagogiques par matière : ton, méthode socratique adaptée, pièges fréquents. */
 const SUBJECT_PLAYBOOK: Record<string, string> = {
   'Français': "Pars d'un extrait ou d'une phrase de l'élève ; fais-le reformuler, repérer figures et arguments. Socratique : questions sur le sens avant la règle. Vise expression écrite et analyse.",
@@ -47,16 +65,20 @@ export function buildSystemPrompt(
   schoolStatus?: SchoolStatus | null
 ): string {
   const pillarKey = (pillar ?? '').toLowerCase().trim();
-  const classe = scope?.class_key || profile.class_key;
+  const classe = scope?.class_label || scope?.class_key || profile.class_key;
+  const classKey = scope?.class_key || profile.class_key;
   const serie = scope?.serie ?? profile.serie ?? null;
   const isTech = scope?.is_technical ?? false;
+  const isExam = scope?.is_exam_class ?? false;
+  const examName = scope?.exam_name ?? null;
 
-  // Chapitres officiels autorisés pour la matière en cours (si le curriculum est rempli).
-  const subjMap = scope?.curriculum?.subjects;
-  const allowedChapters = (focusSubject && subjMap && subjMap[focusSubject]?.chapters) || null;
+  // Chapitres officiels autorisés (gère les 2 formes de payload : Record ou tableau set_curriculum).
+  const allowedChapters = chaptersForSubject(scope, focusSubject ?? null);
+  const curriculumLoaded = curriculumHasContent(scope);
 
   const ctx = {
-    program: profile.program, prenom: profile.first_name, classe,
+    program: profile.program, prenom: profile.first_name, classe, classe_cle: classKey,
+    cycle: scope?.cycle ?? null, classe_examen: isExam, examen: examName,
     serie, bougie: profile.bougie, matiere_choisie: focusSubject ?? null,
     pilier_courant: pillarKey || null, technique: isTech,
     matieres: progress.map((p) => ({
@@ -79,13 +101,18 @@ export function buildSystemPrompt(
     'restent strictement dans ce niveau. Tu n\'introduis jamais une notion d\'une classe supérieure.',
     'GARDE-FOU : si une notion demandée dépasse le périmètre de la classe, tu te recentres avec bienveillance',
     '(ex. « ça, tu le verras plus tard — pour l\'instant on consolide ton niveau ») et tu ramènes à un objectif de la classe.',
+    isExam
+      ? `CLASSE D'EXAMEN : l'élève prépare le ${examName}. Oriente le travail vers cette échéance (épreuves, méthode, annales, gestion du temps) sans dramatiser.`
+      : `CLASSE SANS EXAMEN terminal cette année : pas de discours anxiogène d'examen ; parcours d'apprentissage standard du niveau, consolidation des bases.`,
     isTech
       ? 'SÉRIE TECHNIQUE : réponds dans le registre de la série technique (applications métier, cas concrets du domaine),' +
         ' PAS dans le tronc général. Ancre chaque notion dans la pratique professionnelle de la série.'
       : '',
-    allowedChapters && allowedChapters.length
-      ? `CHAPITRES OFFICIELS AUTORISÉS pour « ${focusSubject} » (limite-toi à ceux-ci) : ${allowedChapters.join(' · ')}.`
-      : 'CURRICULUM officiel non fourni pour cette matière : reste au programme standard de la classe, sans inventer de chapitres hors niveau.',
+    curriculumLoaded && allowedChapters && allowedChapters.length
+      ? `CURRICULUM OFFICIEL CHARGÉ — appuie-toi EXCLUSIVEMENT sur ces chapitres pour « ${focusSubject} » (rien hors liste) : ${allowedChapters.join(' · ')}.`
+      : (curriculumLoaded
+          ? `CURRICULUM OFFICIEL CHARGÉ pour cette classe : appuie-toi sur les chapitres officiels de la matière choisie, sans sortir du programme.`
+          : `CURRICULUM officiel NON ENCORE INGÉRÉ pour cette classe : reste au programme standard du niveau, n'invente aucun chapitre, et dis honnêtement à l'élève que tu ne peux pas être exhaustif sur le découpage officiel tant que le contenu n'est pas chargé.`),
   ].filter(Boolean).join('\n');
 
   return [
@@ -115,6 +142,8 @@ export function buildSystemPrompt(
     'images parlantes, beaucoup d\'encouragement sincère (jamais mièvre). Pas de jargon non expliqué, pas de mur de texte.',
     'SALUTATIONS : ne dis « Bonjour » / le prénom qu\'au tout premier message d\'un échange, jamais à chaque réponse ni à',
     'chaque paragraphe. Le prénom de l\'élève est déjà connu (profil) : utilise-le avec parcimonie, n\'le redemande jamais.',
+    'RÉPONDS À LA QUESTION : si l\'élève pose une question, tu y réponds directement — tu ne renvoies pas une question à la',
+    'place (au plus UNE courte clarification si c\'est vraiment indispensable). Réponses concises, pas de remplissage.',
     // ── RÈGLE ANTI-BOUCLE (stricte) ──
     'RÈGLE STRICTE — NE JAMAIS RÉPONDRE À UNE QUESTION PAR UNE QUESTION et NE JAMAIS TOURNER EN ROND :',
     'à chaque tour, tu fais AVANCER l\'élève. Tu peux poser UNE question socratique pour le guider, mais elle doit toujours',

@@ -34,6 +34,8 @@ export async function POST(req: Request) {
   const sb = supabaseAdmin();
   const token = tokenFromRequest(req);
   const asUser = token ? supabaseAsUser(token) : null;
+  // Lecture du corps lancée EN PARALLÈLE des requêtes DB (évite un aller-retour sériel avant le 1er token).
+  const bodyP = req.json().catch(() => null) as Promise<unknown>;
   // Profil + progression + PÉRIMÈTRE (my_scope) + HORAIRES DE CLASSE (in_school_hours) EN PARALLÈLE.
   const [{ data: profile }, { data: prog }, scopeRes, schoolRes] = await Promise.all([
     sb.from('profiles').select('*').eq('id', user.id).single(),
@@ -47,7 +49,7 @@ export async function POST(req: Request) {
   const scope = (scopeRes && !('error' in scopeRes && scopeRes.error) ? (scopeRes.data as Scope | null) : null);
   const school = (schoolRes && !('error' in schoolRes && schoolRes.error) ? (schoolRes.data as SchoolStatus | null) : null);
 
-  const raw = (await req.json().catch(() => null)) as unknown;
+  const raw = (await bodyP) as unknown;
   const parsed = safeParse(chatInput, raw);
   if (!parsed.ok) return Response.json({ error: 'invalid_input', detail: parsed.error }, { status: 400 });
   const { message, focusSubject, pillar } = parsed.data;
