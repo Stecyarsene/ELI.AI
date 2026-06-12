@@ -19,45 +19,155 @@
     return sbPromise;
   }
 
-  /* ───────── VOIX (ElevenLabs d'abord, navigateur en secours) ───────── */
+  /* ───────── VOIX — FILE D'ATTENTE : lit TOUT le texte, paragraphe par paragraphe ───────── */
   var currentAudio = null;
-  function speak(text) {
+  var speechQueue = [];
+  var speechSeq = 0; // jeton : invalide une lecture en cours quand une nouvelle démarre
+
+  // Découpe en segments parlables (≤ ~480 car.) : d'abord par paragraphes, puis par phrases.
+  function chunkText(text) {
+    var paras = String(text || '').split(/\n{2,}|\n/).map(function (p) { return p.trim(); }).filter(Boolean);
+    var out = [];
+    paras.forEach(function (p) {
+      if (p.length <= 480) { out.push(p); return; }
+      var sentences = p.match(/[^.!?…]+[.!?…]+(\s|$)|[^.!?…]+$/g) || [p];
+      var buf = '';
+      sentences.forEach(function (sn) {
+        sn = sn.trim(); if (!sn) return;
+        if ((buf + ' ' + sn).trim().length > 480) { if (buf) out.push(buf.trim()); buf = sn; }
+        else { buf = (buf ? buf + ' ' : '') + sn; }
+      });
+      if (buf.trim()) out.push(buf.trim());
+    });
+    return out;
+  }
+
+  function stopSpeak() {
+    speechSeq++;                 // toute lecture programmée devient caduque
+    speechQueue = [];
+    if (currentAudio) { try { currentAudio.pause(); } catch (e) {} currentAudio = null; }
+    if (typeof speechSynthesis !== 'undefined') { try { speechSynthesis.cancel(); } catch (e) {} }
+  }
+
+  // Lit l'intégralité du texte fourni : remplit la file et enchaîne segment après segment.
+  function speakAll(text) {
     if (window.__eliMuted__ || !text) return;
     stopSpeak();
-    // 1) ElevenLabs
+    var token = ++speechSeq;
+    speechQueue = chunkText(text);
+    playNext(token);
+  }
+  function speak(text) { speakAll(text); } // compat : un appel simple = lecture complète
+
+  function playNext(token) {
+    if (token !== speechSeq) return;                 // une autre lecture a pris la main
+    if (!speechQueue.length) return;
+    var seg = speechQueue.shift();
+    elevenSpeak(seg, token, function () { if (token === speechSeq) playNext(token); });
+  }
+
+  // ElevenLabs d'abord ; repli navigateur si 503/erreur. Enchaînement via le callback "done".
+  function elevenSpeak(text, token, done) {
+    if (window.__eliMuted__ || token !== speechSeq) { done(); return; }
     fetch('/api/tts', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text: text }) })
       .then(function (r) {
-        if (r.ok && r.headers.get('content-type') && r.headers.get('content-type').indexOf('audio') === 0) {
+        if (token !== speechSeq) { done(); return; }
+        var ct = r.headers.get('content-type') || '';
+        if (r.ok && ct.indexOf('audio') === 0) {
           return r.blob().then(function (b) {
+            if (token !== speechSeq) { done(); return; }
             var url = URL.createObjectURL(b);
             currentAudio = new Audio(url);
-            currentAudio.play().catch(function () { browserSpeak(text); });
+            currentAudio.onended = function () { try { URL.revokeObjectURL(url); } catch (e) {} done(); };
+            currentAudio.onerror = function () { try { URL.revokeObjectURL(url); } catch (e) {} browserSpeak(text, done); };
+            currentAudio.play().catch(function () { browserSpeak(text, done); });
           });
         }
-        browserSpeak(text); // 503 → repli
+        browserSpeak(text, done); // 503 → repli navigateur
       })
-      .catch(function () { browserSpeak(text); });
+      .catch(function () { browserSpeak(text, done); });
   }
-  function browserSpeak(text) {
+
+  function browserSpeak(text, done) {
+    done = done || function () {};
     try {
-      if (typeof speechSynthesis === 'undefined') return;
-      speechSynthesis.cancel();
+      if (typeof speechSynthesis === 'undefined') { done(); return; }
       var u = new SpeechSynthesisUtterance(text);
       u.lang = 'fr-FR'; u.rate = 1.0; u.pitch = 1.05;
       var fr = speechSynthesis.getVoices().filter(function (v) { return v.lang && v.lang.indexOf('fr') === 0; })[0];
       if (fr) u.voice = fr;
+      u.onend = function () { done(); };
+      u.onerror = function () { done(); };
       speechSynthesis.speak(u);
-    } catch (e) {}
+    } catch (e) { done(); }
   }
-  function stopSpeak() {
-    if (currentAudio) { try { currentAudio.pause(); } catch (e) {} currentAudio = null; }
-    if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
-  }
+
   window.__eliToggleMute__ = function () {
     window.__eliMuted__ = !window.__eliMuted__;
     if (window.__eliMuted__) stopSpeak();
     return window.__eliMuted__;
   };
+
+  /* ───────── Pilier courant + blocs techniques [FICHE]/[BILAN] (invisibles à l'élève) ───────── */
+  function normalizePillar(name) {
+    var v = String(name || '').toLowerCase().trim();
+    if (!v) return '';
+    if (/exerc/.test(v)) return 'exercices';
+    if (/r[ée]vis|fiche/.test(v)) return 'revision';
+    if (/exam|\bbac\b|bepc|\bcep\b|brevet|[ée]preuve/.test(v)) return 'examen';
+    if (/avenir|orient|parcoursup|anbg/.test(v)) return 'avenir';
+    if (/oral/.test(v)) return 'oral';
+    if (/organ|plann|planif|agenda|emploi du temps/.test(v)) return 'organisation';
+    if (/aide|question/.test(v)) return 'aide';
+    if (/cours|le[çc]on/.test(v)) return 'cours';
+    return v;
+  }
+
+  // Nettoyage live (pendant le stream) : on coupe avant tout bloc technique et on enlève les balises voix.
+  function cleanForDisplay(t) {
+    return String(t || '').split(/\[BILAN\]|\[FICHE\]/i)[0].replace(/\[VOIX\]|\[\/VOIX\]/gi, '');
+  }
+
+  // Extrait, poste (progress/fiches) puis RETIRE les blocs [BILAN]/[FICHE] ; renvoie le texte visible.
+  function processBlocks(full, subject) {
+    var text = String(full || '');
+    var subj = (subject && subject !== 'general') ? subject : null;
+
+    var bilanRe = /\[BILAN\]([\s\S]*?)\[\/BILAN\]/i;
+    var mb = text.match(bilanRe);
+    if (mb) {
+      try {
+        var bj = JSON.parse(mb[1].trim());
+        var sb = subj || bj.matiere;
+        if (sb) {
+          authedFetch('/api/progress', { method: 'POST', body: JSON.stringify({
+            subject: sb,
+            bilan: {
+              chapitre_travaille: bj.chapitre_travaille, reussites: bj.reussites,
+              erreurs_types: bj.erreurs_types, statut_propose: bj.statut_propose, prochaine_etape: bj.prochaine_etape
+            }
+          }) }).then(function () { if (typeof window.eliHydrateProgress === 'function') window.eliHydrateProgress(); }).catch(function () {});
+        }
+      } catch (e) {}
+      text = text.replace(bilanRe, '');
+    }
+
+    var ficheRe = /\[FICHE\]([\s\S]*?)\[\/FICHE\]/i;
+    var mf = text.match(ficheRe);
+    if (mf) {
+      try {
+        var fj = JSON.parse(mf[1].trim());
+        var fsj = subj || fj.matiere;
+        if (fsj) {
+          authedFetch('/api/fiches', { method: 'POST', body: JSON.stringify({
+            subject: fsj, kind: (fj.type || 'revision'), title: (fj.titre || ''), body: (fj.contenu || {})
+          }) }).catch(function () {});
+        }
+      } catch (e) {}
+      text = text.replace(ficheRe, '');
+    }
+    return text.trim();
+  }
 
   function splitVoice(full) {
     var m = full.match(/\[VOIX\]([\s\S]*?)\[\/VOIX\]/i);
@@ -137,7 +247,7 @@
     getSb().then(function (c) {
       return c.auth.getSession().then(function (res) {
         var loggedIn = !!(res.data && res.data.session);
-        if (loggedIn) return stream('/api/ai/chat', { message: txt, focusSubject: focus !== 'general' ? focus : undefined }, bubble, true);
+        if (loggedIn) return stream('/api/ai/chat', { message: txt, focusSubject: focus !== 'general' ? focus : undefined, pillar: window.__eliPillar__ || undefined }, bubble, true);
         // visiteur
         if (tCount(focus) >= TRIAL_MAX) { if (bubble) bubble.textContent = "Tu as profité de tes 2 essais gratuits 🌱"; showSignup(); return; }
         var n = tInc(focus);
@@ -162,9 +272,14 @@
         return reader.read().then(function (r) {
           if (r.done) {
             var full = extractText(acc) || '…';
+            if (authed) full = processBlocks(full, (payload && payload.focusSubject) || window.__eliFocusSubject__);
+            else full = full.replace(/\[BILAN\][\s\S]*?\[\/BILAN\]/i, '').replace(/\[FICHE\][\s\S]*?\[\/FICHE\]/i, '');
             var parts = splitVoice(full);
-            if (!spoken) { speak(parts.speech); spoken = true; }
-            if (bubble) bubble.textContent = (parts.written && parts.written !== parts.speech) ? ('🔊 ' + parts.speech + '\n\n' + parts.written) : ('🔊 ' + parts.speech);
+            var hasVoiceTag = /\[VOIX\]/i.test(full);
+            var body = (parts.written && parts.written !== parts.speech) ? parts.written : '';
+            var toRead = hasVoiceTag ? (parts.speech + (body ? '\n\n' + body : '')) : (parts.written || parts.speech);
+            if (!spoken) { speakAll(toRead); spoken = true; }
+            if (bubble) bubble.textContent = body ? ('🔊 ' + parts.speech + '\n\n' + body) : ('🔊 ' + parts.speech);
             if (st) st.scrollTop = st.scrollHeight;
             return;
           }
@@ -174,8 +289,7 @@
           if (soFar) {
             var parts = splitVoice(soFar);
             // Dès que la réplique [VOIX] est complète, on la prononce sans attendre la fin
-            if (!spoken && /\[\/VOIX\]/i.test(acc)) { speak(parts.speech); spoken = true; }
-            if (bubble) bubble.textContent = (parts.written && parts.written !== parts.speech && spoken) ? ('🔊 ' + parts.speech + '\n\n' + parts.written) : soFar.replace(/\[VOIX\]|\[\/VOIX\]/gi, '');
+            if (bubble) bubble.textContent = cleanForDisplay(soFar) || '…';
             if (st) st.scrollTop = st.scrollHeight;
           }
           return pump();
@@ -289,6 +403,14 @@
           renderRealDashboard(progress);
           // Bouton Centre de Commandement pour le super_admin
           if (roles.indexOf('super_admin') >= 0) addAdminButton();
+          // Hydrate les dashboards des maquettes avec la vraie progression (/api/progress)
+          if (typeof window.eliHydrateProgress === 'function') window.eliHydrateProgress();
+          // Engagement (flamme/série) + continuité + enregistrement push
+          if (window.__eliEngageOnce__ !== true) { window.__eliEngageOnce__ = true; c.rpc('touch_engagement', { p_minutes: 1 }).then(function (er) { if (er && er.data) renderStreak(er.data); }).catch(function () {}); }
+          renderContinuity(progress);
+          renderResumable();
+          renderBougie(!!(profile && profile.bougie));
+          registerPush();
         });
       });
     }).catch(function () {});
@@ -327,21 +449,250 @@
     document.body.appendChild(b);
   }
 
+  /* ───────── Engagement : flamme + série (streak) + paliers ───────── */
+  function renderStreak(eng) {
+    if (!eng) return;
+    window.__ELI_ENGAGEMENT__ = eng;
+    var n = eng.streak_current || 0;
+    var chip = document.getElementById('eliStreak');
+    if (!chip) {
+      chip = document.createElement('div');
+      chip.id = 'eliStreak';
+      chip.style.cssText = 'position:fixed;top:14px;right:14px;z-index:9998;display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;background:linear-gradient(135deg,#F5B544,#FFD479);color:#04140D;font-weight:800;font-family:inherit;box-shadow:0 6px 20px rgba(245,181,68,.4)';
+      document.body.appendChild(chip);
+    }
+    chip.textContent = '🔥 ' + n + ' jour' + (n > 1 ? 's' : '');
+    chip.title = 'Série : ' + n + ' jours consécutifs · record ' + (eng.streak_best || n);
+    celebrateStreak(n);
+  }
+  function celebrateStreak(n) {
+    if ([3, 7, 14, 30].indexOf(n) < 0) return;
+    var key = 'eli.celebrated.' + PROGRAM + '.' + n;
+    try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); } catch (e) {}
+    var msgs = { 3: '3 jours de suite 🔥 Tu prends le rythme !', 7: "1 semaine d'affilée 🎉 Une vraie habitude !", 14: '14 jours 💪 Tu es en feu !', 30: '30 jours 🏆 Champion(ne) de la régularité !' };
+    showCelebration(msgs[n] || ('Série de ' + n + ' jours 🔥'));
+  }
+  function showCelebration(text) {
+    var t = document.createElement('div');
+    t.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);z-index:10000;padding:22px 30px;border-radius:20px;background:linear-gradient(135deg,#00C271,#34D399);color:#04140D;font-weight:800;font-size:18px;text-align:center;max-width:80vw;box-shadow:0 20px 60px rgba(0,0,0,.4);transition:all .4s cubic-bezier(.16,1,.3,1);opacity:0';
+    t.textContent = '🎊 ' + text;
+    document.body.appendChild(t);
+    requestAnimationFrame(function () { t.style.opacity = '1'; t.style.transform = 'translate(-50%,-50%) scale(1)'; });
+    setTimeout(function () { t.style.opacity = '0'; setTimeout(function () { try { t.remove(); } catch (e) {} }, 400); }, 3200);
+  }
+
+  /* ───────── Continuité : « hier on s'est arrêtés à … » ───────── */
+  function renderContinuity(progress) {
+    if (!progress || !progress.length) return;
+    var dash = document.getElementById('dashboard');
+    if (!dash || document.getElementById('eliContinuity')) return;
+    var sorted = progress.slice().sort(function (a, b) { return String(b.updated_at || '').localeCompare(String(a.updated_at || '')); });
+    var last = null;
+    for (var i = 0; i < sorted.length; i++) { if (sorted[i].last_chapter) { last = sorted[i]; break; } }
+    if (!last) return;
+    var subjEsc = String(last.subject || '').replace(/'/g, "\\'");
+    var b = document.createElement('div');
+    b.id = 'eliContinuity';
+    b.style.cssText = 'margin:14px 20px;padding:16px 18px;border-radius:16px;background:linear-gradient(135deg,rgba(0,194,113,.14),rgba(245,181,68,.08));border:1px solid rgba(0,194,113,.3);display:flex;align-items:center;gap:14px;flex-wrap:wrap';
+    b.innerHTML = '<div style="flex:1;min-width:200px"><strong>Hier on s\'est arrêtés à « ' + last.last_chapter + ' »' + (last.subject ? (' en ' + last.subject) : '') + '.</strong><br><span style="opacity:.8">On continue là où tu en étais ?</span></div>';
+    var btn = document.createElement('button');
+    btn.textContent = '▶ Reprendre';
+    btn.style.cssText = 'background:linear-gradient(135deg,#00C271,#34D399);color:#04140D;border:none;padding:12px 22px;border-radius:999px;font-weight:700;cursor:pointer;font-family:inherit';
+    btn.onclick = function () { window.__eliFocusSubject__ = last.subject; if (typeof window.openChatContext === 'function') window.openChatContext('', subjEsc); };
+    b.appendChild(btn);
+    dash.insertBefore(b, dash.firstChild);
+  }
+
+  /* ───────── Fin de session : streak + rappel de continuité ───────── */
+  function onChatClose() {
+    getSb().then(function (c) {
+      return c.auth.getSession().then(function (res) {
+        if (!(res.data && res.data.session)) return;
+        var mins = window.__eliChatOpenedAt__ ? Math.max(1, Math.round((Date.now() - window.__eliChatOpenedAt__) / 60000)) : 1;
+        c.rpc('touch_engagement', { p_minutes: mins }).then(function (r) { if (r && r.data) renderStreak(r.data); }).catch(function () {});
+        var subj = (window.__eliFocusSubject__ && window.__eliFocusSubject__ !== 'general') ? window.__eliFocusSubject__ : null;
+        var lastChap = (subj && window.__ELI_PROGRESS__ && window.__ELI_PROGRESS__[subj]) ? window.__ELI_PROGRESS__[subj].last_chapter : null;
+        var tr = collectTranscript();
+        if (window.__eliSessionId__) {
+          authedFetch('/api/session', { method: 'POST', body: JSON.stringify({ action: 'close', id: window.__eliSessionId__, transcript: tr, minutes: mins }) })
+            .then(function (r) { return r.json(); }).then(function (jj) { if (jj && jj.signedUrl) showPdfToast(jj.signedUrl); }).catch(function () {});
+          window.__eliSessionId__ = null;
+        } else {
+          authedFetch('/api/session/continue', { method: 'POST', body: JSON.stringify({ subject: subj || undefined, lastChapter: lastChap || undefined, minutes: mins }) }).catch(function () {});
+        }
+      });
+    }).catch(function () {});
+  }
+
+  /* ───────── Push natif (Capacitor) : enregistrement du jeton ───────── */
+  function registerPush() {
+    try {
+      var Cap = window.Capacitor;
+      if (!Cap || !Cap.Plugins || !Cap.Plugins.PushNotifications) return;
+      var PN = Cap.Plugins.PushNotifications;
+      if (PN.requestPermissions) PN.requestPermissions().then(function (p) { if (p && p.receive === 'granted' && PN.register) PN.register(); });
+      if (PN.addListener) PN.addListener('registration', function (tok) {
+        var token = tok && tok.value; if (!token) return;
+        var platform = (Cap.getPlatform && Cap.getPlatform()) || 'web';
+        authedFetch('/api/push/register', { method: 'POST', body: JSON.stringify({ platform: platform, token: token }) }).catch(function () {});
+      });
+    } catch (e) {}
+  }
+
+  /* ───────── Mode Bougie : interface allégée + persistance (set_bougie) ───────── */
+  function injectBougieCss() {
+    if (document.getElementById('eliBougieCss')) return;
+    var st = document.createElement('style'); st.id = 'eliBougieCss';
+    st.textContent = "body.eli-bougie *{animation:none!important;transition:none!important}body.eli-bougie .cosmos,body.eli-bougie .aurora,body.eli-bougie .aurora2,body.eli-bougie .stars,body.eli-bougie .orb,body.eli-bougie .bg-orbs,body.eli-bougie .particles,body.eli-bougie .hero-glow{display:none!important}body.eli-bougie{filter:saturate(.92)}";
+    document.head.appendChild(st);
+  }
+  function renderBougie(on) {
+    injectBougieCss();
+    window.__eliBougie__ = !!on;
+    document.body.classList.toggle('eli-bougie', !!on);
+    var b = document.getElementById('eliBougie');
+    if (!b) {
+      b = document.createElement('button'); b.id = 'eliBougie';
+      b.style.cssText = 'position:fixed;top:14px;left:14px;z-index:9998;display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:999px;border:1px solid rgba(245,181,68,.5);background:rgba(0,0,0,.30);color:#FFE7A8;font-weight:700;font-family:inherit;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)';
+      b.title = "Mode Bougie 🕯️ — interface allégée, idéale en connexion faible ou pour se concentrer. Éli répond en version courte et te garde une trace PDF de la séance.";
+      b.onclick = toggleBougie;
+      document.body.appendChild(b);
+    }
+    b.innerHTML = '🕯️ <span style="font-size:12.5px">Mode Bougie · ' + (on ? 'ON' : 'OFF') + '</span>';
+    b.style.opacity = on ? '1' : '.72';
+  }
+  function toggleBougie() {
+    var next = !window.__eliBougie__;
+    renderBougie(next);
+    getSb().then(function (c) { c.rpc('set_bougie', { p_on: next }).catch(function () {}); }).catch(function () {});
+  }
+
+  /* ───────── Sessions de travail : transcript, ouverture, clôture + PDF ───────── */
+  function collectTranscript() {
+    var out = [], st = document.getElementById('chatStream'); if (!st) return out;
+    var kids = st.children;
+    for (var i = 0; i < kids.length; i++) {
+      var el = kids[i], cls = (el.className || '') + '', txt = (el.innerText || '').trim(); if (!txt) continue;
+      var role = /user|right|hcb-user|msg-user|bubble-me/i.test(cls) ? 'me' : 'eli';
+      out.push({ role: role, text: txt.slice(0, 1500) });
+    }
+    return out.slice(-40);
+  }
+  function openWorkSession() {
+    window.__eliChatOpenedAt__ = Date.now();
+    getSb().then(function (c) {
+      return c.auth.getSession().then(function (res) {
+        if (!(res.data && res.data.session)) return;
+        var subj = (window.__eliFocusSubject__ && window.__eliFocusSubject__ !== 'general') ? window.__eliFocusSubject__ : undefined;
+        authedFetch('/api/session', { method: 'POST', body: JSON.stringify({ action: 'open', pillar: window.__eliPillar__ || undefined, subject: subj, title: subj ? ('Travail en ' + subj) : undefined }) })
+          .then(function (r) { return r.json(); }).then(function (j) { if (j && j.id) window.__eliSessionId__ = j.id; }).catch(function () {});
+      });
+    }).catch(function () {});
+  }
+  function showPdfToast(url) {
+    if (!url) return;
+    var t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:10000;display:flex;align-items:center;gap:12px;padding:13px 18px;border-radius:14px;background:#0B3D2E;color:#fff;font-family:inherit;box-shadow:0 14px 40px rgba(0,0,0,.35)';
+    t.innerHTML = '📄 Ton récap de session est prêt ';
+    var a = document.createElement('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Voir le PDF →';
+    a.style.cssText = 'color:#FFE082;font-weight:800;text-decoration:none';
+    t.appendChild(a); document.body.appendChild(t);
+    setTimeout(function () { try { t.remove(); } catch (e) {} }, 9000);
+  }
+
+  /* ───────── « Reprendre mon travail » (my_resumable_work) ───────── */
+  function renderResumable() {
+    var dash = document.getElementById('dashboard'); if (!dash || document.getElementById('eliResume')) return;
+    authedFetch('/api/session?resumable=1').then(function (r) { return r.json(); }).then(function (j) {
+      var items = (j && j.items) || [];
+      var wrap = document.createElement('div'); wrap.id = 'eliResume';
+      wrap.style.cssText = 'margin:14px 20px;padding:16px 18px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12)';
+      var h = '<div style="font-weight:800;margin-bottom:10px">↩️ Reprendre mon travail</div>';
+      if (!items.length) {
+        h += '<div style="opacity:.75;font-size:14px">Aucun travail en cours pour l\'instant. Lance une session avec Éli : tu pourras la reprendre ici exactement où tu t\'es arrêté(e).</div>';
+        wrap.innerHTML = h; dash.insertBefore(wrap, dash.firstChild); return;
+      }
+      h += items.map(function (it) {
+        var subj = it.subject || it.pillar || 'Session'; var sE = String(it.subject || '').replace(/'/g, "\\'");
+        return '<button class="eli-resume-row" data-id="' + it.id + '" data-subj="' + sE + '" style="display:block;width:100%;text-align:left;margin:6px 0;padding:12px 14px;border-radius:12px;border:1px solid rgba(0,194,113,.3);background:rgba(0,194,113,.08);color:inherit;cursor:pointer;font-family:inherit"><strong>' + (it.title || subj) + '</strong><br><span style="opacity:.75;font-size:12.5px">' + subj + (it.summary ? (' · ' + String(it.summary).slice(0, 70)) : '') + '</span></button>';
+      }).join('');
+      wrap.innerHTML = h; dash.insertBefore(wrap, dash.firstChild);
+      Array.prototype.forEach.call(wrap.querySelectorAll('.eli-resume-row'), function (btn) {
+        btn.onclick = function () { var subj = btn.getAttribute('data-subj'); window.__eliFocusSubject__ = subj || 'general'; window.__eliResumeId__ = btn.getAttribute('data-id'); if (typeof window.openChatContext === 'function') window.openChatContext('', subj); };
+      });
+    }).catch(function () {});
+  }
+
+  /* ───────── Orientation : Parcoursup (AEFE) / Mon Avenir (national) ───────── */
+  function eliMaybeMountOrientation() {
+    var t = document.getElementById('uniTitle'); var title = t ? (t.textContent || '') : '';
+    var body = document.getElementById('universeBody'); if (!body) return;
+    var track = /Parcoursup/i.test(title) ? 'parcoursup' : (/Avenir/i.test(title) ? 'mon_avenir' : null);
+    if (!track || body.querySelector('#eliWishes')) return;
+    var mount = document.createElement('div'); mount.id = 'eliWishes'; mount.style.cssText = 'margin-top:16px'; body.appendChild(mount);
+    eliRenderOrientation(track, mount);
+  }
+  function eliRenderOrientation(track, mount) {
+    var STAT = { envisage: 'À envisager', candidate: 'Candidature', accepte: 'Accepté', refuse: 'Refusé', confirme: 'Confirmé' };
+    authedFetch('/api/orientation?track=' + track).then(function (r) { return r.json(); }).then(function (j) {
+      var items = (j && j.items) || [];
+      var rows = items.length ? items.map(function (w) {
+        return '<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid rgba(0,0,0,.1);border-radius:12px;margin:8px 0;background:#fff">'
+          + '<span style="font-weight:800;min-width:26px;color:#0B3D2E">' + (w.rank || '•') + '</span>'
+          + '<div style="flex:1;color:#16243a"><strong>' + w.formation + '</strong><br><span style="opacity:.7;font-size:12.5px">' + [w.etablissement, w.ville].filter(Boolean).join(' · ') + '</span></div>'
+          + '<span style="font-size:11.5px;padding:4px 9px;border-radius:999px;background:rgba(11,61,46,.08);color:#0B3D2E">' + (STAT[w.status] || w.status) + '</span>'
+          + '<button class="eli-wish-del" data-id="' + w.id + '" style="border:none;background:none;cursor:pointer;font-size:16px;color:#c0392b">✕</button></div>';
+      }).join('') : '<div style="padding:18px;border:1px dashed rgba(0,0,0,.18);border-radius:12px;text-align:center;color:#16243a;opacity:.85">Ta liste de vœux apparaîtra ici. Commence à explorer les formations avec Éli.</div>';
+      mount.innerHTML = '<div style="font-weight:800;margin:6px 0 8px;color:#0B3D2E">🎯 Mes vœux ' + (track === 'parcoursup' ? 'Parcoursup' : '— Mon Avenir') + '</div>'
+        + rows
+        + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'
+        + '<input id="eliWishF" placeholder="Formation / filière" style="flex:1;min-width:160px;padding:10px 12px;border:1px solid rgba(0,0,0,.18);border-radius:10px;font-family:inherit">'
+        + '<input id="eliWishE" placeholder="Établissement (option)" style="flex:1;min-width:140px;padding:10px 12px;border:1px solid rgba(0,0,0,.18);border-radius:10px;font-family:inherit">'
+        + '<button id="eliWishAdd" style="padding:10px 18px;border:none;border-radius:10px;background:#0B3D2E;color:#fff;font-weight:700;cursor:pointer;font-family:inherit">Ajouter</button></div>';
+      var add = mount.querySelector('#eliWishAdd');
+      if (add) add.onclick = function () {
+        var f = (mount.querySelector('#eliWishF').value || '').trim(); if (!f) return;
+        var e = (mount.querySelector('#eliWishE').value || '').trim();
+        authedFetch('/api/orientation', { method: 'POST', body: JSON.stringify({ track: track, formation: f, etablissement: e || undefined }) }).then(function () { eliRenderOrientation(track, mount); }).catch(function () {});
+      };
+      Array.prototype.forEach.call(mount.querySelectorAll('.eli-wish-del'), function (b) {
+        b.onclick = function () { authedFetch('/api/orientation?id=' + b.getAttribute('data-id'), { method: 'DELETE' }).then(function () { eliRenderOrientation(track, mount); }).catch(function () {}); };
+      });
+    }).catch(function () { mount.innerHTML = '<div style="opacity:.7;color:#16243a">Connecte-toi pour gérer tes vœux.</div>'; });
+  }
+
   /* ───────── Installation ───────── */
   function install() {
     if (typeof window.submitSignup === 'function') window.__origSubmitSignup__ = window.submitSignup;
     window.sendChat = realSendChat;
     window.loginReturn = realLogin;
     window.loginByPhone = loginByPhone;
+    window.eliAuthedFetch = authedFetch; // exposé aux maquettes pour eliHydrateProgress()
     if (findIn('formSignup', 'email') || findIn('formS', 'email')) window.submitSignup = realSignup;
 
     ['openChatContext', 'openToolChat', 'startClassChat'].forEach(function (fn) {
       if (typeof window[fn] === 'function') {
         var orig = window[fn];
         window[fn] = function () {
-          try { var a = arguments; window.__eliFocusSubject__ = (fn === 'openChatContext') ? (a[1] || 'general') : (typeof a[0] === 'string' ? a[0] : 'general'); } catch (e) {}
+          try {
+            var a = arguments;
+            if (fn === 'openChatContext') { window.__eliFocusSubject__ = a[1] || 'general'; }
+            else if (fn === 'openToolChat') { if (typeof a[0] === 'string') window.__eliPillar__ = normalizePillar(a[0]); }
+            else { window.__eliFocusSubject__ = (typeof a[0] === 'string' ? a[0] : 'general'); }
+          } catch (e) {}
           return orig.apply(this, arguments);
         };
+      }
+    });
+
+    if (typeof window.openChat === 'function') { var _oc = window.openChat; window.openChat = function () { openWorkSession(); return _oc.apply(this, arguments); }; }
+    ['openParcoursup', 'openPillar', 'openMonAvenir'].forEach(function (fn) {
+      if (typeof window[fn] === 'function') { var of = window[fn]; window[fn] = function () { var rv = of.apply(this, arguments); try { setTimeout(eliMaybeMountOrientation, 60); } catch (e) {} return rv; }; }
+    });
+    ['closeChat', 'closeMM', 'closeAll', 'closeOverlay'].forEach(function (fn) {
+      if (typeof window[fn] === 'function') {
+        var o = window[fn];
+        window[fn] = function () { try { if (window.__eliChatOpenedAt__) onChatClose(); } catch (e) {} window.__eliChatOpenedAt__ = null; return o.apply(this, arguments); };
       }
     });
 
@@ -356,52 +707,3 @@
   if (document.readyState === 'complete' || document.readyState === 'interactive') setTimeout(install, 400);
   else window.addEventListener('DOMContentLoaded', function () { setTimeout(install, 400); });
 })();
-// ═══════════ VOIX : lit TOUT le contenu, morceau par morceau ═══════════
-let __eliTtsQueue = [], __eliTtsPlaying = false, __eliAudio = null;
-function eliCleanForSpeech(t){
-  return (t||'')
-    .replace(/\[VOIX\]|\[\/VOIX\]/g,'')
-    .replace(/\[BILAN\][\s\S]*?\[\/BILAN\]/g,'')
-    .replace(/\[FICHE\][\s\S]*?\[\/FICHE\]/g,'')
-    .replace(/[#*_`>]/g,'').replace(/\n{2,}/g,'\n').trim();
-}
-function eliChunk(t){
-  const parts=t.split(/(?<=[.!?…])\s+|\n+/).filter(s=>s.trim());
-  const out=[]; let buf='';
-  for(const s of parts){ if((buf+' '+s).length>280){ if(buf)out.push(buf.trim()); buf=s; } else buf=(buf?buf+' ':'')+s; }
-  if(buf.trim())out.push(buf.trim()); return out;
-}
-async function eliPlayNext(){
-  if(__eliTtsPlaying||!__eliTtsQueue.length) return;
-  __eliTtsPlaying=true; const chunk=__eliTtsQueue.shift();
-  try{
-    const r=await fetch('/api/tts',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({text:chunk})});
-    if(r.ok){ const b=await r.blob(); __eliAudio=new Audio(URL.createObjectURL(b));
-      __eliAudio.onended=()=>{__eliTtsPlaying=false;eliPlayNext();};
-      __eliAudio.onerror=()=>{__eliTtsPlaying=false;eliPlayNext();};
-      await __eliAudio.play(); return; }
-  }catch(e){}
-  try{ const u=new SpeechSynthesisUtterance(chunk); u.lang='fr-FR';
-    u.onend=()=>{__eliTtsPlaying=false;eliPlayNext();}; speechSynthesis.speak(u);
-  }catch(e){__eliTtsPlaying=false;eliPlayNext();}
-}
-function eliSpeakAll(fullText){
-  try{ if(__eliAudio)__eliAudio.pause(); speechSynthesis.cancel(); }catch(e){}
-  __eliTtsQueue=[]; __eliTtsPlaying=false;
-  const clean=eliCleanForSpeech(fullText); if(!clean)return;
-  __eliTtsQueue=eliChunk(clean); eliPlayNext();
-}
-
-// ═══════════ Fin de réponse : voix + sauvegarde bilan + sauvegarde fiche ═══════════
-function eliStripForDisplay(t){
-  return (t||'').replace(/\[BILAN\][\s\S]*?\[\/BILAN\]/g,'')
-                .replace(/\[FICHE\][\s\S]*?\[\/FICHE\]/g,'')
-                .replace(/\[VOIX\]|\[\/VOIX\]/g,'').trim();
-}
-async function eliOnStreamComplete(fullText){
-  eliSpeakAll(fullText);
-  const mB=fullText.match(/\[BILAN\]([\s\S]*?)\[\/BILAN\]/);
-  if(mB){try{await fetch('/api/progress',{method:'POST',headers:{'content-type':'application/json'},body:mB[1].trim()});}catch(e){}}
-  const mF=fullText.match(/\[FICHE\]([\s\S]*?)\[\/FICHE\]/);
-  if(mF){try{await fetch('/api/fiches',{method:'POST',headers:{'content-type':'application/json'},body:mF[1].trim()});}catch(e){}}
-}

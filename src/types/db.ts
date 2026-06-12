@@ -24,3 +24,44 @@ export interface Bilan {
   chapitre_travaille?: string; reussites?: string[]; erreurs_types?: string[];
   statut_propose?: Status; prochaine_etape?: string;
 }
+
+/** Retour de la RPC my_scope() — périmètre pédagogique autorisé de l'élève. */
+export interface Scope {
+  program: Program; class_key: string; serie: string | null;
+  country_code: string | null; is_technical: boolean;
+  curriculum: CurriculumPayload;
+}
+/** Format attendu du payload `curriculum` (jsonb). Tolérant : tout champ est optionnel. */
+export interface CurriculumPayload {
+  version?: number;
+  subjects?: Record<string, { chapters?: string[]; objectifs?: string[] }>;
+}
+export interface Engagement {
+  user_id: string; streak_current: number; streak_best: number;
+  last_active_date: string | null; total_sessions: number; total_minutes: number; updated_at: string;
+}
+export type ReminderKind = 'continuite' | 'streak' | 'examen' | 'celebration' | 'custom';
+export interface Reminder {
+  id: number; user_id: string; kind: ReminderKind; title: string; body: string;
+  subject: string | null; scheduled_at: string; sent_at: string | null;
+  status: 'pending' | 'sent' | 'cancelled'; created_at: string;
+}
+
+/** Résultat de in_school_hours() — anti-triche par horaires de classe réels (Gabon). */
+export interface SchoolStatus { in_class: boolean; now_local: string; slot: string | null; }
+
+export type WorkStatus = 'open' | 'resumable' | 'done';
+export interface WorkSession {
+  id: number; user_id: string; program: Program; pillar: string | null; subject: string | null;
+  class_key: string | null; serie: string | null; title: string; summary: string;
+  highlights: string[]; transcript: { role: string; text: string }[]; pdf_path: string | null;
+  status: WorkStatus; duration_min: number; started_at: string; ended_at: string | null; created_at: string;
+}
+
+export type OrientationTrack = 'parcoursup' | 'mon_avenir';
+export type WishStatus = 'envisage' | 'candidate' | 'accepte' | 'refuse' | 'confirme';
+export interface OrientationWish {
+  id: number; user_id: string; program: Program; track: OrientationTrack; rank: number | null;
+  formation: string; etablissement: string | null; ville: string | null; status: WishStatus;
+  notes: string | null; meta: Record<string, unknown>; created_at: string; updated_at: string;
+}

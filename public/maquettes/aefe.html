@@ -123,15 +123,15 @@ body{background:var(--ivory);color:var(--navy);font-family:var(--fbody);min-heig
 .spotlight{display:grid;grid-template-columns:1fr 1fr;gap:24px}
 @media(max-width:820px){.spotlight{grid-template-columns:1fr}}
 .spot{position:relative;border-radius:20px;overflow:hidden;padding:38px 34px;cursor:pointer;border:1px solid var(--line);transition:all .3s}
-.spot-oral{background:linear-gradient(150deg,#3B1E54,#6D28D9)}
-.spot-pcs{background:linear-gradient(150deg,#0E3A6B,var(--france))}
+.spot-oral{background:var(--white)}
+.spot-pcs{background:var(--white)}
 .spot:hover{transform:translateY(-5px);box-shadow:0 26px 60px rgba(13,27,62,.22)}
-.spot-tag{font-family:var(--fmono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:14px}
-.spot-title{font-family:var(--fdisplay);font-size:30px;font-weight:600;color:var(--white);margin-bottom:10px}
-.spot-desc{font-size:14.5px;line-height:1.6;color:rgba(255,255,255,.82);margin-bottom:24px}
-.spot-cta{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--white);transition:gap .25s}
+.spot-tag{font-family:var(--fmono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gray);margin-bottom:14px}
+.spot-title{font-family:var(--fdisplay);font-size:30px;font-weight:600;color:var(--navy);margin-bottom:10px}
+.spot-desc{font-size:14.5px;line-height:1.6;color:var(--gray);margin-bottom:24px}
+.spot-cta{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--navy);transition:gap .25s}
 .spot:hover .spot-cta{gap:13px}
-.spot-deco{position:absolute;top:-30px;right:-20px;font-size:130px;opacity:.10;color:#fff}
+.spot-deco{position:absolute;top:-30px;right:-20px;font-size:130px;opacity:.05;color:var(--navy)}
 
 /* NIVEAUX / SPÉCIALITÉS */
 .levels{display:flex;flex-direction:column;gap:14px}
@@ -470,13 +470,18 @@ body{background:var(--ivory);color:var(--navy);font-family:var(--fbody);min-heig
 .sdash-hero-btn.outline{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.4)}
 .sdash-hero-btn:hover{transform:translateY(-2px)}
 /* Parcoursup (bleu) */
-.hero-pcs{background:linear-gradient(140deg,#0D47A1,#1565C0 55%,#2E7BD6)}
-/* Grand Oral (aubergine) */
-.hero-go{background:linear-gradient(140deg,#2E1065,#3B1E54 45%,#6D28D9)}
+.hero-pcs{background:var(--white);color:var(--navy);border:1px solid var(--line)}
+/* Grand Oral & Parcoursup — blanc pur, cohérence accueil */
+.hero-go{background:var(--white);color:var(--navy);border:1px solid var(--line)}
+.hero-pcs .sdash-hero-eyebrow,.hero-go .sdash-hero-eyebrow{color:var(--gray)}
+.hero-pcs h2,.hero-go h2{color:var(--navy)}
+.hero-pcs p,.hero-go p{color:var(--gray)}
+.hero-pcs .sdash-hero-btn.solid,.hero-go .sdash-hero-btn.solid{background:var(--navy);color:#fff}
+.hero-pcs .sdash-hero-btn.outline,.hero-go .sdash-hero-btn.outline{background:var(--white);color:var(--navy);border:1px solid var(--line)}
 .sdash-steps{display:flex;flex-direction:column;gap:10px}
 .sdash-step{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border-radius:12px;background:var(--paper);border:1px solid var(--line)}
 .sdash-step-n{width:30px;height:30px;border-radius:50%;background:var(--france);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--fmono);font-size:13px;font-weight:600;flex-shrink:0}
-.hero-go ~ * .sdash-step-n,.sdash-step-n.go{background:#6D28D9}
+.hero-go ~ * .sdash-step-n,.sdash-step-n.go{background:var(--navy)}
 .sdash-step-t{flex:1}
 .sdash-step-t strong{display:block;font-family:var(--fdisplay);font-size:15px;color:var(--navy);margin-bottom:3px}
 .sdash-step-t span{font-size:13px;color:var(--ink);line-height:1.45}
@@ -489,7 +494,7 @@ body{background:var(--ivory);color:var(--navy);font-family:var(--fbody);min-heig
 .pcs-tl-c span{font-size:12.5px;color:var(--ink)}
 .go-questions{display:flex;flex-direction:column;gap:10px}
 .go-q{padding:14px 16px;border-radius:12px;background:#F6F1FB;border:1px solid #E4D6F5}
-.go-q-k{font-family:var(--fmono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#6D28D9;margin-bottom:5px}
+.go-q-k{font-family:var(--fmono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--navy);margin-bottom:5px}
 .go-q-t{font-size:14px;color:var(--navy);font-weight:500;line-height:1.4}
 /* ═══ EXAMENS AEFE (Brevet / Bac) ═══ */
 .examdash{max-width:720px;margin:0 auto}
@@ -1211,6 +1216,17 @@ function realChapter(subj){var p=window.__ELI_PROGRESS__[subj];return p&&p.last_
 function realStrong(subj){var p=window.__ELI_PROGRESS__[subj];return p&&Array.isArray(p.strengths)&&p.strengths.length?p.strengths:null;}
 function realImprove(subj){var p=window.__ELI_PROGRESS__[subj];return p&&Array.isArray(p.improvements)&&p.improvements.length?p.improvements:null;}
 function realGapAll(subj){var p=window.__ELI_PROGRESS__[subj];return p&&Array.isArray(p.red_zones)&&p.red_zones.length?p.red_zones:null;}
+function eliStatusRank(st){return st==='vert'?2:st==='orange'?1:0;}
+function eliFmtDay(d){try{var dt=new Date(d+'T00:00:00');var t=new Date();t.setHours(0,0,0,0);var diff=Math.round((t-dt)/86400000);if(diff<=0)return "Aujourd'hui";if(diff===1)return 'Hier';if(diff<7)return 'Il y a '+diff+' j';return dt.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}catch(e){return d||'';}}
+function realHistory(subj){var p=window.__ELI_PROGRESS__[subj];if(!p||!Array.isArray(p.history)||!p.history.length)return null;return p.history.slice().reverse().slice(0,6).map(function(h){return [eliFmtDay(h.d),h.t||'Session avec Éli',h.s||'orange'];});}
+function evolutionLine(row){if(!row||!Array.isArray(row.history)||row.history.length<2)return '';var h=row.history;var a=h[0].s,b=h[h.length-1].s;if(eliStatusRank(b)>eliStatusRank(a)){var lbl={vert:'Acquis',orange:'À renforcer',rouge:'Lacune'};return '<div style="margin:0 0 14px;padding:12px 14px;border-radius:14px;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.3);font-weight:700">📈 Belle progression : '+(lbl[a]||a)+' → '+(lbl[b]||b)+' 🎉</div>';}return '';}
+function eliEmptySubjectHTML(s,col,classLabel,cls,subjE,subj,backCall){return `
+    <div class="subjdash" style="--sc:${col}">
+      <button class="subjdash-back" onclick="${backCall}">← Toutes mes matières</button>
+      <div class="subjdash-head"><div class="subjdash-ic">${catIcon(s[1])}</div><div><div class="subjdash-cat">${s[1]} · ${classLabel}</div><h2 class="subjdash-name">${subj}</h2></div></div>
+      <div class="subjdash-resume"><div class="resume-k">🌱 Nouvelle matière</div><div class="resume-t">Tu n'as pas encore commencé <b>${subj}</b>. Lance ta première session : ta progression, tes points forts et ton historique se rempliront ici automatiquement, au fil de ton travail avec Éli.</div><div class="subjdash-actions"><button class="sd-btn sd-primary" onclick="openChatContext('${cls}','${subjE}')">▶ Commencer ${subj}</button></div></div>
+      <div class="subjdash-chat" onclick="openChatContext('${cls}','${subjE}')"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Je suis ton assistant ${subj}</strong><span>Pose-moi ta première question, niveau ${classLabel}.</span></div><button class="class-chat-btn" onclick="event.stopPropagation();openChatContext('${cls}','${subjE}')">Ouvrir →</button></div>
+    </div>`;}
 function demoStatus(i){const m=['vert','vert','orange','vert','rouge','orange','vert','vert','orange','vert','vert','rouge','vert','orange','vert','vert','orange'];return m[i%m.length];}
 function catIcon(cat){const m={'Français':'📖','Maths':'📐','Sciences':'🔬','Sciences humaines':'🌍','Langues':'🗣️','Économie':'📈','Philo':'💭','Arts':'🎨','Sport':'🤸','EMC':'⚖️','Numérique':'💻','Spécialité':'⭐','Épreuve':'🎙️','Orientation':'🎓'};return m[cat]||'📘';}
 function demoChapter(s){const m={'Mathématiques':'Les fonctions','Maths (spé)':'La dérivation','Philosophie':'La conscience','Français':'Le roman & ses personnages','Français (écrit & oral)':"L'argumentation",'SES (spé)':'Les marchés concurrentiels','HGGSP (spé)':'Les frontières','Physique-Chimie (spé)':'Les ondes','SVT (spé)':'La génétique','Histoire-Géographie':'La mondialisation'};return realChapter(s)||m[s]||'Chapitre en cours';}
@@ -1256,11 +1272,15 @@ function openSubject(i){
 }
 function subjectDashHTML(s,col,vert,orange,rouge,classLabel,backCall){
   const subj=s[0];const cls=classLabel.replace(/'/g,"\\'");const subjE=subj.replace(/'/g,"\\'");
-  const forts=demoStrong(subj),amel=demoImprove(subj),rouges=demoRed(subj),hist=demoHistory(subj);
+  const row=(window.__ELI_PROGRESS__||{})[subj];
+  if(window.__ELI_HYDRATED__&&!row){return eliEmptySubjectHTML(s,col,classLabel,cls,subjE,subj,backCall);}
+  const forts=(row&&row.strengths&&row.strengths.length?row.strengths:demoStrong(subj)),amel=(row&&row.improvements&&row.improvements.length?row.improvements:demoImprove(subj)),rouges=(row&&row.red_zones&&row.red_zones.length?row.red_zones:demoRed(subj)),hist=realHistory(subj)||demoHistory(subj);
+  const evo=evolutionLine(row);
   return `
     <div class="subjdash" style="--sc:${col}">
       <button class="subjdash-back" onclick="${backCall}">← Toutes mes matières</button>
       <div class="subjdash-head"><div class="subjdash-ic">${catIcon(s[1])}</div><div><div class="subjdash-cat">${s[1]} · ${classLabel}</div><h2 class="subjdash-name">${subj}</h2></div></div>
+      ${evo}
       <div class="subjdash-resume"><div class="resume-k">📌 Ton dernier cours</div><div class="resume-t">La dernière fois, tu travaillais « <b>${demoChapter(subj)}</b> ». Tu étais à mi-parcours du chapitre.</div><div class="subjdash-actions"><button class="sd-btn sd-primary" onclick="openChatContext('${cls}','${subjE}')">▶ Poursuivre : ${demoChapter(subj)}</button><button class="sd-btn sd-ghost" onclick="openChatContext('${cls}','${subjE}')">＋ Nouveau chapitre</button></div></div>
       <div class="subjdash-prog"><div class="prog-title">Ma progression</div><div class="prog-bar"><div class="prog-seg pv" style="width:${vert}%"></div><div class="prog-seg po" style="width:${orange}%"></div><div class="prog-seg pr" style="width:${rouge}%"></div></div><div class="prog-legend"><span><i class="lg lgv"></i>Acquis ${vert}%</span><span><i class="lg lgo"></i>À renforcer ${orange}%</span><span><i class="lg lgr"></i>Lacunes ${rouge}%</span></div></div>
       <div class="subjdash-3col">

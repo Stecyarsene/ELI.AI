@@ -1,8 +1,8 @@
-import { supabaseAdmin, userFromRequest } from '@/lib/supabase/server';
+import { supabaseAdmin, supabaseAsUser, tokenFromRequest, userFromRequest } from '@/lib/supabase/server';
 import { buildSystemPrompt } from '@/lib/llm/masterPrompt';
 import { inspectUserMessage } from '@/lib/security/guard';
 import { safeParse, chatInput } from '@/lib/validation/schemas';
-import type { Profile, Progress } from '@/types/db';
+import type { Profile, Progress, Scope, SchoolStatus } from '@/types/db';
 
 export const runtime = 'edge';
 
@@ -32,14 +32,20 @@ export async function POST(req: Request) {
   if (!user) return Response.json({ error: 'unauthorized' }, { status: 401 });
 
   const sb = supabaseAdmin();
-  // Profil + progression récupérés EN PARALLÈLE (gain de latence avant le premier token).
-  const [{ data: profile }, { data: prog }] = await Promise.all([
+  const token = tokenFromRequest(req);
+  const asUser = token ? supabaseAsUser(token) : null;
+  // Profil + progression + PÉRIMÈTRE (my_scope) + HORAIRES DE CLASSE (in_school_hours) EN PARALLÈLE.
+  const [{ data: profile }, { data: prog }, scopeRes, schoolRes] = await Promise.all([
     sb.from('profiles').select('*').eq('id', user.id).single(),
     sb.from('progress').select('*').eq('user_id', user.id),
+    asUser ? asUser.rpc('my_scope') : Promise.resolve({ data: null, error: null }),
+    asUser ? asUser.rpc('in_school_hours') : Promise.resolve({ data: null, error: null }),
   ]);
   if (!profile) return Response.json({ error: 'no_profile' }, { status: 403 });
   const p = profile as Profile;
   if (!p.is_paid) return Response.json({ error: 'paywall' }, { status: 402 });
+  const scope = (scopeRes && !('error' in scopeRes && scopeRes.error) ? (scopeRes.data as Scope | null) : null);
+  const school = (schoolRes && !('error' in schoolRes && schoolRes.error) ? (schoolRes.data as SchoolStatus | null) : null);
 
   const raw = (await req.json().catch(() => null)) as unknown;
   const parsed = safeParse(chatInput, raw);
@@ -49,7 +55,7 @@ export async function POST(req: Request) {
   const verdict = inspectUserMessage(message);
   if (!verdict.ok) return Response.json({ error: 'blocked', reason: verdict.reason }, { status: 400 });
 
-  const system = buildSystemPrompt(p, (prog as Progress[] | null) ?? [], focusSubject ?? null, pillar ?? null);
+  const system = buildSystemPrompt(p, (prog as Progress[] | null) ?? [], focusSubject ?? null, pillar ?? null, scope, school);
   const maxOut = p.bougie ? 384 : 1024; // réduit pour la vitesse (réponses orales + écrites concises)
 
   let upstream = await callGemini(GEMINI_PRIMARY, system, message, maxOut);

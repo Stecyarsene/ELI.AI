@@ -1363,6 +1363,17 @@ window.__ELI_PROGRESS__=window.__ELI_PROGRESS__||{};window.__ELI_HYDRATED__=fals
 function realStatus(subj){var p=window.__ELI_PROGRESS__[subj];return p&&p.status?p.status:null;}
 function realChapter(subj){var p=window.__ELI_PROGRESS__[subj];return p&&p.last_chapter?p.last_chapter:null;}
 function realGap(subj){var p=window.__ELI_PROGRESS__[subj];if(!p)return null;var rz=p.red_zones||[],im=p.improvements||[];return rz[0]||im[0]||null;}
+function eliStatusRank(st){return st==='vert'?2:st==='orange'?1:0;}
+function eliFmtDay(d){try{var dt=new Date(d+'T00:00:00');var t=new Date();t.setHours(0,0,0,0);var diff=Math.round((t-dt)/86400000);if(diff<=0)return "Aujourd'hui";if(diff===1)return 'Hier';if(diff<7)return 'Il y a '+diff+' j';return dt.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}catch(e){return d||'';}}
+function realHistory(subj){var p=window.__ELI_PROGRESS__[subj];if(!p||!Array.isArray(p.history)||!p.history.length)return null;return p.history.slice().reverse().slice(0,6).map(function(h){return [eliFmtDay(h.d),h.t||'Session avec Éli',h.s||'orange'];});}
+function evolutionLine(row){if(!row||!Array.isArray(row.history)||row.history.length<2)return '';var h=row.history;var a=h[0].s,b=h[h.length-1].s;if(eliStatusRank(b)>eliStatusRank(a)){var lbl={vert:'Acquis',orange:'À renforcer',rouge:'Lacune'};return '<div style="margin:0 0 14px;padding:12px 14px;border-radius:14px;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.3);font-weight:700">📈 Belle progression : '+(lbl[a]||a)+' → '+(lbl[b]||b)+' 🎉</div>';}return '';}
+function eliEmptySubjectHTML(s,col,classLabel,cls,subjE,subj,backCall){return `
+    <div class="subjdash" style="--sc:${col}">
+      <button class="subjdash-back" onclick="${backCall}">← Toutes mes matières</button>
+      <div class="subjdash-head"><div class="subjdash-ic">${catIcon(s[1])}</div><div><div class="subjdash-cat">${s[1]} · ${classLabel}</div><h2 class="subjdash-name">${subj}</h2></div></div>
+      <div class="subjdash-resume"><div class="resume-k">🌱 Nouvelle matière</div><div class="resume-t">Tu n'as pas encore commencé <b>${subj}</b>. Lance ta première session : ta progression, tes points forts et ton historique se rempliront ici automatiquement, au fil de ton travail avec Éli.</div><div class="subjdash-actions"><button class="sd-btn sd-primary" onclick="openChatContext('${cls}','${subjE}')">▶ Commencer ${subj}</button></div></div>
+      <div class="subjdash-chat" onclick="openChatContext('${cls}','${subjE}')"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Je suis ton assistant ${subj}</strong><span>Pose-moi ta première question, niveau ${classLabel}.</span></div><button class="class-chat-btn" onclick="event.stopPropagation();openChatContext('${cls}','${subjE}')">Ouvrir →</button></div>
+    </div>`;}
 function demoStatus(i){const m=['vert','vert','orange','vert','rouge','orange','vert','vert','orange','vert','vert','rouge','vert','orange','vert','vert'];return m[i%m.length];}
 
 /* ENSEIGNEMENT TECHNIQUE — séries gabonaises (à valider par un enseignant technique) */
@@ -2261,11 +2272,15 @@ function openClassPage(classKey){
 
 function subjectDashHTML(s,col,vert,orange,rouge,classLabel,backCall){
   const subj=s[0];const cls=classLabel.replace(/'/g,"\\'");const subjE=subj.replace(/'/g,"\\'");
-  const forts=demoStrong(subj),amel=demoImprove(subj),rouges=demoRed(subj),hist=demoHistory(subj);
+  const row=(window.__ELI_PROGRESS__||{})[subj];
+  if(window.__ELI_HYDRATED__&&!row){return eliEmptySubjectHTML(s,col,classLabel,cls,subjE,subj,backCall);}
+  const forts=(row&&row.strengths&&row.strengths.length?row.strengths:demoStrong(subj)),amel=(row&&row.improvements&&row.improvements.length?row.improvements:demoImprove(subj)),rouges=(row&&row.red_zones&&row.red_zones.length?row.red_zones:demoRed(subj)),hist=realHistory(subj)||demoHistory(subj);
+  const evo=evolutionLine(row);
   return `
     <div class="subjdash" style="--sc:${col}">
       <button class="subjdash-back" onclick="${backCall}">← Toutes mes matières</button>
       <div class="subjdash-head"><div class="subjdash-ic">${catIcon(s[1])}</div><div><div class="subjdash-cat">${s[1]} · ${classLabel}</div><h2 class="subjdash-name">${subj}</h2></div></div>
+      ${evo}
       <div class="subjdash-resume"><div class="resume-k">📌 Ton dernier cours</div><div class="resume-t">La dernière fois, tu travaillais « <b>${demoChapter(subj)}</b> ». Tu étais à mi-parcours du chapitre.</div><div class="subjdash-actions"><button class="sd-btn sd-primary" onclick="openChatContext('${cls}','${subjE}')">▶ Poursuivre : ${demoChapter(subj)}</button><button class="sd-btn sd-ghost" onclick="openChatContext('${cls}','${subjE}')">＋ Débuter un nouveau chapitre</button></div></div>
       <div class="subjdash-prog"><div class="prog-title">Ma progression</div><div class="prog-bar"><div class="prog-seg pv" style="width:${vert}%"></div><div class="prog-seg po" style="width:${orange}%"></div><div class="prog-seg pr" style="width:${rouge}%"></div></div><div class="prog-legend"><span><i class="lg lgv"></i>Acquis ${vert}%</span><span><i class="lg lgo"></i>À renforcer ${orange}%</span><span><i class="lg lgr"></i>Lacunes ${rouge}%</span></div></div>
       <div class="subjdash-3col">

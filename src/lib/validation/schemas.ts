@@ -41,6 +41,47 @@ export const progressInput = z.object({
   }),
 }).strict();
 
+export const continuiteInput = z.object({
+  subject: z.string().max(120).optional(),
+  lastChapter: z.string().max(300).optional(),
+  minutes: z.number().int().min(0).max(600).optional(),
+}).strict();
+
+export const pushRegisterInput = z.object({
+  platform: z.enum(['android', 'ios', 'web']),
+  token: z.string().min(8).max(512),
+}).strict();
+
+const transcriptLine = z.object({ role: z.string().max(16), text: z.string().max(4000) }).strict();
+export const sessionOpenInput = z.object({
+  action: z.literal('open'),
+  pillar: z.string().max(40).optional(),
+  subject: z.string().max(120).optional(),
+  classKey: z.string().max(40).optional(),
+  serie: z.string().max(40).optional(),
+  title: z.string().max(200).optional(),
+}).strict();
+export const sessionCloseInput = z.object({
+  action: z.literal('close'),
+  id: z.number().int().positive(),
+  transcript: z.array(transcriptLine).max(200).optional(),
+  done: z.boolean().optional(),
+  minutes: z.number().int().min(0).max(600).optional(),
+}).strict();
+
+export const orientationInput = z.object({
+  id: z.number().int().positive().optional(),
+  track: z.enum(['parcoursup', 'mon_avenir']),
+  formation: z.string().min(1).max(200),
+  etablissement: z.string().max(200).optional(),
+  ville: z.string().max(120).optional(),
+  rank: z.number().int().min(1).max(50).optional(),
+  status: z.enum(['envisage', 'candidate', 'accepte', 'refuse', 'confirme']).optional(),
+  notes: z.string().max(2000).optional(),
+}).strict();
+
+export const bougieInput = z.object({ on: z.boolean() }).strict();
+
 /** Helper : parse sûr → {ok,data} | {ok:false,error}. Jamais d'exception non gérée. */
 export function safeParse<T>(schema: z.ZodSchema<T>, data: unknown): { ok: true; data: T } | { ok: false; error: string } {
   const r = schema.safeParse(data);

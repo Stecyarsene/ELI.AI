@@ -66,6 +66,45 @@ body{background:var(--void);color:var(--cream);font-family:var(--fbody);min-heig
 </style>
 </head>
 <body>
+<style id="introStyle">
+#eliIntro{position:fixed;inset:0;z-index:99999;background:radial-gradient(circle at 50% 42%,#0F4A38,#0B3D2E 72%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;will-change:opacity;animation:introOut .8s ease 3.05s forwards}
+#eliIntro .intro-aura{position:absolute;width:560px;height:560px;max-width:90vw;max-height:90vw;border-radius:50%;background:radial-gradient(circle,rgba(255,200,90,.16),transparent 62%);filter:blur(22px);animation:introAura 3.2s ease-in-out infinite}
+#eliIntro .intro-stage{position:relative;display:flex;align-items:center;justify-content:center;animation:introLogo 1.2s cubic-bezier(.16,1,.3,1) both}
+#eliIntro .intro-mark{filter:drop-shadow(0 14px 46px rgba(0,0,0,.45));position:relative;z-index:2}
+#eliIntro .intro-ring{position:absolute;z-index:1;width:190px;height:190px}
+#eliIntro .intro-ring circle{stroke-dasharray:592;stroke-dashoffset:592;animation:introDraw 1.7s cubic-bezier(.6,0,.2,1) .15s forwards}
+#eliIntro .intro-word{font-family:Georgia,'Times New Roman',serif;font-size:44px;font-weight:700;color:#fff;letter-spacing:.06em;opacity:0;transform:translateY(10px);animation:introWord .8s ease .85s forwards}
+#eliIntro .intro-tag{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:rgba(255,255,255,.6);opacity:0;animation:introWord .8s ease 1.15s forwards}
+#eliIntro .intro-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+#eliIntro .intro-p{position:absolute;bottom:-12px;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle,#FFE082,#FFA000);opacity:0;animation:introRise linear infinite}
+@keyframes introLogo{0%{opacity:0;transform:scale(.78)}100%{opacity:1;transform:scale(1)}}
+@keyframes introDraw{to{stroke-dashoffset:0}}
+@keyframes introWord{to{opacity:1;transform:translateY(0)}}
+@keyframes introAura{0%,100%{transform:scale(.94);opacity:.65}50%{transform:scale(1.06);opacity:1}}
+@keyframes introRise{0%{transform:translateY(0) scale(1);opacity:0}15%{opacity:.9}100%{transform:translateY(-78vh) scale(.4);opacity:0}}
+@keyframes introOut{to{opacity:0;visibility:hidden}}
+@media(prefers-reduced-motion:reduce){#eliIntro{animation:introOut .4s ease 1.1s forwards}#eliIntro *{animation-duration:.6s!important}}
+</style>
+<div id="eliIntro" aria-hidden="true">
+  <div class="intro-aura"></div>
+  <div class="intro-particles" id="introParticles"></div>
+  <div class="intro-stage">
+    <svg class="intro-ring" viewBox="0 0 200 200"><circle cx="100" cy="100" r="94" fill="none" stroke="#FFD54F" stroke-width="2.5" stroke-linecap="round"/></svg>
+    <svg class="intro-mark" viewBox="0 0 200 200" width="150" height="150">
+      <defs>
+        <radialGradient id="g1i" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#388E3C"/><stop offset="100%" stop-color="#1B5E20"/></radialGradient>
+        <linearGradient id="g2i" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFE082"/><stop offset="100%" stop-color="#FFA000"/></linearGradient>
+        <linearGradient id="g3i" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#FFA000"/><stop offset="60%" stop-color="#FFD54F"/><stop offset="100%" stop-color="#FFFDE7"/></linearGradient>
+      </defs>
+      <circle cx="100" cy="100" r="86" fill="url(#g1i)"/>
+      <rect x="61" y="44" width="13" height="108" rx="6" fill="url(#g2i)"/><rect x="61" y="44" width="78" height="13" rx="6" fill="url(#g2i)"/><rect x="61" y="91" width="60" height="13" rx="6" fill="url(#g2i)"/><rect x="61" y="139" width="78" height="13" rx="6" fill="url(#g2i)"/>
+      <path d="M147 44C145 34,141 24,147 12C150 5,156 1,156 1C156 1,167 10,164 24C162 32,156 38,156 44Z" fill="url(#g3i)"/>
+      <circle cx="82" cy="172" r="4.5" fill="url(#g2i)" opacity=".9"/><circle cx="100" cy="176" r="5.5" fill="url(#g2i)"/><circle cx="118" cy="172" r="4.5" fill="url(#g2i)" opacity=".9"/>
+    </svg>
+  </div>
+  <div class="intro-word">Éli</div>
+  <div class="intro-tag">Ta plateforme éducative</div>
+</div>
 <div class="cosmos"><div class="aurora"></div><div class="aurora2"></div><div class="stars" id="stars"></div></div>
 
 <div class="wrap">
@@ -115,6 +154,17 @@ body{background:var(--void);color:var(--cream);font-family:var(--fbody);min-heig
 <script>
 const s=document.getElementById('stars');
 for(let i=0;i<50;i++){const e=document.createElement('div');e.className='star';e.style.left=Math.random()*100+'%';e.style.top=Math.random()*100+'%';e.style.animationDuration=(2+Math.random()*4)+'s';e.style.animationDelay=(Math.random()*5)+'s';s.appendChild(e);}
+</script>
+<script>
+(function(){
+  var intro=document.getElementById('eliIntro'); if(!intro)return;
+  var seen=false; try{seen=sessionStorage.getItem('eliIntroSeen')==='1';}catch(e){seen=!!window.__eliIntroSeen;}
+  if(seen){ if(intro.parentNode)intro.parentNode.removeChild(intro); return; }
+  try{sessionStorage.setItem('eliIntroSeen','1');}catch(e){window.__eliIntroSeen=true;}
+  var pc=document.getElementById('introParticles');
+  if(pc){for(var i=0;i<16;i++){var p=document.createElement('span');p.className='intro-p';p.style.left=(Math.random()*100)+'%';p.style.animationDelay=(Math.random()*2.2)+'s';p.style.animationDuration=(2.6+Math.random()*2)+'s';pc.appendChild(p);}}
+  setTimeout(function(){ if(intro.parentNode)intro.parentNode.removeChild(intro); }, 4000);
+})();
 </script>
 </body>
 </html>
