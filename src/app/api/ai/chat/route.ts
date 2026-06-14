@@ -2,6 +2,7 @@ import { supabaseAdmin, supabaseAsUser, tokenFromRequest, userFromRequest } from
 import { buildSystemPrompt } from '@/lib/llm/masterPrompt';
 import { inspectUserMessage } from '@/lib/security/guard';
 import { safeParse, chatInput } from '@/lib/validation/schemas';
+import { canUseStudentTutor, type Role } from '@/lib/access';
 import type { Profile, Progress, Scope, SchoolStatus } from '@/types/db';
 
 export const runtime = 'edge';
@@ -36,13 +37,18 @@ export async function POST(req: Request) {
   const asUser = token ? supabaseAsUser(token) : null;
   // Lecture du corps lancée EN PARALLÈLE des requêtes DB (évite un aller-retour sériel avant le 1er token).
   const bodyP = req.json().catch(() => null) as Promise<unknown>;
-  // Profil + progression + PÉRIMÈTRE (my_scope) + HORAIRES DE CLASSE (in_school_hours) EN PARALLÈLE.
-  const [{ data: profile }, { data: prog }, scopeRes, schoolRes] = await Promise.all([
+  // Profil + progression + PÉRIMÈTRE (my_scope) + HORAIRES DE CLASSE (in_school_hours) + RÔLES EN PARALLÈLE.
+  const [{ data: profile }, { data: prog }, scopeRes, schoolRes, { data: roleRows }] = await Promise.all([
     sb.from('profiles').select('*').eq('id', user.id).single(),
     sb.from('progress').select('*').eq('user_id', user.id),
     asUser ? asUser.rpc('my_scope') : Promise.resolve({ data: null, error: null }),
     asUser ? asUser.rpc('in_school_hours') : Promise.resolve({ data: null, error: null }),
+    sb.from('user_roles').select('role').eq('user_id', user.id),
   ]);
+  // T2 — Étanchéité : le tuteur élève est refusé aux comptes prof/parent purs.
+  const roles = ((roleRows ?? []) as { role: Role }[]).map((r) => r.role);
+  if (!canUseStudentTutor(roles))
+    return Response.json({ error: 'wrong_space', detail: 'student_tutor_reserved' }, { status: 403 });
   if (!profile) return Response.json({ error: 'no_profile' }, { status: 403 });
   const p = profile as Profile;
   if (!p.is_paid) return Response.json({ error: 'paywall' }, { status: 402 });

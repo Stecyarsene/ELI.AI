@@ -22,3 +22,36 @@ html.bougie [data-decor] { display: none !important; }
 .tile { aspect-ratio: 5 / 3; min-height: 96px; border-radius: 12px; padding: 14px; border: 1px solid color-mix(in srgb, currentColor 15%, transparent); min-width: 44px; }
 .skip-link { position: absolute; left: -9999px; }
 .skip-link:focus { left: 12px; top: 12px; background: var(--gold, #F5B544); color: #04140D; padding: 8px 14px; border-radius: 8px; z-index: 999; }
+
+/* ── Splash de reprise (T1) : logo Éli animé, respecte Mode Bougie & reduced-motion ── */
+.eli-splash { position: fixed; inset: 0; display: grid; place-items: center; z-index: 50;
+  background: radial-gradient(120% 120% at 50% 35%, var(--bg-deep, #020806) 0%, var(--bg, #04140D) 70%); }
+.eli-splash-stage { display: grid; place-items: center; gap: 18px; text-align: center; }
+.eli-splash-mark { width: 96px; height: 96px; animation: eli-rise .9s cubic-bezier(.22,1,.36,1) both; }
+.eli-splash-leaf { transform-origin: 50% 100%; animation: eli-grow 1s cubic-bezier(.22,1,.36,1) both; }
+.eli-splash-ring { transform-origin: 50% 50%; animation: eli-spin 1.4s ease-in-out infinite; opacity: .9; }
+.eli-splash-word { font-weight: 800; letter-spacing: .04em; font-size: 26px; color: var(--ink, #FFF8EC);
+  opacity: 0; animation: eli-fade .5s ease .35s forwards; }
+.eli-splash-sub { font-size: 13px; opacity: 0; color: var(--ink, #FFF8EC);
+  animation: eli-fade .5s ease .55s forwards; }
+@keyframes eli-rise { from { transform: translateY(10px) scale(.92); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes eli-grow { from { transform: scaleY(.2); opacity: .2; } to { transform: scaleY(1); opacity: 1; } }
+@keyframes eli-spin { 0% { transform: rotate(0); } 50% { transform: rotate(180deg); } 100% { transform: rotate(360deg); } }
+@keyframes eli-fade { to { opacity: .85; } }
+html.bougie .eli-splash-leaf, html.bougie .eli-splash-ring, html.bougie .eli-splash-mark,
+html.bougie .eli-splash-word, html.bougie .eli-splash-sub { animation: none !important; opacity: 1 !important; transform: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .eli-splash-leaf, .eli-splash-ring, .eli-splash-mark, .eli-splash-word, .eli-splash-sub {
+    animation: none !important; opacity: 1 !important; transform: none !important; }
+}
+
+/* ── « Changer d'espace » : commande discrète au-dessus de la maquette (T1) ── */
+.eli-switch { position: fixed; top: 12px; right: 12px; z-index: 60;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px; border-radius: 999px; font: inherit; font-size: 12.5px; font-weight: 600;
+  cursor: pointer; border: 1px solid color-mix(in srgb, var(--ink, #FFF8EC) 18%, transparent);
+  background: color-mix(in srgb, var(--bg-deep, #020806) 70%, transparent);
+  color: var(--ink, #FFF8EC); backdrop-filter: blur(8px); text-decoration: none;
+  opacity: .55; transition: opacity .2s ease, transform .2s ease; }
+.eli-switch:hover, .eli-switch:focus-visible { opacity: 1; transform: translateY(1px); }
+html.bougie .eli-switch { backdrop-filter: none; opacity: .9; transition: none; }
