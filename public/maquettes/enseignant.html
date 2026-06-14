@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Éli — Espace Enseignant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --canvas:#F6F4EE; --card:#FFFFFF; --ink:#16241C; --muted:#6A776E; --line:#E8E3D7;
+    --accent:#0B6B3A; --accent2:#12894B; --gold:#BF9B49; --gold2:#E4C66B; --ring:rgba(11,107,58,.16);
+  }
+  [data-prog="aefe"]{ --accent:#143A72; --accent2:#1E56A8; --ring:rgba(20,58,114,.16); }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:
+    radial-gradient(1200px 520px at 85% -10%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 60%),
+    radial-gradient(900px 480px at -5% 110%, color-mix(in srgb, var(--gold) 10%, transparent), transparent 55%),
+    var(--canvas);min-height:100vh}
+  h1,h2,h3,.disp{font-family:'Fraunces',Georgia,serif;letter-spacing:-.01em}
+  .wrap{max-width:1080px;margin:0 auto;padding:22px 22px 64px}
+  /* Topbar */
+  .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0 22px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand .nm{font-family:'Fraunces',serif;font-weight:700;font-size:20px}
+  .brand .sub{color:var(--muted);font-size:12.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+  .badge{font-size:12px;font-weight:700;color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,#fff);
+    border:1px solid color-mix(in srgb,var(--accent) 22%,#fff);padding:6px 12px;border-radius:999px}
+  .ghost{background:none;border:1px solid var(--line);color:var(--muted);padding:9px 14px;border-radius:10px;font-weight:600;cursor:pointer;font-family:inherit}
+  .ghost:hover{color:var(--ink);border-color:var(--accent)}
+  /* Cards */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 1px 2px rgba(20,36,28,.04),0 18px 40px -28px rgba(20,36,28,.28)}
+  .pad{padding:26px}
+  /* Auth gate */
+  .gate{max-width:520px;margin:4vh auto 0}
+  .gate .eyebrow{color:var(--accent);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:12px}
+  .gate h1{font-size:30px;margin:8px 0 6px;line-height:1.12}
+  .gate p.lead{color:var(--muted);margin:0 0 18px;font-size:15px}
+  .tabs{display:flex;gap:6px;background:color-mix(in srgb,var(--accent) 6%,#fff);border:1px solid var(--line);padding:5px;border-radius:14px;margin-bottom:20px}
+  .tab{flex:1;border:none;background:none;padding:11px;border-radius:10px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit}
+  .tab[aria-selected="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  label{display:block;font-size:13px;font-weight:600;margin:14px 0 6px}
+  input,select,textarea{width:100%;font-family:inherit;font-size:15px;color:var(--ink);background:#fff;
+    border:1px solid var(--line);border-radius:12px;padding:13px 14px;outline:none;transition:border .15s,box-shadow .15s}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--ring)}
+  .cta{width:100%;margin-top:20px;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:15.5px;color:#fff;
+    padding:15px;border-radius:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 10px 24px -12px var(--accent)}
+  .cta:disabled{opacity:.55;cursor:not-allowed}
+  .cta.gold{color:#1c1407;background:linear-gradient(135deg,var(--gold2),var(--gold))}
+  .hint{font-size:12.5px;color:var(--muted);margin-top:12px;text-align:center}
+  .note{font-size:13px;color:var(--muted);background:color-mix(in srgb,var(--accent) 5%,#fff);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:14px}
+  .msg{font-size:13.5px;margin-top:14px;padding:11px 13px;border-radius:11px;display:none}
+  .msg.show{display:block}
+  .msg.err{background:#FDECEC;color:#9B1C1C;border:1px solid #F5C2C2}
+  .msg.ok{background:#EAF7EF;color:#136B3A;border:1px solid #BFE6CD}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:560px){.row2{grid-template-columns:1fr}}
+  /* Dashboard */
+  .hi{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px}
+  .hi h1{font-size:28px;margin:2px 0 0}
+  .hi .who{color:var(--muted);font-size:14px}
+  .grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
+  .sec-title{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:0 0 14px}
+  .kinds{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+  .kind{border:1px solid var(--line);background:#fff;color:var(--muted);padding:9px 14px;border-radius:11px;font-weight:600;cursor:pointer;font-family:inherit;font-size:13.5px}
+  .kind[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .out{white-space:pre-wrap;word-break:break-word;background:#FBFAF6;border:1px solid var(--line);border-radius:14px;
+    padding:18px;margin-top:16px;max-height:460px;overflow:auto;font-size:14.5px;line-height:1.55;min-height:60px}
+  .out:empty::before{content:"Le matériel généré apparaîtra ici. Choisissez un type, renseignez la classe et la matière, puis cliquez sur Générer.";color:var(--muted)}
+  .reslist{display:grid;gap:10px}
+  .resitem{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff}
+  .resitem .t{font-weight:600;font-size:14px}
+  .resitem .m{color:var(--muted);font-size:12px;margin-top:3px}
+  .spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:7px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .hidden{display:none!important}
+</style>
+</head>
+<body data-prog="national">
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand">
+      <svg width="40" height="40" viewBox="0 0 200 200" aria-hidden="true"><defs><radialGradient id="g1" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#388E3C"/><stop offset="100%" stop-color="#1B5E20"/></radialGradient><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFE082"/><stop offset="100%" stop-color="#FFA000"/></linearGradient></defs>
+        <circle cx="100" cy="100" r="86" fill="url(#g1)"/>
+        <rect x="61" y="44" width="13" height="108" rx="6" fill="url(#g2)"/><rect x="61" y="44" width="78" height="13" rx="6" fill="url(#g2)"/><rect x="61" y="91" width="60" height="13" rx="6" fill="url(#g2)"/><rect x="61" y="139" width="78" height="13" rx="6" fill="url(#g2)"/>
+        <circle cx="82" cy="172" r="4.5" fill="url(#g2)" opacity=".9"/><circle cx="100" cy="176" r="5.5" fill="url(#g2)"/><circle cx="118" cy="172" r="4.5" fill="url(#g2)" opacity=".9"/></svg>
+      <div>
+        <div class="nm">Éli</div>
+        <div class="sub">Espace&nbsp;Enseignant</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="badge" id="progBadge">Programme national</span>
+      <button class="ghost hidden" id="logoutBtn" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 1 : PORTAIL INSCRIPTION / CONNEXION -->
+  <section id="gate" class="gate">
+    <div class="card pad">
+      <div class="eyebrow">Réservé aux professeurs</div>
+      <h1 class="disp">Votre assistant pédagogique</h1>
+      <p class="lead">Fiches de cours, contrôles corrigés, diapositives et progressions — alignés au programme officiel, générés en quelques secondes.</p>
+
+      <div class="tabs" role="tablist">
+        <button class="tab" id="tabSignup" role="tab" aria-selected="true" onclick="setMode('signup')">Créer mon compte</button>
+        <button class="tab" id="tabLogin" role="tab" aria-selected="false" onclick="setMode('login')">Se connecter</button>
+      </div>
+
+      <!-- Formulaire infos (signup) -->
+      <div id="infoFields">
+        <label for="fName">Nom complet</label>
+        <input id="fName" placeholder="ex. M. Jean MBADINGA" autocomplete="name" />
+        <div class="row2">
+          <div><label for="fEtab">Établissement</label><input id="fEtab" placeholder="ex. Lycée Léon Mba" /></div>
+          <div><label for="fSubject">Matière(s) enseignée(s)</label><input id="fSubject" placeholder="ex. Mathématiques" /></div>
+        </div>
+      </div>
+
+      <!-- WhatsApp + OTP -->
+      <div id="phoneStep">
+        <label for="fPhone">Numéro WhatsApp <span style="color:var(--muted);font-weight:500">(avec indicatif)</span></label>
+        <input id="fPhone" inputmode="tel" placeholder="+241 77 00 00 00" autocomplete="tel" />
+        <button class="cta" id="sendBtn" onclick="sendCode()">Recevoir mon code de validation</button>
+      </div>
+
+      <div id="otpStep" class="hidden">
+        <label for="fOtp">Code de validation reçu sur WhatsApp</label>
+        <input id="fOtp" inputmode="numeric" maxlength="8" placeholder="6 chiffres" />
+        <button class="cta gold" id="verifyBtn" onclick="verifyCode()">Valider et accéder à mon espace</button>
+        <div class="hint">Vous n'avez rien reçu ? <a href="#" onclick="sendCode();return false">Renvoyer le code</a></div>
+      </div>
+
+      <div class="note" id="gateNote">🔒 Vos informations officielles restent confidentielles et ne servent qu'à valider votre statut d'enseignant.</div>
+      <div class="msg" id="gateMsg"></div>
+    </div>
+    <p class="hint" style="margin-top:14px">Vous êtes élève ou parent ? <a href="#" onclick="goHome();return false">Retourner à l'accueil Éli</a></p>
+  </section>
+
+  <!-- ÉCRAN 2 : FINALISER (connecté mais pas encore enseignant) -->
+  <section id="finalize" class="gate hidden">
+    <div class="card pad">
+      <div class="eyebrow">Dernière étape</div>
+      <h1 class="disp">Activez votre espace enseignant</h1>
+      <p class="lead">Votre numéro est vérifié. Renseignez vos informations officielles pour activer votre compte professeur.</p>
+      <label for="zName">Nom complet</label>
+      <input id="zName" placeholder="ex. Mme Awa NDONG" />
+      <div class="row2">
+        <div><label for="zEtab">Établissement</label><input id="zEtab" placeholder="ex. Lycée d'État de l'Estuaire" /></div>
+        <div><label for="zSubject">Matière(s)</label><input id="zSubject" placeholder="ex. SVT" /></div>
+      </div>
+      <button class="cta gold" id="finBtn" onclick="finalize()">Activer mon espace</button>
+      <div class="msg" id="finMsg"></div>
+    </div>
+  </section>
+
+  <!-- ÉCRAN 3 : DASHBOARD -->
+  <section id="dash" class="hidden">
+    <div class="hi">
+      <div>
+        <div class="who" id="dashWho">—</div>
+        <h1 class="disp" id="dashHello">Bonjour, professeur</h1>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Assistant IA -->
+      <div class="card pad">
+        <p class="sec-title">Assistant IA — générez votre matériel</p>
+        <div class="kinds" role="group" aria-label="Type de matériel">
+          <button class="kind" data-kind="fiche" aria-pressed="true" onclick="setKind('fiche')">Fiche de cours</button>
+          <button class="kind" data-kind="controle" aria-pressed="false" onclick="setKind('controle')">Contrôle + corrigé</button>
+          <button class="kind" data-kind="diapos" aria-pressed="false" onclick="setKind('diapos')">Diapositives</button>
+          <button class="kind" data-kind="progression" aria-pressed="false" onclick="setKind('progression')">Progression</button>
+        </div>
+        <div class="row2" style="margin-top:6px">
+          <div><label for="dClass">Classe</label><input id="dClass" placeholder="ex. terminale" /></div>
+          <div><label for="dSerie">Série (option)</label><input id="dSerie" placeholder="ex. D" /></div>
+        </div>
+        <div class="row2">
+          <div><label for="dSubject">Matière</label><input id="dSubject" placeholder="ex. Mathématiques" /></div>
+          <div><label for="dNotion">Notion (option)</label><input id="dNotion" placeholder="ex. Logarithme népérien" /></div>
+        </div>
+        <label for="dMore">Précisions (option)</label>
+        <input id="dMore" placeholder="ex. niveau difficile, durée 1h, axé sur les équations" />
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+          <button class="cta" style="width:auto;margin:0;min-width:180px" id="genBtn" onclick="generate()">Générer</button>
+          <button class="ghost hidden" id="saveBtn" onclick="saveResource()">Enregistrer</button>
+        </div>
+        <div class="out" id="out"></div>
+      </div>
+
+      <!-- Mes ressources -->
+      <div class="card pad">
+        <p class="sec-title">Mes ressources</p>
+        <div class="reslist" id="reslist"><p class="who">Chargement…</p></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script type="module">
+  /* ───────── État & thème ───────── */
+  const params = new URLSearchParams(location.search);
+  const PROGRAM = params.get('program') === 'aefe' ? 'aefe' : 'national';
+  document.body.dataset.prog = PROGRAM;
+  document.getElementById('progBadge').textContent = PROGRAM === 'aefe' ? 'Programme AEFE' : 'Programme national';
+
+  let MODE = 'signup';   // signup | login
+  let KIND = 'fiche';
+  let PHONE = '';
+  let lastOutput = '';
+  let sbClient = null;
+
+  /* ───────── Supabase (config publique + bundle local) ───────── */
+  async function getSb(){
+    if (sbClient) return sbClient;
+    const cfg = await fetch('/api/config').then(r => r.json());
+    const mod = await import('/maquettes/vendor/supabase-js.mjs').catch(() => import('https://esm.sh/@supabase/supabase-js@2'));
+    sbClient = mod.createClient(cfg.supabaseUrl, cfg.supabaseAnon);
+    return sbClient;
+  }
+  async function token(){
+    const sb = await getSb(); const { data } = await sb.auth.getSession();
+    return data.session ? data.session.access_token : '';
+  }
+  async function authedFetch(path, opts){
+    const t = await token(); opts = opts || {};
+    opts.headers = Object.assign({ 'content-type':'application/json', authorization:'Bearer ' + t }, opts.headers || {});
+    return fetch(path, opts);
+  }
+
+  /* ───────── Helpers UI ───────── */
+  const $ = id => document.getElementById(id);
+  function msg(el, kind, text){ el.className = 'msg show ' + kind; el.textContent = text; }
+  function clearMsg(el){ el.className = 'msg'; el.textContent = ''; }
+  function show(id){ $(id).classList.remove('hidden'); }
+  function hide(id){ $(id).classList.add('hidden'); }
+  window.goHome = () => { (window.top || window).location.href = PROGRAM === 'aefe' ? '/aefe' : '/nationale'; };
+
+  window.setMode = (m) => {
+    MODE = m;
+    $('tabSignup').setAttribute('aria-selected', m === 'signup');
+    $('tabLogin').setAttribute('aria-selected', m === 'login');
+    $('infoFields').classList.toggle('hidden', m !== 'signup');
+    hide('otpStep'); show('phoneStep'); clearMsg($('gateMsg'));
+    $('sendBtn').textContent = 'Recevoir mon code de validation';
+  };
+
+  function normalizePhone(raw){
+    let p = (raw || '').replace(/[\s.\-()]/g, '');
+    if (!p) return '';
+    if (p[0] !== '+'){ if (p[0] === '0') p = p.slice(1); p = '+241' + p; } // défaut Gabon
+    return p;
+  }
+
+  /* ───────── Envoi du code (WhatsApp) ───────── */
+  window.sendCode = async () => {
+    clearMsg($('gateMsg'));
+    if (MODE === 'signup'){
+      if (!$('fName').value.trim()){ msg($('gateMsg'),'err','Indiquez votre nom complet.'); return; }
+    }
+    PHONE = normalizePhone($('fPhone').value);
+    if (PHONE.length < 9){ msg($('gateMsg'),'err','Entrez un numéro WhatsApp valide (avec indicatif, ex. +241…).'); return; }
+    const btn = $('sendBtn'); btn.disabled = true; const old = btn.textContent; btn.innerHTML = '<span class="spin"></span>Envoi…';
+    try{
+      const sb = await getSb();
+      const { error } = await sb.auth.signInWithOtp({ phone: PHONE, options: { channel: 'whatsapp', shouldCreateUser: true } });
+      if (error){ msg($('gateMsg'),'err','Envoi impossible : ' + error.message); return; }
+      hide('phoneStep'); show('otpStep');
+      msg($('gateMsg'),'ok','Code envoyé sur WhatsApp au ' + PHONE + ' 📲');
+    } catch(e){ msg($('gateMsg'),'err','Connexion interrompue, réessayez.'); }
+    finally{ btn.disabled = false; btn.textContent = old; }
+  };
+
+  /* ───────── Vérification du code ───────── */
+  window.verifyCode = async () => {
+    const code = $('fOtp').value.trim();
+    if (!code){ msg($('gateMsg'),'err','Entrez le code reçu.'); return; }
+    const btn = $('verifyBtn'); btn.disabled = true; const old = btn.textContent; btn.innerHTML = '<span class="spin"></span>Vérification…';
+    try{
+      const sb = await getSb();
+      const { error } = await sb.auth.verifyOtp({ phone: PHONE, token: code, type: 'sms' });
+      if (error){ msg($('gateMsg'),'err','Code incorrect ou expiré : ' + error.message); return; }
+      if (MODE === 'signup'){
+        const res = await authedFetch('/api/teacher/register', { method:'POST', body: JSON.stringify({
+          program: PROGRAM, full_name: $('fName').value.trim(), establishment: $('fEtab').value.trim(),
+          subject: $('fSubject').value.trim(), whatsapp: PHONE,
+        })});
+        if (!res.ok){ msg($('gateMsg'),'err','Activation impossible, réessayez.'); return; }
+        await boot();
+      } else {
+        await boot(); // login : boot décidera dashboard vs finalisation
+      }
+    } catch(e){ msg($('gateMsg'),'err','Connexion interrompue, réessayez.'); }
+    finally{ btn.disabled = false; btn.textContent = old; }
+  };
+
+  /* ───────── Finalisation (connecté sans rôle prof) ───────── */
+  window.finalize = async () => {
+    if (!$('zName').value.trim()){ msg($('finMsg'),'err','Indiquez votre nom complet.'); return; }
+    const btn = $('finBtn'); btn.disabled = true; const old = btn.textContent; btn.innerHTML = '<span class="spin"></span>Activation…';
+    try{
+      const res = await authedFetch('/api/teacher/register', { method:'POST', body: JSON.stringify({
+        program: PROGRAM, full_name: $('zName').value.trim(), establishment: $('zEtab').value.trim(), subject: $('zSubject').value.trim(),
+      })});
+      if (!res.ok){ msg($('finMsg'),'err','Activation impossible, réessayez.'); return; }
+      await boot();
+    } finally { btn.disabled = false; btn.textContent = old; }
+  };
+
+  window.logout = async () => { const sb = await getSb(); await sb.auth.signOut(); hide('dash'); hide('finalize'); show('gate'); hide('logoutBtn'); setMode('signup'); };
+
+  /* ───────── Dashboard ───────── */
+  window.setKind = (k) => { KIND = k; document.querySelectorAll('.kind').forEach(b => b.setAttribute('aria-pressed', b.dataset.kind === k)); };
+
+  window.generate = async () => {
+    const cls = $('dClass').value.trim(), subj = $('dSubject').value.trim();
+    if (!cls || !subj){ alert('Renseignez au moins la classe et la matière.'); return; }
+    const btn = $('genBtn'); btn.disabled = true; const old = btn.textContent; btn.innerHTML = '<span class="spin"></span>Génération…';
+    $('saveBtn').classList.add('hidden'); $('out').textContent = ''; lastOutput = '';
+    try{
+      const res = await authedFetch('/api/ai/teacher', { method:'POST', body: JSON.stringify({
+        program: PROGRAM, classKey: cls, serie: $('dSerie').value.trim() || undefined, subject: subj,
+        notion: $('dNotion').value.trim() || undefined, kind: KIND, message: $('dMore').value.trim() || undefined,
+      })});
+      if (res.status === 401 || res.status === 403){ $('out').textContent = "Accès réservé aux enseignants validés."; return; }
+      if (!res.ok || !res.body){ $('out').textContent = "Génération indisponible pour le moment, réessayez."; return; }
+      const reader = res.body.getReader(), dec = new TextDecoder(); let buf = '', acc = '';
+      while(true){
+        const { done, value } = await reader.read(); if (done) break;
+        buf += dec.decode(value, { stream:true });
+        const lines = buf.split('\n'); buf = lines.pop() || '';
+        for (const line of lines){
+          const t = line.trim(); if (!t.startsWith('data:')) continue;
+          const p = t.slice(5).trim(); if (!p || p === '[DONE]') continue;
+          try{ const j = JSON.parse(p); const parts = j?.candidates?.[0]?.content?.parts;
+            if (Array.isArray(parts)) for (const part of parts) if (typeof part.text === 'string'){ acc += part.text; $('out').textContent = acc; $('out').scrollTop = $('out').scrollHeight; }
+          } catch(_){}
+        }
+      }
+      lastOutput = acc || '';
+      if (lastOutput) $('saveBtn').classList.remove('hidden');
+    } catch(e){ $('out').textContent = "Connexion interrompue, réessayez."; }
+    finally{ btn.disabled = false; btn.textContent = old; }
+  };
+
+  window.saveResource = async () => {
+    if (!lastOutput.trim()) return;
+    const sb = await getSb();
+    const title = ($('dSubject').value.trim() || 'Matière') + ' — ' + ($('dNotion').value.trim() || KIND);
+    const { error } = await sb.from('teacher_resources').insert({
+      program: PROGRAM, class_key: $('dClass').value.trim() || null, subject: $('dSubject').value.trim() || null,
+      notion: $('dNotion').value.trim() || null, kind: KIND, title, content: lastOutput,
+    });
+    if (!error){ $('saveBtn').textContent = 'Enregistré ✓'; setTimeout(() => { $('saveBtn').textContent = 'Enregistrer'; }, 1800); loadResources(); }
+  };
+
+  async function loadResources(){
+    try{
+      const sb = await getSb();
+      const { data } = await sb.from('teacher_resources').select('title, kind, created_at').order('created_at', { ascending:false }).limit(30);
+      const box = $('reslist');
+      if (!data || !data.length){ box.innerHTML = '<p class="who">Aucune ressource enregistrée pour l\'instant.</p>'; return; }
+      const KL = { fiche:'Fiche de cours', controle:'Contrôle + corrigé', diapos:'Diapositives', progression:'Progression' };
+      box.innerHTML = data.map(r => '<div class="resitem"><div class="t">' + (r.title || 'Sans titre').replace(/</g,'&lt;') +
+        '</div><div class="m">' + (KL[r.kind] || r.kind) + ' · ' + new Date(r.created_at).toLocaleDateString('fr-FR') + '</div></div>').join('');
+    } catch(e){ $('reslist').innerHTML = '<p class="who">—</p>'; }
+  }
+
+  function openDashboard(profile){
+    hide('gate'); hide('finalize'); show('dash'); show('logoutBtn');
+    const name = (profile && profile.full_name) ? profile.full_name : 'professeur';
+    $('dashHello').textContent = 'Bonjour, ' + name;
+    const bits = [];
+    if (profile && profile.establishment) bits.push(profile.establishment);
+    if (profile && profile.subject) bits.push(profile.subject);
+    $('dashWho').textContent = bits.length ? bits.join(' · ') : (PROGRAM === 'aefe' ? 'Programme AEFE' : 'Programme national');
+    loadResources();
+  }
+
+  /* ───────── Démarrage : décide quel écran montrer ───────── */
+  async function boot(){
+    try{
+      const sb = await getSb(); const { data } = await sb.auth.getSession();
+      if (!data.session){ show('gate'); hide('finalize'); hide('dash'); hide('logoutBtn'); return; }
+      const me = await authedFetch('/api/teacher/me').then(r => r.json()).catch(() => null);
+      if (me && me.isTeacher){ openDashboard(me.profile); }
+      else { hide('gate'); hide('dash'); show('finalize'); show('logoutBtn'); }
+    } catch(e){ show('gate'); }
+  }
+
+  setMode('signup');
+  boot();
+</script>
+</body>
+</html>
