@@ -1,0 +1,17 @@
+name: CI Eli
+on: [push, pull_request]
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - name: Verrou anti-mock (production)
+        run: NODE_ENV=production NEXT_PUBLIC_DATA_MODE=live npm run check:no-mock
+      - name: Typecheck strict
+        run: npm run typecheck
+      - name: Build
+        run: npm run build
+        env: { NEXT_PUBLIC_DATA_MODE: live }

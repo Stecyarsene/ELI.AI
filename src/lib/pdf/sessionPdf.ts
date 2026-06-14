@@ -11,7 +11,7 @@ const GOLD = rgb(0.96, 0.71, 0.27);
 
 function wrap(text: string, font: import('pdf-lib').PDFFont, size: number, maxW: number): string[] {
   const out: string[] = [];
-  for (const para of String(text || '').split('\n')) {
+  for (const para of winansi(String(text || '')).split('\n')) {
     let line = '';
     for (const word of para.split(/\s+/)) {
       const t = line ? line + ' ' + word : word;
@@ -102,5 +102,86 @@ export async function buildExamPdf(d: ExamPdfData): Promise<Uint8Array> {
     y -= 10;
   }
   page.drawText('Généré par Éli · révise à ton rythme', { x: M, y: 28, size: 8, font, color: rgb(0.6, 0.6, 0.6) });
+  return pdf.save();
+}
+
+/* ───────── Assainissement WinAnsi (pdf-lib Helvetica n'encode que cp1252) ─────────
+   Le contenu généré par l'IA (flèches, symboles maths, emojis, puces exotiques) ferait
+   planter drawText. On mappe les symboles courants puis on retire tout caractère hors
+   Latin-1 imprimable. Résultat : un texte toujours encodable, jamais d'erreur. */
+const WINANSI_MAP: Record<string, string> = {
+  '→': '->', '⇒': '=>', '➔': '->', '←': '<-', '↔': '<->', '⟶': '->',
+  '≥': '>=', '≤': '<=', '≠': '!=', '±': '+/-', '×': 'x', '÷': '/', '·': '.',
+  '√': 'racine ', '∞': 'l\'infini', 'π': 'pi', '≈': '~', '∈': 'appartient a', '∉': 'n\'appartient pas a',
+  '∀': 'pour tout', '∃': 'il existe', '∑': 'somme', '∏': 'produit', '∫': 'integrale', '∂': 'd',
+  '²': '2', '³': '3', '°': ' deg', 'µ': 'u', '∅': 'vide', '⊂': 'inclus', '∪': 'union', '∩': 'inter',
+  '•': '-', '◦': '-', '▪': '-', '‣': '-', '–': '-', '—': '-', '…': '...',
+  '“': '"', '”': '"', '«': '"', '»': '"', '‘': "'", '’': "'", '€': 'EUR', '\u00A0': ' ', '\t': '  ',
+};
+export function winansi(input: string): string {
+  let s = String(input ?? '');
+  for (const [k, v] of Object.entries(WINANSI_MAP)) s = s.split(k).join(v);
+  // Retire tout ce qui dépasse Latin-1 (emojis, idéogrammes, symboles restants).
+  let out = '';
+  for (const ch of s) { const c = ch.codePointAt(0) ?? 0; out += c <= 0xff ? ch : ''; }
+  return out;
+}
+
+export interface TeacherPdfData {
+  title: string;
+  meta: string[];          // lignes de contexte (programme, classe, série, matière, notion, type)
+  markdown: string;        // texte intégral généré par l'IA (markdown léger)
+}
+
+/** Aplatit un markdown léger en lignes typées (titre/puce/numéro/paragraphe). */
+function parseMarkdown(md: string): { kind: 'h1' | 'h2' | 'bullet' | 'num' | 'p' | 'gap'; text: string }[] {
+  const lines: { kind: 'h1' | 'h2' | 'bullet' | 'num' | 'p' | 'gap'; text: string }[] = [];
+  const strip = (t: string) => t.replace(/\*\*(.*?)\*\*/g, '$1').replace(/`([^`]*)`/g, '$1').replace(/^\s*#{1,6}\s*/, '').trim();
+  for (const rawLine of String(md || '').split('\n')) {
+    const l = rawLine.replace(/\s+$/, '');
+    if (!l.trim()) { lines.push({ kind: 'gap', text: '' }); continue; }
+    if (/^#{1}\s/.test(l)) lines.push({ kind: 'h1', text: strip(l) });
+    else if (/^#{2,6}\s/.test(l)) lines.push({ kind: 'h2', text: strip(l) });
+    else if (/^\s*[-*•]\s+/.test(l)) lines.push({ kind: 'bullet', text: strip(l.replace(/^\s*[-*•]\s+/, '')) });
+    else if (/^\s*\d+[.)]\s+/.test(l)) lines.push({ kind: 'num', text: strip(l) });
+    else lines.push({ kind: 'p', text: strip(l) });
+  }
+  return lines;
+}
+
+/** PDF de marque pour le matériel pédagogique enseignant (T3 §c). Toujours imprimable. */
+export async function buildTeacherPdf(d: TeacherPdfData): Promise<Uint8Array> {
+  const pdf = await PDFDocument.create();
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+  const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
+  let page = pdf.addPage([595, 842]);
+  const M = 50, W = 595 - M * 2;
+  let y = 842;
+
+  page.drawRectangle({ x: 0, y: 842 - 92, width: 595, height: 92, color: GREEN });
+  page.drawText('Éli', { x: M, y: 842 - 56, size: 26, font: bold, color: GOLD });
+  page.drawText(winansi('Espace enseignant'), { x: M + 58, y: 842 - 50, size: 13, font: bold, color: rgb(1, 1, 1) });
+  page.drawText(winansi(d.meta.join('  ·  ')).slice(0, 90), { x: M + 58, y: 842 - 70, size: 9.5, font, color: rgb(0.85, 0.92, 0.88) });
+  y = 842 - 122;
+
+  const emit = (txt: string, size: number, f = font, color = rgb(0.12, 0.12, 0.12), indent = 0) => {
+    for (const l of wrap(winansi(txt), f, size, W - indent)) {
+      if (y < M + 44) { page = pdf.addPage([595, 842]); y = 842 - M; }
+      page.drawText(l, { x: M + indent, y, size, font: f, color });
+      y -= size + 6;
+    }
+  };
+
+  emit(d.title, 19, bold, GREEN);
+  y -= 6;
+  for (const node of parseMarkdown(d.markdown)) {
+    if (node.kind === 'gap') { y -= 6; continue; }
+    if (node.kind === 'h1') { y -= 4; emit(node.text, 15, bold, GREEN); y -= 2; }
+    else if (node.kind === 'h2') { y -= 2; emit(node.text, 13, bold, rgb(0.06, 0.3, 0.22)); y -= 1; }
+    else if (node.kind === 'bullet') emit('-  ' + node.text, 11, font, rgb(0.12, 0.12, 0.12), 10);
+    else if (node.kind === 'num') emit(node.text, 11, font, rgb(0.12, 0.12, 0.12), 10);
+    else emit(node.text, 11);
+  }
+  page.drawText(winansi('Généré par Éli · assistant pédagogique · contenu original'), { x: M, y: 28, size: 8, font, color: rgb(0.6, 0.6, 0.6) });
   return pdf.save();
 }

@@ -26,12 +26,17 @@ export async function POST(req: Request) {
   // Verrou 3 — Idempotence : rejeu => 200 sans double activation
   if (pay.status === 'success') return Response.json({ ok: true, idempotent: true });
 
-  // Verrou 4 — Activation atomique
+  // Verrou 4 — Activation atomique (routée selon le type de payeur : élève ou enseignant)
   const { data: plan } = await sb.from('plans').select('*').eq('id', pay.plan_id).single();
   const days = (plan as Plan | null)?.duration_days ?? 30;
   const paidUntil = new Date(Date.now() + days * 86_400_000).toISOString();
   await sb.from('payments').update({ status: 'success' }).eq('tx_id', evt.tx);
-  await sb.from('profiles').update({ is_paid: true, paid_until: paidUntil }).eq('id', pay.user_id);
+  const isTeacher = pay.payer_kind === 'teacher';
+  if (isTeacher) {
+    await sb.from('teacher_profiles').update({ is_paid: true, paid_until: paidUntil }).eq('user_id', pay.user_id);
+  } else {
+    await sb.from('profiles').update({ is_paid: true, paid_until: paidUntil }).eq('id', pay.user_id);
+  }
 
   // Verrou 5 — Facture PDF générée EN MÉMOIRE → bucket privé
   const pdf = await PDFDocument.create();
@@ -46,9 +51,11 @@ export async function POST(req: Request) {
   await sb.storage.from('invoices').upload(path, Buffer.from(bytes), { contentType: 'application/pdf', upsert: true });
   await sb.from('payments').update({ invoice_path: path }).eq('tx_id', evt.tx);
 
-  // Verrou 6 — Notification parent (asynchrone, échec non bloquant + trace rejouable)
-  await sb.from('notifications').insert({ user_id: pay.user_id, channel: 'email', kind: 'receipt', status: 'queued' });
-  void notifyParent(pay.user_id, evt.tx, pay.amount_fcfa).catch(() => undefined);
+  // Verrou 6 — Notification parent (élève uniquement ; asynchrone, échec non bloquant)
+  if (!isTeacher) {
+    await sb.from('notifications').insert({ user_id: pay.user_id, channel: 'email', kind: 'receipt', status: 'queued' });
+    void notifyParent(pay.user_id, evt.tx, pay.amount_fcfa).catch(() => undefined);
+  }
 
   return Response.json({ ok: true });
 }

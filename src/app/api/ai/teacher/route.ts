@@ -3,6 +3,7 @@ import { requireRole } from '@/lib/roles';
 import { buildTeacherPrompt, type TeacherKind } from '@/lib/llm/teacherPrompt';
 import { inspectUserMessage } from '@/lib/security/guard';
 import { safeParse, teacherInput } from '@/lib/validation/schemas';
+import { teacherAccessDecision, TEACHER_TRIAL_MAX } from '@/lib/teacher/gating';
 import type { CurriculumPayload, Program } from '@/types/db';
 
 export const runtime = 'edge';
@@ -60,8 +61,26 @@ export async function POST(req: Request) {
   const verdict = inspectUserMessage(message ?? `${kind} ${subject ?? ''} ${notion ?? ''}`);
   if (!verdict.ok) return Response.json({ error: 'blocked', reason: verdict.reason }, { status: 400 });
 
+  // ── Gating premium (T3 §d) : 2 essais gratuits puis abonnement (tarif élève). ──
+  const sbAdmin = supabaseAdmin();
+  const { data: tp } = await sbAdmin
+    .from('teacher_profiles').select('is_paid, paid_until, trial_count').eq('user_id', gate.user.id).maybeSingle();
+  const decision = teacherAccessDecision(gate.roles, tp ?? null);
+  if (!decision.allow) {
+    const { data: plans } = await sbAdmin
+      .from('plans').select('id, label, amount_fcfa, duration_days').eq('program', program).order('amount_fcfa');
+    return Response.json(
+      { error: 'paywall', trialsUsed: decision.trialsUsed, max: TEACHER_TRIAL_MAX, plans: plans ?? [] },
+      { status: 402 },
+    );
+  }
+  if (decision.consumeTrial) {
+    const used = Number(tp?.trial_count ?? 0);
+    await sbAdmin.from('teacher_profiles').update({ trial_count: used + 1 }).eq('user_id', gate.user.id);
+  }
+
   // Curriculum officiel de la classe (lecture publique) pour ancrer la génération.
-  const { data: cur } = await supabaseAdmin()
+  const { data: cur } = await sbAdmin
     .from('curriculum')
     .select('payload')
     .eq('program', program)

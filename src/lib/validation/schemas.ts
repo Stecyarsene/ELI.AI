@@ -10,6 +10,7 @@ export const chatInput = z.object({
 export const payInit = z.object({
   planId: z.string().regex(/^[a-z]+_[a-z]+$/),                 // ex: nat_mensuel
   msisdn: z.string().regex(/^\+?\d{8,15}$/),                   // numéro E.164-ish
+  audience: z.enum(['student', 'teacher']).optional(),        // prof premium = tarif élève
 }).strict();
 
 export const phoneOtpRequest = z.object({
@@ -102,4 +103,15 @@ export const teacherInput = z.object({
   notion: z.string().max(160).optional(),
   kind: z.enum(['fiche', 'controle', 'diapos', 'progression']),
   message: z.string().max(2000).optional(),
+}).strict();
+
+/** Espace enseignant : génération du PDF du matériel affiché à l'écran (T3 §c). */
+export const teacherPdfInput = z.object({
+  program: z.enum(['national', 'aefe']),
+  classKey: z.string().min(1).max(40),
+  serie: z.string().max(20).optional(),
+  subject: z.string().max(80).optional(),
+  notion: z.string().max(160).optional(),
+  kind: z.enum(['fiche', 'controle', 'diapos', 'progression']),
+  markdown: z.string().min(1).max(20000),
 }).strict();

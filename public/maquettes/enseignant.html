@@ -67,6 +67,11 @@
   .kinds{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
   .kind{border:1px solid var(--line);background:#fff;color:var(--muted);padding:9px 14px;border-radius:11px;font-weight:600;cursor:pointer;font-family:inherit;font-size:13.5px}
   .kind[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .paywall{margin-top:14px;padding:16px 18px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(245,181,68,.10),rgba(245,181,68,.03))}
+  .paywall h4{margin:0 0 6px;font-size:15px}
+  .paywall .plans{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .paywall .plan{border:1px solid var(--line);background:#fff;border-radius:11px;padding:9px 13px;font-weight:600;cursor:pointer;font-family:inherit;font-size:13.5px}
+  .paywall .plan:hover{border-color:var(--accent)}
   .out{white-space:pre-wrap;word-break:break-word;background:#FBFAF6;border:1px solid var(--line);border-radius:14px;
     padding:18px;margin-top:16px;max-height:460px;overflow:auto;font-size:14.5px;line-height:1.55;min-height:60px}
   .out:empty::before{content:"Le matériel généré apparaîtra ici. Choisissez un type, renseignez la classe et la matière, puis cliquez sur Générer.";color:var(--muted)}
@@ -182,15 +187,17 @@
           <div><label for="dSerie">Série (option)</label><input id="dSerie" placeholder="ex. D" /></div>
         </div>
         <div class="row2">
-          <div><label for="dSubject">Matière</label><input id="dSubject" placeholder="ex. Mathématiques" /></div>
+          <div><label for="dSubject">Matière</label><input id="dSubject" list="subjList" placeholder="ex. Mathématiques" /><datalist id="subjList"></datalist></div>
           <div><label for="dNotion">Notion (option)</label><input id="dNotion" placeholder="ex. Logarithme népérien" /></div>
         </div>
         <label for="dMore">Précisions (option)</label>
         <input id="dMore" placeholder="ex. niveau difficile, durée 1h, axé sur les équations" />
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
           <button class="cta" style="width:auto;margin:0;min-width:180px" id="genBtn" onclick="generate()">Générer</button>
+          <button class="ghost hidden" id="pdfBtn" onclick="downloadPdf()">📄 Télécharger en PDF</button>
           <button class="ghost hidden" id="saveBtn" onclick="saveResource()">Enregistrer</button>
         </div>
+        <div class="paywall hidden" id="paywall" role="alert"></div>
         <div class="out" id="out"></div>
       </div>
 
@@ -323,12 +330,13 @@
     const cls = $('dClass').value.trim(), subj = $('dSubject').value.trim();
     if (!cls || !subj){ alert('Renseignez au moins la classe et la matière.'); return; }
     const btn = $('genBtn'); btn.disabled = true; const old = btn.textContent; btn.innerHTML = '<span class="spin"></span>Génération…';
-    $('saveBtn').classList.add('hidden'); $('out').textContent = ''; lastOutput = '';
+    $('saveBtn').classList.add('hidden'); $('pdfBtn').classList.add('hidden'); $('paywall').classList.add('hidden'); $('out').textContent = ''; lastOutput = '';
     try{
       const res = await authedFetch('/api/ai/teacher', { method:'POST', body: JSON.stringify({
         program: PROGRAM, classKey: cls, serie: $('dSerie').value.trim() || undefined, subject: subj,
         notion: $('dNotion').value.trim() || undefined, kind: KIND, message: $('dMore').value.trim() || undefined,
       })});
+      if (res.status === 402){ const j = await res.json().catch(() => ({})); showPaywall(j); return; }
       if (res.status === 401 || res.status === 403){ $('out').textContent = "Accès réservé aux enseignants validés."; return; }
       if (!res.ok || !res.body){ $('out').textContent = "Génération indisponible pour le moment, réessayez."; return; }
       const reader = res.body.getReader(), dec = new TextDecoder(); let buf = '', acc = '';
@@ -345,7 +353,7 @@
         }
       }
       lastOutput = acc || '';
-      if (lastOutput) $('saveBtn').classList.remove('hidden');
+      if (lastOutput){ $('saveBtn').classList.remove('hidden'); $('pdfBtn').classList.remove('hidden'); }
     } catch(e){ $('out').textContent = "Connexion interrompue, réessayez."; }
     finally{ btn.disabled = false; btn.textContent = old; }
   };
@@ -360,6 +368,57 @@
     });
     if (!error){ $('saveBtn').textContent = 'Enregistré ✓'; setTimeout(() => { $('saveBtn').textContent = 'Enregistrer'; }, 1800); loadResources(); }
   };
+
+  /* ───────── PDF imprimable systématique (T3 §c) ───────── */
+  window.downloadPdf = async () => {
+    if (!lastOutput.trim()) return;
+    const b = $('pdfBtn'); const old = b.textContent; b.disabled = true; b.textContent = 'Préparation du PDF…';
+    try{
+      const res = await authedFetch('/api/teacher/pdf', { method:'POST', body: JSON.stringify({
+        program: PROGRAM, classKey: $('dClass').value.trim(), serie: $('dSerie').value.trim() || undefined,
+        subject: $('dSubject').value.trim() || undefined, notion: $('dNotion').value.trim() || undefined,
+        kind: KIND, markdown: lastOutput,
+      })});
+      const j = await res.json().catch(() => ({}));
+      if (j && j.signedUrl) window.open(j.signedUrl, '_blank', 'noopener');
+      else b.textContent = 'PDF indisponible, réessayez';
+    } catch(e){ b.textContent = 'PDF indisponible, réessayez'; }
+    finally{ setTimeout(() => { b.disabled = false; b.textContent = old; }, 1200); }
+  };
+
+  /* ───────── Paywall enseignant (2 essais puis premium, tarif élève — T3 §d) ───────── */
+  function showPaywall(j){
+    const pw = $('paywall'); pw.classList.remove('hidden');
+    const plans = (j && j.plans) || [];
+    const opts = plans.map(p => '<button class="plan" data-plan="' + p.id + '" data-msi="">' +
+      (p.label || p.id) + ' — ' + new Intl.NumberFormat('fr-FR').format(p.amount_fcfa) + ' FCFA</button>').join('');
+    pw.innerHTML = '<h4>🌱 Vos 2 essais gratuits sont utilisés</h4>' +
+      '<p>Passez en illimité — même tarif que les élèves. Choisissez une formule, le paiement se fait par Mobile Money (sans quitter la page).</p>' +
+      '<div class="plans">' + (opts || '<span class="who">Formules bientôt disponibles.</span>') + '</div>';
+    pw.querySelectorAll('.plan').forEach(btn => { btn.onclick = () => payTeacher(btn.dataset.plan); });
+  }
+  window.payTeacher = async (planId) => {
+    const msisdn = prompt('Numéro Mobile Money (Airtel/Moov) pour recevoir la demande de paiement :');
+    if (!msisdn) return;
+    try{
+      const res = await authedFetch('/api/pay/init', { method:'POST', body: JSON.stringify({ planId, msisdn: msisdn.trim(), audience: 'teacher' }) });
+      const j = await res.json().catch(() => ({}));
+      const pw = $('paywall');
+      if (j && j.txId){ pw.innerHTML = '<h4>📲 Demande envoyée</h4><p>Validez le paiement de ' +
+        new Intl.NumberFormat('fr-FR').format(j.amountFcfa || 0) + ' FCFA sur votre téléphone (code USSD). Votre accès s\'activera dès confirmation — relancez une génération ensuite.</p>'; }
+      else pw.innerHTML = '<h4>Paiement indisponible</h4><p>Réessayez dans un instant.</p>';
+    } catch(e){ $('paywall').innerHTML = '<h4>Connexion interrompue</h4><p>Réessayez.</p>'; }
+  };
+
+  /* ───────── Saisie guidée des matières (T3 §a) ───────── */
+  function fillSubjectList(){
+    const COMMON = {
+      national: ['Mathématiques','Physique-Chimie','SVT','Français','Philosophie','Histoire-Géographie','Anglais','Espagnol','SES','Sciences physiques','Informatique','EPS'],
+      aefe: ['Mathématiques','Physique-Chimie','SVT','Français','Philosophie','Histoire-Géographie','Anglais','Espagnol','SES','NSI','Enseignement scientifique','HLP','SI'],
+    };
+    const dl = $('subjList'); if (!dl) return;
+    dl.innerHTML = (COMMON[PROGRAM] || []).map(s => '<option value="' + s + '"></option>').join('');
+  }
 
   async function loadResources(){
     try{
@@ -396,6 +455,7 @@
   }
 
   setMode('signup');
+  fillSubjectList();
   boot();
 </script>
 </body>
