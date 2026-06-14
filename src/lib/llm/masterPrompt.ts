@@ -2,8 +2,18 @@ import type { Profile, Progress, Scope, SchoolStatus } from '@/types/db';
 
 /** Extrait les titres de chapitres officiels pour une matière (gère payload Record OU tableau set_curriculum). */
 function chaptersForSubject(scope: Scope | null | undefined, subject: string | null): string[] | null {
+  if (!subject) return null;
+  // Priorité : curriculum par série (ex. Mathématiques Terminale National : D, C, E, B, A1, A2).
+  const bySerie = scope?.curriculum?.by_serie;
+  const serie = scope?.serie ?? null;
+  if (bySerie && serie && /math/i.test(subject)) {
+    const hit = bySerie[serie];
+    if (hit && Array.isArray(hit.chapters) && hit.chapters.length) {
+      return hit.chapters.filter(Boolean);
+    }
+  }
   const subs = scope?.curriculum?.subjects;
-  if (!subs || !subject) return null;
+  if (!subs) return null;
   if (Array.isArray(subs)) {
     const hit = subs.find((s) => s.name && s.name.toLowerCase() === subject.toLowerCase());
     if (!hit || !hit.chapters) return null;
@@ -13,7 +23,10 @@ function chaptersForSubject(scope: Scope | null | undefined, subject: string | n
   return rec && rec.chapters && rec.chapters.length ? rec.chapters : null;
 }
 function curriculumHasContent(scope: Scope | null | undefined): boolean {
-  const subs = scope?.curriculum?.subjects;
+  const cur = scope?.curriculum;
+  if (!cur) return false;
+  if (cur.by_serie && Object.keys(cur.by_serie).length > 0) return true;
+  const subs = cur.subjects;
   if (!subs) return false;
   return Array.isArray(subs) ? subs.length > 0 : Object.keys(subs).length > 0;
 }

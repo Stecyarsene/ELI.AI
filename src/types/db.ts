@@ -35,10 +35,12 @@ export interface Scope {
 /** Format attendu du payload `curriculum` (jsonb). Tolérant : tout champ est optionnel.
  *  Forme ingérée par set_curriculum : { source, updated, subjects:[{name, chapters:[{order,title,notions[]}]}] } */
 export interface CurriculumPayload {
-  version?: number; source?: string; updated?: string;
+  version?: number; source?: string; updated?: string; granularity?: string; note?: string;
   subjects?:
     | Record<string, { chapters?: string[]; objectifs?: string[] }>
     | { name: string; chapters?: { order?: number; title?: string; notions?: string[] }[] }[];
+  /** Curriculum spécifique à la série (ex. Maths Terminale National : D, C, E, B, A1, A2). */
+  by_serie?: Record<string, { coef?: number; duree_h?: number; chapters?: string[] }>;
 }
 export interface Engagement {
   user_id: string; streak_current: number; streak_best: number;
@@ -68,4 +70,17 @@ export interface OrientationWish {
   id: number; user_id: string; program: Program; track: OrientationTrack; rank: number | null;
   formation: string; etablissement: string | null; ville: string | null; status: WishStatus;
   notes: string | null; meta: Record<string, unknown>; created_at: string; updated_at: string;
+}
+
+/** ───────── Espace enseignant (additif) ───────── */
+export type TeacherKind = 'fiche' | 'controle' | 'diapos' | 'progression';
+export interface Klass {
+  id: string; teacher_id: string; program: Program; class_key: string;
+  serie: string | null; subject: string | null; name: string;
+  join_code: string; created_at: string;
+}
+export interface TeacherResource {
+  id: number; teacher_id: string; program: Program; class_key: string | null;
+  subject: string | null; notion: string | null; kind: TeacherKind;
+  title: string | null; content: string | null; created_at: string;
 }

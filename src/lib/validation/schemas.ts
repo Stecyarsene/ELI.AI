@@ -92,3 +92,14 @@ export function safeParse<T>(schema: z.ZodSchema<T>, data: unknown): { ok: true;
   const r = schema.safeParse(data);
   return r.success ? { ok: true, data: r.data } : { ok: false, error: r.error.issues.map((i) => i.path.join('.') + ':' + i.code).join(',') };
 }
+
+/** Espace enseignant : génération de matériel pédagogique (additif). */
+export const teacherInput = z.object({
+  program: z.enum(['national', 'aefe']),
+  classKey: z.string().min(1).max(40),
+  serie: z.string().max(20).optional(),
+  subject: z.string().max(80).optional(),
+  notion: z.string().max(160).optional(),
+  kind: z.enum(['fiche', 'controle', 'diapos', 'progression']),
+  message: z.string().max(2000).optional(),
+}).strict();
