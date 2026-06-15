@@ -245,6 +245,73 @@
     }
   }
 
+  /* ───────── T8 — Onboarding par le chat (miroir de src/lib/onboarding.ts, testé) ───────── */
+  function eliStrip(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim(); }
+  function eliDetectClass(text) {
+    var t = eliStrip(text);
+    if (/\bterminale?\b|\btle?\b|\bterm\b/.test(t)) return 'terminale';
+    if (/\b(premiere|1ere|1re)\b/.test(t)) return '1ere';
+    if (/\b(seconde|2nde|2de)\b/.test(t)) return '2nde';
+    if (/\b(troisieme|3eme|3e)\b/.test(t)) return '3e';
+    if (/\b(quatrieme|4eme|4e)\b/.test(t)) return '4e';
+    if (/\b(cinquieme|5eme|5e)\b/.test(t)) return '5e';
+    if (/\b(sixieme|6eme|6e)\b/.test(t)) return '6e';
+    if (/\bcm2\b/.test(t)) return 'cm2'; if (/\bcm1\b/.test(t)) return 'cm1';
+    if (/\bce2\b/.test(t)) return 'ce2'; if (/\bce1\b/.test(t)) return 'ce1';
+    if (/\bcp\s?2\b/.test(t)) return 'cp2'; if (/\bcp\b|\bcp\s?1\b/.test(t)) return 'cp1';
+    return null;
+  }
+  function eliDetectSerie(text) {
+    var t = eliStrip(text);
+    var m = t.match(/\bserie\s*([abcde][12]?)\b/) || t.match(/\bterminale?\s+([abcde][12]?)\b/) || t.match(/\b(a1|a2|[bcde])\b/);
+    if (!m) return null; var r = m[1].toUpperCase();
+    return ['A1', 'A2', 'B', 'C', 'D', 'E'].indexOf(r) >= 0 ? r : null;
+  }
+  function eliLooksLost(text) {
+    var t = eliStrip(text); if (!t) return true;
+    if (/^(bonjour|salut|coucou|hello|bonsoir|hey|cc)\b/.test(t)) return true;
+    return /\b(aide|aidez|aide moi|perdu|je sais pas|sais pas quoi|comment (ca|ca) marche|par ou commencer|que faire|c est quoi eli|qu est ce que|commencer)\b/.test(t);
+  }
+  function eliOnboard(text) {
+    var c = eliDetectClass(text), s = eliDetectSerie(text);
+    if (c) return { intent: 'navigate_class', classKey: c, serie: s };
+    if (eliLooksLost(text)) return { intent: 'guide', classKey: null, serie: s };
+    return { intent: 'normal', classKey: null, serie: s };
+  }
+  function eliOnboardButton(label, fn) {
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = label;
+    b.style.cssText = 'margin:4px 6px 0 0;padding:9px 14px;border-radius:999px;border:1px solid rgba(0,194,113,.35);background:rgba(0,194,113,.12);color:inherit;font-weight:600;cursor:pointer;font-family:inherit;font-size:13.5px';
+    b.onclick = fn; return b;
+  }
+  function eliRenderOnboarding(ob, bubble) {
+    var stream = document.getElementById('chatStream');
+    if (ob.intent === 'navigate_class') {
+      var label = ob.classKey === 'terminale' ? ('Terminale' + (ob.serie ? ' ' + ob.serie : '')) : ob.classKey.toUpperCase();
+      if (bubble) bubble.textContent = 'Parfait, on file vers ton espace ' + label + ' 🌱 Choisis ta matière dans ton menu.';
+      if (ob.serie) { try { window.__ELI_SCOPE__ = window.__ELI_SCOPE__ || {}; window.__ELI_SCOPE__.serie = ob.serie; } catch (e) {} }
+      if (stream) { var w = document.createElement('div'); w.style.cssText = 'margin:8px 0';
+        w.appendChild(eliOnboardButton('➡ Ouvrir mon menu de classe', function () { eliGoClassMenu(); }));
+        stream.appendChild(w); stream.scrollTop = stream.scrollHeight; }
+      return;
+    }
+    // guide
+    if (bubble) bubble.textContent = "Bienvenue 🌱 Je suis Éli, ton professeur particulier. Dis-moi par où commencer :";
+    if (!stream) return;
+    var box = document.createElement('div'); box.style.cssText = 'margin:8px 0';
+    box.appendChild(eliOnboardButton('🎓 Choisir ma classe', function () { eliGoClassMenu(); }));
+    box.appendChild(eliOnboardButton('📅 Mon examen', function () {
+      var fns = ['openExamDash', 'openExamAEFE', 'eliGoClassMenu']; for (var i = 0; i < fns.length; i++) if (typeof window[fns[i]] === 'function') { window[fns[i]](); return; } eliGoClassMenu();
+    }));
+    box.appendChild(eliOnboardButton('🧭 Orientation', function () {
+      var fns = ['openMonAvenir', 'openParcoursup', 'openPillar']; for (var i = 0; i < fns.length; i++) if (typeof window[fns[i]] === 'function') { window[fns[i]](); return; } eliGoClassMenu();
+    }));
+    box.appendChild(document.createElement('br'));
+    var hint = document.createElement('small'); hint.style.cssText = 'opacity:.7'; hint.textContent = 'Ou pose-moi directement ta question !';
+    box.appendChild(hint);
+    stream.appendChild(box); stream.scrollTop = stream.scrollHeight;
+  }
+  window.eliOnboard = eliOnboard;
+
   /* ───────── Chat : STREAMING PROGRESSIF ───────── */
   function realSendChat() {
     var inp = document.getElementById('chatInput');
@@ -255,6 +322,12 @@
     inp.value = '';
     var bubble = ensureEliBubble();
     var focus = window.__eliFocusSubject__ || 'general';
+
+    // T8 — onboarding : si l'élève est égaré ou nomme sa classe, on le guide au lieu d'appeler le tuteur.
+    try {
+      var ob = eliOnboard(txt);
+      if (ob.intent !== 'normal') { eliRenderOnboarding(ob, bubble); return; }
+    } catch (e) {}
 
     getSb().then(function (c) {
       return c.auth.getSession().then(function (res) {
@@ -432,6 +505,13 @@
     }).catch(function () {});
   }
 
+  function eliGoClassMenu() {
+    var fns = ['openClassMenu', 'backToMenu', 'showClassMenu', 'goToMenu', 'closeAll', 'closeOverlay'];
+    for (var i = 0; i < fns.length; i++) { if (typeof window[fns[i]] === 'function') { try { window[fns[i]](); return; } catch (e) {} } }
+    window.location.href = (PROGRAM === 'aefe' ? '/aefe' : '/nationale');
+  }
+  window.eliGoClassMenu = eliGoClassMenu;
+
   function renderRealDashboard(progress) {
     var dash = document.getElementById('dashboard');
     if (!dash) return;
@@ -444,15 +524,36 @@
       Array.prototype.slice.call(dash.children).forEach(function (ch) { if (ch.id !== 'dashSubjects') ch.style.display = 'none'; });
       dash.insertBefore(grid, dash.firstChild);
     }
-    var welcome = '<div style="grid-column:1/-1;padding:18px;border-radius:14px;background:rgba(0,194,113,.1);margin-bottom:8px">'
-      + '🌱 Bienvenue dans ton espace ! ' + (progress.length ? 'Voici tes matières.' : 'Commence ta première session avec Éli, tes matières apparaîtront ici au fur et à mesure.') + '</div>';
-    var cards = progress.length
-      ? progress.map(function (p) {
+    // T6 — élève de retour : on met en avant SES matières travaillées + un retour au menu de classe.
+    var worked = [];
+    var seen = {};
+    (progress || []).forEach(function (p) {
+      var s = (p.subject || '').trim(); if (!s) return;
+      if (seen[s] && (seen[s].updated_at || '') >= (p.updated_at || '')) return;
+      seen[s] = p;
+    });
+    Object.keys(seen).forEach(function (k) { worked.push(seen[k]); });
+    worked.sort(function (a, b) { return (b.updated_at || '').localeCompare(a.updated_at || ''); });
+
+    var welcome = '<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:18px;border-radius:14px;background:rgba(0,194,113,.1);margin-bottom:8px">'
+      + '<span>🌱 ' + (worked.length ? 'Reprends là où tu t\'étais arrêté.' : 'Commence ta première session avec Éli, tes matières apparaîtront ici au fur et à mesure.') + '</span>'
+      + '<button type="button" id="eliBackMenu" style="background:rgba(255,255,255,.12);color:inherit;border:1px solid rgba(255,255,255,.25);padding:9px 15px;border-radius:999px;font-weight:600;cursor:pointer;font-family:inherit;font-size:13.5px">↩ Revenir au menu de ma classe</button>'
+      + '</div>';
+    var cards = worked.length
+      ? worked.map(function (p) {
           var col = p.status === 'vert' ? '#34D399' : p.status === 'rouge' ? '#F87171' : '#FBBF24';
-          return '<div style="padding:16px;border-radius:14px;background:rgba(255,255,255,.05);border-left:4px solid ' + col + '"><strong>' + p.subject + '</strong><br><small style="opacity:.7">' + (p.last_chapter || 'À commencer') + '</small></div>';
+          var subjEsc = String(p.subject).replace(/"/g, '&quot;');
+          return '<button type="button" class="eli-subj-card" data-subj="' + subjEsc + '" style="text-align:left;padding:16px;border-radius:14px;background:rgba(255,255,255,.05);border:none;border-left:4px solid ' + col + ';color:inherit;cursor:pointer;font-family:inherit"><strong>' + p.subject + '</strong><br><small style="opacity:.7">' + (p.last_chapter || 'À commencer') + '</small></button>';
         }).join('')
       : '';
     grid.innerHTML = welcome + cards;
+    var bk = document.getElementById('eliBackMenu'); if (bk) bk.onclick = eliGoClassMenu;
+    Array.prototype.forEach.call(grid.querySelectorAll('.eli-subj-card'), function (b) {
+      b.onclick = function () {
+        var subj = b.getAttribute('data-subj'); window.__eliFocusSubject__ = subj;
+        if (typeof window.openChatContext === 'function') window.openChatContext('', subj);
+      };
+    });
   }
 
   function addAdminButton() {
@@ -726,10 +827,54 @@
       .catch(function () {})
       .then(function () { if (btn) { btn.textContent = old || '📄 PDF'; btn.disabled = false; } });
   }
+  function eliMountSerieSelector(body, exam) {
+    if (!body || body.querySelector('#eliSerieSelector')) return;
+    if (PROGRAM !== 'national') return; // épreuves disponibles pour le programme national
+    var SERIES = ['A1', 'A2', 'B', 'C', 'D', 'E'];
+    var card = document.createElement('div'); card.id = 'eliSerieSelector'; card.className = 'examdash-card';
+    card.style.cssText = 'margin-top:16px;padding:18px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12)';
+    var btns = SERIES.map(function (s) {
+      return '<button type="button" class="eli-serie" data-serie="' + s + '" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.05);color:inherit;font-weight:700;cursor:pointer;font-family:inherit">' + s + '</button>';
+    }).join('');
+    card.innerHTML = '<div class="prog-title">🎓 Toutes les séries d\'examen</div>'
+      + '<div style="opacity:.75;font-size:13.5px;margin:6px 0 12px">Choisis ta série (ou explore les autres) pour voir les épreuves et générer une fiche PDF.</div>'
+      + '<div style="display:flex;flex-wrap:wrap;gap:8px">' + btns + '</div>'
+      + '<div id="eliSerieResults" style="margin-top:14px;font-size:14px;opacity:.85"></div>';
+    body.insertBefore(card, body.firstChild);
+    var results = card.querySelector('#eliSerieResults');
+    Array.prototype.forEach.call(card.querySelectorAll('.eli-serie'), function (b) {
+      b.onclick = function () {
+        Array.prototype.forEach.call(card.querySelectorAll('.eli-serie'), function (x) { x.style.background = 'rgba(255,255,255,.05)'; });
+        b.style.background = 'rgba(0,194,113,.25)';
+        var serie = b.getAttribute('data-serie');
+        results.textContent = 'Chargement des épreuves de la série ' + serie + '…';
+        authedFetch('/api/exam/papers?program=' + PROGRAM + '&serie=' + encodeURIComponent(serie))
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            var papers = (j && j.papers) || [];
+            if (!papers.length) { results.textContent = 'Aucune épreuve trouvée pour la série ' + serie + '.'; return; }
+            results.innerHTML = papers.map(function (p) {
+              var subjEsc = String(p.subject || '').replace(/"/g, '&quot;');
+              var exEsc = String(p.exam || exam || 'BAC').replace(/"/g, '&quot;');
+              return '<div class="ep-row" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;margin:6px 0;border-radius:11px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03)">'
+                + '<span><strong>' + (p.subject || '—') + '</strong> <span style="opacity:.6;font-size:12px">· ' + (p.exam || '') + (p.year ? ' ' + p.year : '') + '</span></span>'
+                + '<button type="button" class="eli-serie-pdf" data-subj="' + subjEsc + '" data-exam="' + exEsc + '" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.2);color:inherit;font-size:11.5px;cursor:pointer;font-family:inherit">📄 PDF</button>'
+                + '</div>';
+            }).join('');
+            Array.prototype.forEach.call(results.querySelectorAll('.eli-serie-pdf'), function (pb) {
+              pb.onclick = function () { eliGenExamPdf(pb.getAttribute('data-exam'), pb.getAttribute('data-subj'), pb); };
+            });
+          })
+          .catch(function () { results.textContent = 'Connecte-toi pour explorer les épreuves.'; });
+      };
+    });
+  }
+
   function eliMaybeMountExam() {
     var body = document.getElementById('universeBody'); if (!body) return;
     if (!body.querySelector('.examdash-epreuves') && !body.querySelector('.examdash-countdown')) return;
     var exam = eliExamLabelFromTitle();
+    eliMountSerieSelector(body, exam);
     // 1) Bouton PDF par épreuve
     var rows = body.querySelectorAll('.ep-row');
     Array.prototype.forEach.call(rows, function (row) {
