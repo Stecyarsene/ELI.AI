@@ -1960,7 +1960,8 @@ function openParents(){
       <div class="parent-av"><svg width="26" height="26" viewBox="0 0 200 200"><rect x="61" y="44" width="13" height="108" rx="6" fill="#FFD479"/><rect x="61" y="44" width="78" height="13" rx="6" fill="#FFD479"/><rect x="61" y="91" width="60" height="13" rx="6" fill="#FFD479"/><rect x="61" y="139" width="78" height="13" rx="6" fill="#FFD479"/></svg></div>
       <p>Bonjour, je suis <strong>Éli</strong>, le professeur de votre enfant. Chaque semaine, je peux vous transmettre un <strong>rapport complet</strong> : les progrès réalisés, les matières maîtrisées, les points encore fragiles, et mes recommandations pour l'accompagner au mieux. Vous restez ainsi pleinement informé(e) de son parcours.</p>
     </div>
-    <button class="parent-cta" onclick="parentForm()">📊 Recevoir le rapport de mon enfant</button>`;
+    <button class="parent-cta" onclick="(window.top||window).location.href='/national/parent'">🔐 Accéder à mon espace parent</button>
+    <button class="parent-cta" style="margin-top:10px;opacity:.85" onclick="parentForm()">📊 Recevoir le rapport hebdomadaire</button>`;
   document.getElementById('parentsModal').classList.add('show');showOverlay();
 }
 function parentForm(){

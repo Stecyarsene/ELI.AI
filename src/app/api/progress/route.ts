@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   const raw = (await req.json().catch(() => null)) as unknown;
   const parsed = safeParse(progressInput, raw);
   if (!parsed.ok) return Response.json({ error: 'invalid_input', detail: parsed.error }, { status: 400 });
-  const { subject, program, bilan } = parsed.data;
+  const { subject, program, bilan, channel } = parsed.data;
 
   const sb = supabaseAdmin();
 
@@ -70,5 +70,17 @@ export async function POST(req: Request) {
     .single();
 
   if (error) return Response.json({ error: 'db_error' }, { status: 500 });
+
+  // T9 — Télémétrie d'apprentissage + CANAL (site/app/whatsapp) pour les analytics admin.
+  // Échec non bloquant : la progression de l'élève prime sur la mesure.
+  void sb.from('learning_events').insert({
+    user_id: user.id,
+    program: prog,
+    subject,
+    concept: (bilan.chapitre_travaille ?? subject).slice(0, 300),
+    success: status === 'vert',
+    channel: channel ?? 'site',
+  }).then(() => undefined, () => undefined);
+
   return Response.json({ progress: data as Progress }, { status: 200 });
 }

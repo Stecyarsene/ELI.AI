@@ -154,6 +154,7 @@
         if (sb) {
           authedFetch('/api/progress', { method: 'POST', body: JSON.stringify({
             subject: sb,
+            channel: (typeof eliChannel === 'function' ? eliChannel() : 'site'),
             bilan: {
               chapitre_travaille: bj.chapitre_travaille, reussites: bj.reussites,
               erreurs_types: bj.erreurs_types, statut_propose: bj.statut_propose, prochaine_etape: bj.prochaine_etape
@@ -457,6 +458,7 @@
         else if (typeof openDashboard === 'function') openDashboard();
         hideDemoData();
         loadRealDashboard();
+        try { eliCelebrateSignup(); } catch (e) {}
       });
   }
 
@@ -909,6 +911,75 @@
     }).catch(function () { var l = card.querySelector('#eliExamFichesList'); if (l) l.textContent = "Connecte-toi pour retrouver tes fiches d'examen."; });
   }
 
+  /* ───────── T9 — Marketing cross-canal (« Éli dispo partout ») ───────── */
+  var ELI_WA_NUM = null;
+  function eliLoadWa() { try { fetch('/api/config').then(function (r) { return r.json(); }).then(function (c) { if (c && c.whatsappBot) ELI_WA_NUM = c.whatsappBot; }).catch(function () {}); } catch (e) {} }
+  function eliWaLink(text) {
+    var num = (ELI_WA_NUM || '').replace(/[^0-9]/g, '');
+    return 'https://wa.me/' + num + (text ? ('?text=' + encodeURIComponent(text)) : '');
+  }
+  function eliChannel() {
+    try {
+      if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return 'app';
+      if (window.navigator && window.navigator.standalone) return 'app';
+    } catch (e) {}
+    return 'site';
+  }
+  window.__eliChannel__ = eliChannel;
+
+  function eliShowCanalToast(text) {
+    var t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:10001;max-width:320px;display:flex;align-items:center;gap:10px;padding:13px 16px;border-radius:14px;background:#0B3D2E;color:#fff;font-family:inherit;font-size:13.5px;box-shadow:0 14px 40px rgba(0,0,0,.35);opacity:0;transition:opacity .35s';
+    var span = document.createElement('span'); span.style.cssText = 'flex:1;line-height:1.4'; span.textContent = text;
+    var a = document.createElement('a'); a.href = eliWaLink('Salut Éli ! Je veux continuer sur WhatsApp 🌱'); a.target = '_blank'; a.rel = 'noopener';
+    a.textContent = 'Ouvrir'; a.style.cssText = 'background:#25D366;color:#04140D;text-decoration:none;font-weight:700;padding:7px 12px;border-radius:9px;white-space:nowrap';
+    var x = document.createElement('button'); x.textContent = '✕'; x.setAttribute('aria-label', 'Fermer');
+    x.style.cssText = 'background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:14px;font-family:inherit';
+    x.onclick = function () { try { t.remove(); } catch (e) {} };
+    t.appendChild(span); t.appendChild(a); t.appendChild(x);
+    document.body.appendChild(t);
+    requestAnimationFrame(function () { t.style.opacity = '1'; });
+    setTimeout(function () { try { t.style.opacity = '0'; setTimeout(function () { try { t.remove(); } catch (e) {} }, 400); } catch (e) {} }, 9000);
+  }
+  // Invite discrète avec cooldown (90 s) et plafond (4 / session) : présent partout, jamais spammy.
+  function eliCrossCanal(ctx) {
+    try {
+      if (eliChannel() === 'app') return;
+      var now = Date.now();
+      var last = parseInt(sessionStorage.getItem('eli:xcanal') || '0', 10) || 0;
+      var cnt = parseInt(sessionStorage.getItem('eli:xcanal:n') || '0', 10) || 0;
+      if (now - last < 90000 || cnt >= 4) return;
+      sessionStorage.setItem('eli:xcanal', String(now));
+      sessionStorage.setItem('eli:xcanal:n', String(cnt + 1));
+    } catch (e) {}
+    var msgs = {
+      section: "Savais-tu qu'Éli te suit partout ? Continue sur WhatsApp 💬",
+      tool: "Reprends cet outil sur WhatsApp ou l'appli, où que tu sois 🌱",
+      chat: "Garde Éli dans ta poche : continue sur WhatsApp 💬",
+      exam: "Révise tes examens même hors ligne — installe l'appli Éli 📲"
+    };
+    eliShowCanalToast(msgs[ctx] || msgs.section);
+  }
+  // Félicitations d'inscription -> passerelle WhatsApp.
+  function eliCelebrateSignup() {
+    var ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:10002;display:grid;place-items:center;background:rgba(2,8,6,.55);backdrop-filter:blur(4px)';
+    var card = document.createElement('div');
+    card.style.cssText = 'max-width:380px;margin:20px;background:#fff;color:#16241C;border-radius:20px;padding:28px;text-align:center;font-family:inherit;box-shadow:0 30px 80px rgba(0,0,0,.4)';
+    card.innerHTML = '<div style="font-size:46px">🎉</div><h2 style="font-family:Fraunces,serif;margin:10px 0 6px;font-size:24px">Bienvenue dans Éli !</h2>'
+      + '<p style="color:#6A776E;font-size:14.5px;line-height:1.55;margin:0 0 20px">Ton compte est créé 🌱 Continue sur WhatsApp pour réviser partout, même hors ligne — Éli te suit jusque dans ta poche.</p>';
+    var wa = document.createElement('a'); wa.href = eliWaLink("Salut Éli ! Je viens de m'inscrire, on continue ici 🌱"); wa.target = '_blank'; wa.rel = 'noopener';
+    wa.textContent = '💬 Continuer sur WhatsApp';
+    wa.style.cssText = 'display:block;background:#25D366;color:#04140D;text-decoration:none;font-weight:800;padding:14px;border-radius:13px;margin-bottom:10px';
+    var skip = document.createElement('button'); skip.textContent = 'Plus tard';
+    skip.style.cssText = 'background:none;border:none;color:#6A776E;cursor:pointer;font-family:inherit;font-weight:600';
+    skip.onclick = function () { try { ov.remove(); } catch (e) {} };
+    card.appendChild(wa); card.appendChild(skip); ov.appendChild(card);
+    ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+    document.body.appendChild(ov);
+  }
+  window.eliCrossCanal = eliCrossCanal; window.eliCelebrateSignup = eliCelebrateSignup;
+
   /* ───────── Installation ───────── */
   function install() {
     if (typeof window.submitSignup === 'function') window.__origSubmitSignup__ = window.submitSignup;
@@ -938,12 +1009,13 @@
       if (typeof window[fn] === 'function') { var of = window[fn]; window[fn] = function () { var rv = of.apply(this, arguments); try { setTimeout(eliMaybeMountOrientation, 60); } catch (e) {} return rv; }; }
     });
     ['openExamAEFE', 'openExamDash'].forEach(function (fn) {
-      if (typeof window[fn] === 'function') { var oe = window[fn]; window[fn] = function () { var rv = oe.apply(this, arguments); try { setTimeout(function () { eliMaybeMountExam(); eliRefreshCountdowns(); }, 60); } catch (e) {} return rv; }; }
+      if (typeof window[fn] === 'function') { var oe = window[fn]; window[fn] = function () { var rv = oe.apply(this, arguments); try { setTimeout(function () { eliMaybeMountExam(); eliRefreshCountdowns(); }, 60); eliCrossCanal('exam'); } catch (e) {} return rv; }; }
     });
+    if (typeof window.scrollToSec === 'function') { var _sts = window.scrollToSec; window.scrollToSec = function () { try { eliCrossCanal('section'); } catch (e) {} return _sts.apply(this, arguments); }; }
     ['closeChat', 'closeMM', 'closeAll', 'closeOverlay'].forEach(function (fn) {
       if (typeof window[fn] === 'function') {
         var o = window[fn];
-        window[fn] = function () { try { if (window.__eliChatOpenedAt__) onChatClose(); } catch (e) {} window.__eliChatOpenedAt__ = null; return o.apply(this, arguments); };
+        window[fn] = function () { try { if (window.__eliChatOpenedAt__) { onChatClose(); eliCrossCanal('chat'); } } catch (e) {} window.__eliChatOpenedAt__ = null; return o.apply(this, arguments); };
       }
     });
 
@@ -959,6 +1031,7 @@
   try { var _warm = function () { try { getSb(); } catch (e) {} }; (window.requestIdleCallback ? requestIdleCallback(_warm, { timeout: 1500 }) : setTimeout(_warm, 300)); } catch (e) {}
   // Dates d'examens : charge le calendrier réel et rafraîchit les compte-à-rebours chaque jour.
   try { eliLoadExamDates(); setInterval(eliRefreshCountdowns, 60000); } catch (e) {}
+  try { eliLoadWa(); } catch (e) {}
 
   if (document.readyState === 'complete' || document.readyState === 'interactive') setTimeout(install, 400);
   else window.addEventListener('DOMContentLoaded', function () { setTimeout(install, 400); });

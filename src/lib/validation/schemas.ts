@@ -33,6 +33,7 @@ export const ficheInput = z.object({
 export const progressInput = z.object({
   subject: z.string().min(1).max(120),
   program: z.enum(['national', 'aefe']).optional(),
+  channel: z.enum(['site', 'app', 'whatsapp']).optional(),
   bilan: z.object({
     chapitre_travaille: z.string().max(300).optional(),
     reussites: z.array(z.string().max(300)).max(20).optional(),

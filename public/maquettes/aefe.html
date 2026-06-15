@@ -1126,7 +1126,7 @@ function welcomeBack(){let t=document.getElementById('wToast');if(!t){t=document
 function openParents(){
   closeMM();
   document.getElementById('parentsTitle').textContent='Espace Parents';
-  document.getElementById('parentsBody').innerHTML=`<div class="consent-head"><div class="consent-ic">📊</div><p>Chaque semaine, Éli transmet un rapport détaillé : progrès, axes de travail et recommandations pour accompagner votre enfant vers le Bac et Parcoursup.</p></div><button class="pay-validate" style="width:100%" onclick="parentForm()">Recevoir le rapport hebdomadaire</button>`;
+  document.getElementById('parentsBody').innerHTML=`<div class="consent-head"><div class="consent-ic">📊</div><p>Chaque semaine, Éli transmet un rapport détaillé : progrès, axes de travail et recommandations pour accompagner votre enfant vers le Bac et Parcoursup.</p></div><button class="pay-validate" style="width:100%" onclick="(window.top||window).location.href='/aefe/parent'">🔐 Accéder à mon espace parent</button><button class="pay-validate" style="width:100%;margin-top:10px;opacity:.85" onclick="parentForm()">Recevoir le rapport hebdomadaire</button>`;
   document.getElementById('parentsModal').classList.add('show');showOverlay();
 }
 function parentForm(){
