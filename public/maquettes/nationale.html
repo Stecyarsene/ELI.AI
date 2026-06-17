@@ -1674,6 +1674,38 @@ function toggleBougie(){
 }
 
 /* ═══ PILIERS ═══ */
+/* Contenu CONCRET déployé au clic sur certains piliers (pas qu'un teaser). */
+function pillarExtra(name){
+  if(name==='Protocole J-7'){
+    const days=[
+      ['J-7','Diagnostic & plan','On repère tes zones rouges et les matières à fort coefficient. Éli construit ton planning sur mesure des 7 jours.'],
+      ['J-6','Priorité n°1','Matière la plus à risque : cours essentiel + 2 annales ciblées. Une fiche par notion clé.'],
+      ['J-5','Priorité n°2','Deuxième matière critique : mêmes principes, entraînement guidé sur les notions qui reviennent.'],
+      ['J-4','Priorité n°3 + fiches','Troisième matière + révision active des fiches J-6/J-5 (quiz, par cœur utile).'],
+      ['J-3','Sujets probables','Entraînement chronométré sur les sujets les plus probables (Prédicteur). Conditions réelles.'],
+      ['J-2','Points faibles + oral','On comble les derniers trous, on s\'entraîne à l\'oral si besoin, on relit les fiches.'],
+      ['J-1','Récupération','Révision légère uniquement, logistique (pièces, matériel, trajet), sommeil tôt. Zéro nouveauté.'],
+    ];
+    const rows=days.map(d=>`<div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,248,236,.08)"><div style="font-family:var(--fmono);font-size:12px;font-weight:700;color:var(--gold-bright);min-width:38px">${d[0]}</div><div><div style="font-weight:600;font-size:14px;margin-bottom:2px">${d[1]}</div><div style="font-size:12.5px;color:var(--faint);line-height:1.45">${d[2]}</div></div></div>`).join('');
+    return `<div style="margin:16px 0;padding:16px;border-radius:16px;background:rgba(220,38,38,.07);border:1px solid rgba(220,38,38,.22)">
+      <div style="font-weight:700;margin-bottom:8px">🔴 Ton protocole jour par jour</div>${rows}
+      <div style="margin-top:12px;font-size:12.5px;color:var(--faint);line-height:1.5">⚖️ <strong>Règles d'or :</strong> sommeil régulier, pas de nouvelle notion la veille, révision active (se tester) plutôt que relire passivement. Éli ajuste ce plan à ta série et à tes zones rouges réelles.</div>
+    </div>`;
+  }
+  if(name==='Prédicteur'){
+    const ex=[
+      ['Mathématiques','Étude de fonction + dérivées, suites numériques, probabilités — les blocs qui tombent presque chaque année.'],
+      ['Français / Philo','Sujets de dissertation récurrents (argumentation, le bonheur, la liberté), commentaire de texte guidé.'],
+      ['Sciences','Énergie et mouvements, génétique / reproduction, réactions chimiques — schémas et calculs types.'],
+    ];
+    const cards=ex.map(e=>`<div style="padding:12px 14px;border-radius:13px;background:rgba(245,181,68,.08);border:1px solid rgba(245,181,68,.22);margin-bottom:9px"><div style="font-weight:700;font-size:14px;color:var(--gold-bright);margin-bottom:3px">${e[0]}</div><div style="font-size:12.5px;color:var(--faint);line-height:1.45">${e[1]}</div></div>`).join('');
+    return `<div style="margin:16px 0">
+      <div style="font-weight:700;margin-bottom:6px">⚡ Tes sujets probables</div>
+      <div style="font-size:12.5px;color:var(--faint);line-height:1.5;margin-bottom:12px">Éli croise dix ans d'annales avec ton programme pour cibler ce qui tombe le plus souvent. Voici les axes prioritaires — Éli les <strong>personnalise selon ta série et tes zones rouges</strong> dès que tu lui parles.</div>
+      ${cards}</div>`;
+  }
+  return '';
+}
 function openPillar(i){
   const p=PILLARS[i];
   const cta = p.name==='Mon Avenir' ? '🚀 Lancer maintenant' : '🎤 Tester Éli maintenant';
@@ -1681,6 +1713,7 @@ function openPillar(i){
     <div class="panel-icon">${p.ico}</div>
     <div class="panel-title">${p.name}</div>
     <p class="panel-text">${p.role}</p>
+    ${pillarExtra(p.name)}
     <button class="panel-cta" onclick="closeAll();openChat()">${cta}</button>`;
   document.getElementById('panel').classList.add('open');showOverlay();
 }

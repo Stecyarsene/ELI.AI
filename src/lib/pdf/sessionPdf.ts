@@ -49,49 +49,58 @@ function wrap(text: string, font: import('pdf-lib').PDFFont, size: number, maxW:
 }
 
 /** Génère le PDF récap d'une session de travail Éli. Retourne les octets. */
+/** En-tête de marque compact (vrai logo + wordmark + contexte) — pas de couverture cérémonielle. */
+function brandHeader(page: import('pdf-lib').PDFPage, bold: import('pdf-lib').PDFFont, font: import('pdf-lib').PDFFont, kicker: string, meta: string): void {
+  const PW = 595, PH = 842, M = 54;
+  page.drawRectangle({ x: 0, y: PH - 96, width: PW, height: 96, color: GREEN });
+  drawEliLogo(page, M + 22, PH - 48, 22);
+  page.drawText('Éli', { x: M + 52, y: PH - 44, size: 20, font: bold, color: GOLD_FLAME });
+  page.drawText(winansi(kicker), { x: M + 52, y: PH - 64, size: 11, font, color: rgb(0.85, 0.92, 0.88) });
+  if (meta) page.drawText(winansi(meta).slice(0, 90), { x: M + 52, y: PH - 80, size: 9, font, color: rgb(0.72, 0.84, 0.78) });
+}
+/** Pied de marque : devise réelle + filet. */
+function brandFooter(page: import('pdf-lib').PDFPage, font: import('pdf-lib').PDFFont, italic: import('pdf-lib').PDFFont): void {
+  const PW = 595, M = 54;
+  page.drawLine({ start: { x: M, y: 40 }, end: { x: PW - M, y: 40 }, thickness: 0.6, color: rgb(0.89, 0.86, 0.80) });
+  page.drawText(winansi("L'intelligence au service de ta réussite"), { x: M, y: 28, size: 8.5, font: italic, color: GOLD });
+}
+
 export async function buildSessionPdf(d: SessionPdfData): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
-  let page = pdf.addPage([595, 842]); // A4
-  const M = 50, W = 595 - M * 2;
-  let y = 842;
-
-  // En-tête vert Éli
-  page.drawRectangle({ x: 0, y: 842 - 90, width: 595, height: 90, color: GREEN });
-  page.drawText('Éli', { x: M, y: 842 - 56, size: 26, font: bold, color: GOLD });
-  page.drawText('Récap de session', { x: M + 56, y: 842 - 54, size: 16, font: bold, color: rgb(1, 1, 1) });
-  page.drawText(d.dateLabel, { x: M + 56, y: 842 - 72, size: 10, font, color: rgb(0.85, 0.92, 0.88) });
-  y = 842 - 120;
-
-  const line = (txt: string, size: number, f = font, color = rgb(0.1, 0.1, 0.1)) => {
-    for (const l of wrap(txt, f, size, W)) {
-      if (y < M + 40) { page = pdf.addPage([595, 842]); y = 842 - M; }
-      page.drawText(l, { x: M, y, size, font: f, color });
-      y -= size + 6;
+  const italic = await pdf.embedFont(StandardFonts.HelveticaOblique);
+  const PW = 595, PH = 842, M = 54, W = PW - M * 2;
+  let page = pdf.addPage([PW, PH]);
+  let y = 0;
+  const meta = [d.subject, d.classLabel, d.dateLabel].filter(Boolean).join('  ·  ');
+  brandHeader(page, bold, font, 'Récap de séance', meta);
+  brandFooter(page, font, italic);
+  y = PH - 124;
+  const newPage = () => { page = pdf.addPage([PW, PH]); brandHeader(page, bold, font, 'Récap de séance', meta); brandFooter(page, font, italic); y = PH - 124; };
+  const emit = (txt: string, size: number, f = font, color = rgb(0.13, 0.16, 0.14), indent = 0, gap = 6) => {
+    for (const l of wrap(winansi(txt), f, size, W - indent)) {
+      if (y < 58) newPage();
+      page.drawText(l, { x: M + indent, y, size, font: f, color }); y -= size + 5;
     }
+    y -= gap;
   };
-
-  line(d.title || 'Session de travail', 18, bold, GREEN);
-  if (d.subject) line((d.subject || '') + (d.classLabel ? '  ·  ' + d.classLabel : ''), 11, font, rgb(0.4, 0.4, 0.4));
-  y -= 8;
-  line('Ce que nous avons fait', 13, bold, GREEN); y -= 2;
-  line(d.summary || '—', 11);
-  y -= 10;
+  emit(d.title || 'Séance de travail', 19, bold, GREEN, 0, 4);
+  page.drawLine({ start: { x: M, y: y + 4 }, end: { x: M + 64, y: y + 4 }, thickness: 2.2, color: GOLD }); y -= 12;
+  emit('Ce que nous avons travaillé', 13, bold, GREEN, 0, 2);
+  emit(d.summary || '—', 11);
   if (d.highlights?.length) {
-    line('Points clés', 13, bold, GREEN); y -= 2;
-    for (const h of d.highlights) line('•  ' + h, 11);
-    y -= 10;
+    emit('Points clés', 13, bold, GREEN, 0, 2);
+    for (const h of d.highlights) emit('•  ' + h, 11, font, rgb(0.13, 0.16, 0.14), 12, 3);
+    y -= 4;
   }
   if (d.transcript?.length) {
-    line('Fil de la séance', 13, bold, GREEN); y -= 2;
+    emit('Fil de la séance', 13, bold, GREEN, 0, 2);
     for (const t of d.transcript.slice(0, 30)) {
       const who = (t.role === 'eli' || t.role === 'assistant') ? 'Éli' : 'Moi';
-      line(who + ' — ' + t.text, 10, font, who === 'Éli' ? GREEN : rgb(0.2, 0.2, 0.2));
+      emit(who + ' — ' + t.text, 10, font, who === 'Éli' ? GREEN : rgb(0.2, 0.2, 0.2), 0, 3);
     }
   }
-  // Pied de page
-  page.drawText('Généré par Éli · ton compagnon d\'apprentissage', { x: M, y: 28, size: 8, font, color: rgb(0.6, 0.6, 0.6) });
   return pdf.save();
 }
 
@@ -105,28 +114,30 @@ export async function buildExamPdf(d: ExamPdfData): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
-  let page = pdf.addPage([595, 842]);
-  const M = 50, W = 595 - M * 2;
-  let y = 842;
-  page.drawRectangle({ x: 0, y: 842 - 90, width: 595, height: 90, color: GREEN });
-  page.drawText('Éli', { x: M, y: 842 - 56, size: 26, font: bold, color: GOLD });
-  page.drawText('Fiche d\'épreuve · ' + d.examName, { x: M + 56, y: 842 - 54, size: 14, font: bold, color: rgb(1, 1, 1) });
-  y = 842 - 120;
-  const line = (txt: string, size: number, f = font, color = rgb(0.1, 0.1, 0.1)) => {
-    for (const l of wrap(txt, f, size, W)) {
-      if (y < M + 40) { page = pdf.addPage([595, 842]); y = 842 - M; }
-      page.drawText(l, { x: M, y, size, font: f, color }); y -= size + 6;
+  const italic = await pdf.embedFont(StandardFonts.HelveticaOblique);
+  const PW = 595, PH = 842, M = 54, W = PW - M * 2;
+  let page = pdf.addPage([PW, PH]);
+  let y = 0;
+  const meta = ['Fiche de révision', d.examName].filter(Boolean).join('  ·  ');
+  brandHeader(page, bold, font, 'Préparation d\'épreuve', meta);
+  brandFooter(page, font, italic);
+  y = PH - 124;
+  const newPage = () => { page = pdf.addPage([PW, PH]); brandHeader(page, bold, font, 'Préparation d\'épreuve', meta); brandFooter(page, font, italic); y = PH - 124; };
+  const emit = (txt: string, size: number, f = font, color = rgb(0.13, 0.16, 0.14), indent = 0, gap = 6) => {
+    for (const l of wrap(winansi(txt), f, size, W - indent)) {
+      if (y < 58) newPage();
+      page.drawText(l, { x: M + indent, y, size, font: f, color }); y -= size + 5;
     }
+    y -= gap;
   };
-  line(d.subject, 20, bold, GREEN);
-  y -= 4;
-  if (d.intro) { line(d.intro, 11, font, rgb(0.35, 0.35, 0.35)); y -= 8; }
+  emit(d.subject, 19, bold, GREEN, 0, 4);
+  page.drawLine({ start: { x: M, y: y + 4 }, end: { x: M + 64, y: y + 4 }, thickness: 2.2, color: GOLD }); y -= 12;
+  if (d.intro) { emit(d.intro, 11, font, rgb(0.36, 0.42, 0.38)); }
   for (const sec of d.sections) {
-    line(sec.heading, 13, bold, GREEN); y -= 2;
-    for (const it of sec.items) line('•  ' + it, 11);
-    y -= 10;
+    emit(sec.heading, 13, bold, GREEN, 0, 2);
+    for (const it of sec.items) emit('•  ' + it, 11, font, rgb(0.13, 0.16, 0.14), 12, 3);
+    y -= 4;
   }
-  page.drawText('Généré par Éli · révise à ton rythme', { x: M, y: 28, size: 8, font, color: rgb(0.6, 0.6, 0.6) });
   return pdf.save();
 }
 

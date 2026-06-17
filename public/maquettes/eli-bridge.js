@@ -140,6 +140,29 @@
       .trim();
   }
 
+  // Nettoyage dédié à la VOIX : la synthèse ne doit jamais prononcer de symboles
+  // (markdown, puces, emojis, séparateurs). On garde la ponctuation de phrase pour le rythme.
+  function cleanForSpeech(t) {
+    return String(t || '')
+      .replace(/```[\s\S]*?```/g, ' ')                 // blocs de code
+      .replace(/`([^`]*)`/g, '$1')                     // code inline
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')           // images markdown
+      .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')         // liens markdown -> libellé
+      .replace(/https?:\/\/\S+/g, ' ')                 // URLs
+      .replace(/[*_#>~|^=]+/g, ' ')                    // marqueurs markdown / séparateurs
+      .replace(/^[\s]*[-–—•·]\s+/gm, '')               // puces en début de ligne
+      .replace(/[•·▪◦‣·]/g, ' ')                        // puces résiduelles
+      .replace(/[<>\\/{}\[\]]/g, ' ')                  // chevrons, slashes, accolades, crochets
+      // emojis & symboles décoratifs
+      .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FE0F}\u{200D}\u{1F1E6}-\u{1F1FF}]/gu, ' ')
+      .replace(/[ \t]{2,}/g, ' ')                       // espaces multiples
+      .replace(/\s+([,.;:!?])/g, '$1')                 // espace avant ponctuation
+      .replace(/([,.;:!?]){2,}/g, '$1')                // ponctuation répétée
+      .replace(/\n{2,}/g, '. ')                         // sauts de ligne -> pause
+      .replace(/\n/g, ' ')
+      .trim();
+  }
+
   // Extrait, poste (progress/fiches) puis RETIRE les blocs [BILAN]/[FICHE] ; renvoie le texte visible.
   function processBlocks(full, subject) {
     var text = String(full || '');
@@ -352,12 +375,29 @@
       if (res.status === 402) { if (bubble) bubble.textContent = 'Active ton abonnement pour continuer 🌱'; if (typeof showPaywall === 'function') setTimeout(showPaywall, 400); return; }
       if (res.status === 403) { if (bubble) bubble.textContent = "Termine ton inscription 🌱"; showSignup(); return; }
       if (!res.ok || !res.body) { if (bubble) bubble.textContent = "Je n'ai pas pu répondre, réessaie."; return; }
-      var reader = res.body.getReader(), dec = new TextDecoder(), acc = '', spoken = false;
+      var reader = res.body.getReader(), dec = new TextDecoder(), sseBuf = '', plain = '', spoken = false, raf = 0;
       var st = document.getElementById('chatStream');
+      var raf_fn = window.requestAnimationFrame || function (f) { return setTimeout(f, 16); };
+      function paint() { raf = 0; if (bubble) bubble.textContent = cleanForDisplay(plain) || '…'; if (st) st.scrollTop = st.scrollHeight; }
+      function schedule() { if (!raf) raf = raf_fn(paint); }          // 1 rendu par frame max (fluide sur mobile)
+      function consume() {                                            // parse INCRÉMENTAL des lignes SSE complètes
+        var nl;
+        while ((nl = sseBuf.indexOf('\n')) >= 0) {
+          var line = sseBuf.slice(0, nl).trim(); sseBuf = sseBuf.slice(nl + 1);
+          if (line.indexOf('data:') === 0) {
+            try {
+              var j = JSON.parse(line.slice(5).trim());
+              var parts = j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts;
+              if (parts) parts.forEach(function (p) { if (p.text) plain += p.text; });
+            } catch (e) {}
+          }
+        }
+      }
       function pump() {
         return reader.read().then(function (r) {
           if (r.done) {
-            var full = extractText(acc) || '…';
+            if (sseBuf) { sseBuf += '\n'; consume(); }
+            var full = plain || '…';
             if (authed) full = processBlocks(full, (payload && payload.focusSubject) || window.__eliFocusSubject__);
             else full = full.replace(/\[BILAN\][\s\S]*?\[\/BILAN\]/i, '').replace(/\[FICHE\][\s\S]*?\[\/FICHE\]/i, '');
             var parts = splitVoice(full);
@@ -366,20 +406,15 @@
             var dispSpeech = cleanForDisplay(parts.speech);
             var dispBody = cleanForDisplay(body);
             var toRead = hasVoiceTag ? (dispSpeech + (dispBody ? '\n\n' + dispBody : '')) : (cleanForDisplay(parts.written) || dispSpeech);
-            if (!spoken) { speakAll(toRead); spoken = true; }
+            // VOIX : on lit le texte nettoyé pour la parole (jamais les symboles/markdown/ponctuation parasite).
+            if (!spoken) { speakAll(cleanForSpeech(toRead)); spoken = true; }
             if (bubble) bubble.textContent = dispBody ? ('🔊 ' + dispSpeech + '\n\n' + dispBody) : ('🔊 ' + dispSpeech);
             if (st) st.scrollTop = st.scrollHeight;
             return;
           }
-          acc += dec.decode(r.value, { stream: true });
-          // Affichage progressif : on montre le texte au fur et à mesure
-          var soFar = extractText(acc);
-          if (soFar) {
-            var parts = splitVoice(soFar);
-            // Dès que la réplique [VOIX] est complète, on la prononce sans attendre la fin
-            if (bubble) bubble.textContent = cleanForDisplay(soFar) || '…';
-            if (st) st.scrollTop = st.scrollHeight;
-          }
+          sseBuf += dec.decode(r.value, { stream: true });
+          consume();
+          if (plain) schedule();                                      // affichage progressif throttlé
           return pump();
         });
       }

@@ -21,7 +21,8 @@ async function callGemini(model: string, system: string, message: string, maxOut
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
       contents: [{ role: 'user', parts: [{ text: message }] }],
-      generationConfig: { maxOutputTokens },
+      // thinkingBudget: 0 -> pas de raisonnement interne qui retarde et ralentit le flux ; réponse immédiate.
+      generationConfig: { maxOutputTokens, temperature: 0.6, thinkingConfig: { thinkingBudget: 0 } },
     }),
   });
 }
