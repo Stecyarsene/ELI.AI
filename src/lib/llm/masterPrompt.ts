@@ -188,6 +188,10 @@ export function buildSystemPrompt(
     '[BILAN]{"matiere":"<matière>","chapitre_travaille":"<chapitre>","reussites":["..."],"erreurs_types":["..."],"statut_propose":"vert|orange|rouge","prochaine_etape":"<une seule étape concrète>"}[/BILAN]',
     'BLOC FICHE (fiche mémoire générée pour l\'élève) :',
     '[FICHE]{"matiere":"<matière>","type":"revision|quiz|examen","titre":"<titre court>","contenu":{"points_cles":["..."],"a_retenir":"<résumé>","exemple":"<exemple>"}}[/FICHE]',
+    'BLOC DEVOIR (épreuves, QCM, devoir maison, feuille blanche, test) : quand l\'élève veut S\'ENTRAÎNER sur une épreuve complète,',
+    'ne déverse PAS l\'énoncé dans le texte. Annonce juste, en une phrase chaleureuse, que ses épreuves sont prêtes, puis émets ce bloc.',
+    'L\'élève recevra un PDF cliquable, composera, puis filmera sa copie pour que tu la corriges.',
+    '[DEVOIR]{"title":"<titre de l\'épreuve>","subject":"<matière>","type":"devoir|qcm|feuille_blanche|test","intro":"<consigne générale et barème>","sections":[{"heading":"<partie ou exercice>","items":["<question / consigne>","..."]}]}[/DEVOIR]',
     'N\'émets ces blocs qu\'en fin de séquence réelle (pas à chaque message). JSON strict, valeurs courtes. Si rien n\'est consolidé, omets la fiche.',
   ].filter(Boolean).join('\n');
 }

@@ -24,9 +24,10 @@ function drawEliLogo(page: import('pdf-lib').PDFPage, cx: number, cy: number, r:
     const bl = M(rx, ry + h);
     page.drawRectangle({ x: bl.x, y: bl.y, width: w * s, height: h * s, color: GOLD_E });
   }
-  // Flamme de bougie (haut-droite), approximée par deux disques superposés.
-  page.drawCircle({ x: cx + 0.42 * r, y: cy + 0.72 * r, size: 0.11 * r, color: GOLD_FLAME });
-  page.drawCircle({ x: cx + 0.42 * r, y: cy + 0.82 * r, size: 0.06 * r, color: GOLD_FLAME });
+  // Flamme de bougie : goutte dorée pointant vers le haut, posée sur le « É ».
+  const fb = { x: cx + 0.30 * r, y: cy + 0.62 * r };
+  page.drawSvgPath('M 0 0 C 7 -4 7 -15 0 -23 C -7 -15 -7 -4 0 0 Z', { x: fb.x, y: fb.y, scale: s, color: GOLD_FLAME });
+  page.drawSvgPath('M 0 -4 C 3.5 -7 3.5 -13 0 -17 C -3.5 -13 -3.5 -7 0 -4 Z', { x: fb.x, y: fb.y, scale: s, color: GOLD_E });
   // 3 points en base.
   for (const [dx, dy, dr] of [[82, 172, 4.5], [100, 176, 5.5], [118, 172, 4.5]] as [number, number, number][]) {
     const p = M(dx, dy);

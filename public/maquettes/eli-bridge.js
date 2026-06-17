@@ -133,8 +133,9 @@
     return String(t || '')
       .replace(/\[BILAN\][\s\S]*?\[\/BILAN\]/gi, '')          // blocs complets
       .replace(/\[FICHE\][\s\S]*?\[\/FICHE\]/gi, '')
+      .replace(/\[DEVOIR\][\s\S]*?\[\/DEVOIR\]/gi, '')
       .replace(/\[\/?VOIX\]/gi, '')                            // balises voix (ouvrante/fermante)
-      .replace(/\[(?:BILAN|FICHE)\][\s\S]*$/i, '')             // bloc technique ouvert, pas encore fermé (stream)
+      .replace(/\[(?:BILAN|FICHE|DEVOIR)\][\s\S]*$/i, '')      // bloc technique ouvert, pas encore fermé (stream)
       .replace(/\[\/?[A-Z]{0,6}$/, '')                          // tag technique PARTIEL en fin de flux ([VOI, [BIL, [/VOIX…)
       .replace(/[ \t]+\n/g, '\n')
       .trim();
@@ -202,7 +203,94 @@
       } catch (e) {}
       text = text.replace(ficheRe, '');
     }
+
+    // [DEVOIR] : Éli a préparé des épreuves/QCM/feuille blanche -> carte unique (PDF + envoi de la copie).
+    var devRe = /\[DEVOIR\]([\s\S]*?)\[\/DEVOIR\]/i;
+    var mdv = text.match(devRe);
+    if (mdv) {
+      try { var dj = JSON.parse(mdv[1].trim()); if (!dj.subject && subj) dj.subject = subj; renderDevoirCard(dj); } catch (e) {}
+      text = text.replace(devRe, '');
+    }
     return text.trim();
+  }
+
+  /* ───────── Flux DEVOIR / QCM / FEUILLE BLANCHE (élève) ─────────
+     Une seule carte cliquable : télécharger les épreuves en PDF, puis filmer/renvoyer SA copie
+     une fois ; Éli corrige (réussites / à améliorer / zones rouges) et renvoie le corrigé. */
+  function eliDownloadPdf(payload, filename, btn) {
+    var old = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Préparation…'; }
+    return authedFetch('/api/devoir/pdf', { method: 'POST', body: JSON.stringify(payload) })
+      .then(function (r) { if (!r.ok) throw new Error('pdf'); return r.blob(); })
+      .then(function (blob) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a'); a.href = url; a.download = filename || 'epreuve.pdf';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+        if (btn) { btn.disabled = false; btn.textContent = old; }
+      })
+      .catch(function () { if (btn) { btn.disabled = false; btn.textContent = '⚠️ Réessayer'; } });
+  }
+  function renderDevoirCard(devoir) {
+    var stream = document.getElementById('chatStream'); if (!stream) return;
+    var title = String(devoir.title || devoir.titre || 'Tes épreuves');
+    var subject = String(devoir.subject || devoir.matiere || '');
+    var card = document.createElement('div');
+    card.className = 'eli-devoir-card';
+    card.style.cssText = 'margin:10px 0;padding:16px;border-radius:16px;border:1px solid rgba(0,194,113,.3);background:rgba(0,194,113,.08)';
+    card.innerHTML =
+      '<div style="font-weight:800;font-size:15px;margin-bottom:4px">📋 Tes épreuves sont prêtes</div>' +
+      '<div style="opacity:.8;font-size:13px;margin-bottom:12px">' + title + (subject ? (' · ' + subject) : '') + '</div>' +
+      '<button class="eli-dv-pdf" style="width:100%;padding:12px;border:none;border-radius:11px;cursor:pointer;font-family:inherit;font-weight:700;font-size:14px;background:#00C271;color:#04140D">📄 Télécharger les épreuves (PDF)</button>' +
+      '<div style="margin-top:12px;font-size:12.5px;opacity:.85;line-height:1.5">Compose au calme, puis <strong>filme ou photographie ta copie et envoie-la une seule fois</strong>. Je te dirai ce qui est réussi, ce qui est à améliorer et tes zones rouges, puis je t\'enverrai le corrigé.</div>' +
+      '<label class="eli-dv-up" style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:11px;cursor:pointer;font-weight:700;font-size:14px;background:#0B3D2E;color:#fff">📷 J\'ai fini — envoyer ma copie<input type="file" accept="image/*" capture="environment" style="display:none"></label>' +
+      '<div class="eli-dv-res" style="margin-top:12px"></div>';
+    stream.appendChild(card); stream.scrollTop = stream.scrollHeight;
+
+    var pdfBtn = card.querySelector('.eli-dv-pdf');
+    pdfBtn.onclick = function () {
+      eliDownloadPdf({ title: title, subject: subject, intro: String(devoir.intro || devoir.consigne || ''), sections: devoir.sections || [] }, 'epreuve.pdf', pdfBtn);
+    };
+    var input = card.querySelector('.eli-dv-up input');
+    var label = card.querySelector('.eli-dv-up');
+    input.onchange = function () {
+      var f = input.files && input.files[0]; if (!f) return;
+      label.style.pointerEvents = 'none'; label.style.opacity = '.6'; label.innerHTML = '⏳ Je corrige ta copie…';
+      var rd = new FileReader();
+      rd.onload = function () {
+        authedFetch('/api/devoir/correct', { method: 'POST', body: JSON.stringify({ devoir: devoir, imageBase64: String(rd.result), mime: f.type || 'image/jpeg' }) })
+          .then(function (r) { return r.json(); })
+          .then(function (c) { renderDevoirCorrection(card, devoir, c); label.innerHTML = '✅ Copie corrigée'; })
+          .catch(function () { label.style.pointerEvents = 'auto'; label.style.opacity = '1'; label.innerHTML = '⚠️ Réessayer l\'envoi'; });
+      };
+      rd.readAsDataURL(f);
+    };
+  }
+  function renderDevoirCorrection(card, devoir, c) {
+    c = c || {};
+    var res = card.querySelector('.eli-dv-res'); if (!res) return;
+    function block(titre, arr, color) {
+      var items = (Array.isArray(arr) ? arr : []).filter(Boolean);
+      if (!items.length) return '';
+      return '<div style="margin-top:10px"><div style="font-weight:700;font-size:13.5px;color:' + color + '">' + titre + '</div>' +
+        items.map(function (x) { return '<div style="font-size:13px;opacity:.9;margin-top:3px">• ' + String(x) + '</div>'; }).join('') + '</div>';
+    }
+    var html = '<div style="border-top:1px solid rgba(255,255,255,.12);padding-top:12px"><div style="font-weight:800;font-size:14px;margin-bottom:4px">📝 Ta correction</div>';
+    html += block('✅ Réussites', c.reussites, '#34D399');
+    html += block('🟠 À améliorer', c.ameliorer, '#F5B544');
+    html += block('🔴 Zones rouges', c.zonesRouges, '#FF6B6B');
+    html += '</div>';
+    res.innerHTML = html;
+    if (c.corrige) {
+      var cb = document.createElement('button');
+      cb.style.cssText = 'margin-top:12px;width:100%;padding:12px;border:none;border-radius:11px;cursor:pointer;font-family:inherit;font-weight:700;font-size:14px;background:#F5B544;color:#04140D';
+      cb.textContent = '📄 Télécharger le corrigé (PDF)';
+      cb.onclick = function () {
+        eliDownloadPdf({ title: 'Corrigé — ' + (devoir.title || devoir.titre || 'devoir'), subject: (devoir.subject || devoir.matiere || ''), intro: 'Corrigé détaillé de ton devoir, expliqué pas à pas.', sections: [{ heading: 'Corrigé', items: String(c.corrige).split(/\n+/).filter(Boolean) }] }, 'corrige.pdf', cb);
+      };
+      res.appendChild(cb);
+    }
+    var stream = document.getElementById('chatStream'); if (stream) stream.scrollTop = stream.scrollHeight;
   }
 
   function splitVoice(full) {
@@ -399,7 +487,7 @@
             if (sseBuf) { sseBuf += '\n'; consume(); }
             var full = plain || '…';
             if (authed) full = processBlocks(full, (payload && payload.focusSubject) || window.__eliFocusSubject__);
-            else full = full.replace(/\[BILAN\][\s\S]*?\[\/BILAN\]/i, '').replace(/\[FICHE\][\s\S]*?\[\/FICHE\]/i, '');
+            else full = full.replace(/\[BILAN\][\s\S]*?\[\/BILAN\]/i, '').replace(/\[FICHE\][\s\S]*?\[\/FICHE\]/i, '').replace(/\[DEVOIR\][\s\S]*?\[\/DEVOIR\]/i, '');
             var parts = splitVoice(full);
             var hasVoiceTag = /\[VOIX\]/i.test(full);
             var body = (parts.written && parts.written !== parts.speech) ? parts.written : '';

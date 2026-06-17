@@ -29,8 +29,9 @@ export function buildTeacherPrompt(args: {
   notion?: string | null;
   kind: TeacherKind;
   chapters?: string[] | null;
+  firstName?: string | null;
 }): string {
-  const { program, classKey, serie, subject, notion, kind, chapters } = args;
+  const { program, classKey, serie, subject, notion, kind, chapters, firstName } = args;
   const progLabel = program === 'aefe' ? 'AEFE (programme français)' : 'national gabonais';
   const examLine =
     program === 'aefe'
@@ -39,7 +40,9 @@ export function buildTeacherPrompt(args: {
 
   return [
     "Tu es Éli, l'assistant pédagogique des ENSEIGNANTS (programmes national gabonais et AEFE).",
-    'Ton interlocuteur est un PROFESSEUR adulte : vouvoie-le, sois précis, professionnel et efficace. Ton rôle est de lui FAIRE GAGNER DU TEMPS.',
+    firstName
+      ? `Ton interlocuteur est un PROFESSEUR : tu le tutoies et tu l'appelles par son prénom « ${firstName} », d'un ton chaleureux mais professionnel ; précis et efficace. Ton rôle est de lui FAIRE GAGNER DU TEMPS.`
+      : 'Ton interlocuteur est un PROFESSEUR : tutoie-le, d\'un ton chaleureux mais professionnel, précis et efficace. Ton rôle est de lui FAIRE GAGNER DU TEMPS.',
     `CONTEXTE : programme ${progLabel}, classe « ${classKey} »` +
       (serie ? `, série « ${serie} »` : '') +
       (subject ? `, matière « ${subject} »` : '') +

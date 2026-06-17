@@ -157,12 +157,25 @@ for(let i=0;i<50;i++){const e=document.createElement('div');e.className='star';e
 </script>
 <script>
 (function(){
-  var intro=document.getElementById('eliIntro'); if(!intro)return;
+  var intro=document.getElementById('eliIntro');
+  function particles(){ var pc=document.getElementById('introParticles'); if(pc){for(var i=0;i<16;i++){var p=document.createElement('span');p.className='intro-p';p.style.left=(Math.random()*100)+'%';p.style.animationDelay=(Math.random()*2.2)+'s';p.style.animationDuration=(2.6+Math.random()*2)+'s';pc.appendChild(p);}} }
+  // RECONNAISSANCE AU RETOUR : si un programme a déjà été choisi sur cet appareil, on joue le
+  // logo animé comme loader, puis on route DIRECTEMENT vers National/AEFE (sans repasser par le hub).
+  // Garde : l'URL contenant « hub » ou « choisir » force l'écran de choix (pour changer d'espace).
+  var forceHub = /(?:[?&#])(hub|choisir)/i.test(location.search + location.hash);
+  var last=null; try{ last=localStorage.getItem('eli.lastProgram'); }catch(e){}
+  if(!forceHub && (last==='national'||last==='aefe')){
+    var dest = last==='aefe' ? '/aefe' : '/nationale';
+    if(intro){ particles(); }                       // le logo animé reste visible comme chargement
+    setTimeout(function(){ try{window.location.replace(dest);}catch(e){window.location.href=dest;} }, 1700);
+    return;
+  }
+  // Premier passage (ou choix forcé) : animation classique puis affichage du hub.
+  if(!intro)return;
   var seen=false; try{seen=sessionStorage.getItem('eliIntroSeen')==='1';}catch(e){seen=!!window.__eliIntroSeen;}
   if(seen){ if(intro.parentNode)intro.parentNode.removeChild(intro); return; }
   try{sessionStorage.setItem('eliIntroSeen','1');}catch(e){window.__eliIntroSeen=true;}
-  var pc=document.getElementById('introParticles');
-  if(pc){for(var i=0;i<16;i++){var p=document.createElement('span');p.className='intro-p';p.style.left=(Math.random()*100)+'%';p.style.animationDelay=(Math.random()*2.2)+'s';p.style.animationDuration=(2.6+Math.random()*2)+'s';pc.appendChild(p);}}
+  particles();
   setTimeout(function(){ if(intro.parentNode)intro.parentNode.removeChild(intro); }, 4000);
 })();
 </script>

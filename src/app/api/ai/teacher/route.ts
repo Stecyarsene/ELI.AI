@@ -92,6 +92,8 @@ export async function POST(req: Request) {
   const curriculum = (cur?.payload as CurriculumPayload | undefined) ?? null;
   const chapters = chaptersFor(curriculum, subject ?? null, serie ?? null);
 
+  const { data: teacherProf } = await sbAdmin.from('profiles').select('first_name').eq('id', gate.user.id).maybeSingle();
+
   const system = buildTeacherPrompt({
     program: program as Program,
     classKey,
@@ -100,6 +102,7 @@ export async function POST(req: Request) {
     notion: notion ?? null,
     kind: kind as TeacherKind,
     chapters,
+    firstName: (teacherProf?.first_name as string | null) ?? null,
   });
   const userMsg =
     message && message.trim()
