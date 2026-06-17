@@ -993,7 +993,7 @@ function resetChat(){
       <div class="chat-orb">${eliLogo(80)}</div>
       <h3>Bonjour, je suis Éli</h3>
       <p>Ton mentor pour le Bac français, le Grand Oral et Parcoursup. Pose ta question ou parle-moi.</p>
-      <button class="chat-mic-big" onclick="document.getElementById('chatInput').focus()"><svg width="32" height="32" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" fill="#fff"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4M8 22h8" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
+      <button class="chat-mic-big" onclick="(window.eliToggleVoice?window.eliToggleVoice('chatInput'):document.getElementById('chatInput').focus())"><svg width="32" height="32" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" fill="#fff"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4M8 22h8" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
       <div class="chat-mic-label">Appuie et parle</div>
     </div>`;
 }
@@ -1007,7 +1007,7 @@ function sendChat(){
   if(!freeUsed){freeUsed=true;setTimeout(()=>pushMsg("Excellente question. Avant de te répondre, dis-moi : qu'as-tu déjà tenté de ton côté ? Nous allons construire ensemble.",'eli'),500);}
   else{setTimeout(showPaywall,400);}
 }
-function toggleRec(){const b=document.getElementById('micBtn');b.classList.toggle('rec');if(b.classList.contains('rec')){setTimeout(()=>{b.classList.remove('rec');document.getElementById('chatInput').value="Comment réussir mon Grand Oral ?";},1400);}}
+function toggleRec(){ if(window.eliToggleVoice) return window.eliToggleVoice('chatInput'); const b=document.getElementById('micBtn'); if(b) b.classList.toggle('rec'); }
 function showPaywall(){
   document.getElementById('chatBar').style.display='none';
   document.getElementById('chatStream').innerHTML=`
@@ -1250,7 +1250,7 @@ function openClassPage(k){
   uni.classList.add('open');
   document.getElementById('uniTitle').textContent='📚 '+lvl;
   const exk=examForClass(k);
-  const eb=exk?`<div class="exam-banner exam-banner-${exk}" onclick="openExamAEFE('${exk}')"><span class="exam-banner-ic">${EXAM_AEFE[exk].ico}</span><div class="exam-banner-txt"><strong>Tu prépares le ${EXAM_AEFE[exk].name} cette année</strong><span>Ton espace examen dédié : compte à rebours, épreuves coefficientées, annales et protocole J-7.</span></div><span class="exam-banner-go">Mon espace ${EXAM_AEFE[exk].name} →</span></div>`:'';
+  const eb=exk?`<div class="exam-banner exam-banner-${exk}" onclick="openExamAEFE('${exk}')"><span class="exam-banner-ic">${EXAM_AEFE[exk].ico}</span><div class="exam-banner-txt"><strong>Tu prépares le ${EXAM_AEFE[exk].name} cette année</strong><span>Ton espace examen dédié : compte à rebours, épreuves coefficientées et protocole J-7.</span></div><span class="exam-banner-go">Mon espace ${EXAM_AEFE[exk].name} →</span></div>`:'';
   document.getElementById('universeBody').innerHTML=`
     <div class="class-hero"><div class="class-hero-logo">${eliLogo(58)}</div><h2 class="class-h2">${lvl}</h2><p class="class-sub">Voici toutes tes matières. Choisis-en une pour voir ta progression et travailler avec Éli.</p></div>
     ${eb}
@@ -1359,12 +1359,12 @@ const EXAM_AEFE={
     hero:"L'examen de fin de collège. Éli t'entraîne sur les épreuves et soigne ton contrôle continu.",
     epreuves:[['Français',100,'orange'],['Mathématiques',100,'rouge'],['Sciences (PC · SVT · Techno)',50,'vert'],['Histoire-Géo · EMC',50,'orange'],['Oral du Brevet',100,'vert']],
     note:"Le contrôle continu compte pour 400 points sur 800. Éli suit aussi ta moyenne de l'année.",
-    protocole:['J-7 : fiches des repères Histoire-Géo','J-5 : annales de Maths','J-3 : épreuve blanche de Français','J-2 : préparation de l\'oral','Jour J : relis bien chaque consigne']},
+    protocole:['J-7 : fiches des repères Histoire-Géo','J-5 : épreuve blanche de Maths','J-3 : épreuve blanche de Français','J-2 : préparation de l\'oral','Jour J : relis bien chaque consigne']},
   bac:{ico:'🎓',name:'Bac',full:'Baccalauréat général',theme:'bac',jdays:80,date:'Juin 2026',
     hero:"L'aboutissement du lycée. Éli adapte tout à tes spécialités, au Grand Oral et à la philo.",
     epreuves:[['Spécialité 1',16,'orange'],['Spécialité 2',16,'rouge'],['Philosophie',8,'vert'],['Grand Oral',10,'orange'],['Français (anticipé · 1re)',10,'vert']],
     note:"Le contrôle continu représente 40 % de la note finale. Éli pilote aussi tes moyennes.",
-    protocole:['J-7 : sujets probables de tes spécialités','J-5 : annales corrigées','J-3 : épreuve blanche chronométrée','J-2 : Grand Oral à blanc','Jour J : méthode et gestion du temps']},
+    protocole:['J-7 : sujets probables de tes spécialités','J-5 : épreuves blanches corrigées','J-3 : épreuve blanche chronométrée','J-2 : Grand Oral à blanc','Jour J : méthode et gestion du temps']},
 };
 function openExamAEFE(k){
   const e=EXAM_AEFE[k];closeAll();const uni=document.getElementById('universe');uni.classList.add('open');
@@ -1385,7 +1385,7 @@ function openExamAEFE(k){
       <div class="examdash-card"><div class="prog-title">🗓️ Mon protocole J-7</div>
         ${e.protocole.map((p,idx)=>`<div class="proto-step"><span class="proto-n">${idx+1}</span><span class="proto-t">${p}</span></div>`).join('')}
       </div>
-      <div class="subjdash-chat" onclick="openChatContext('${e.name}','')"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Je suis ton coach ${e.name}</strong><span>10 ans d'annales, épreuves blanches et suivi du contrôle continu jusqu'au jour J.</span></div><button class="class-chat-btn" onclick="event.stopPropagation();openChatContext('${e.name}','')">Parler à Éli →</button></div>
+      <div class="subjdash-chat" onclick="openChatContext('${e.name}','')"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Je suis ton coach ${e.name}</strong><span>Épreuves composées par Éli, épreuves blanches et suivi jusqu'au jour J.</span></div><button class="class-chat-btn" onclick="event.stopPropagation();openChatContext('${e.name}','')">Parler à Éli →</button></div>
     </div>`;
   uni.scrollTop=0;
 }

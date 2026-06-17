@@ -372,10 +372,13 @@
   window.saveResource = async () => {
     if (!lastOutput.trim()) return;
     const sb = await getSb();
+    const { data: u } = await sb.auth.getUser();
+    const uid = (u && u.user) ? u.user.id : null;
     const title = ($('dSubject').value.trim() || 'Matière') + ' — ' + ($('dNotion').value.trim() || KIND);
+    const summary = lastOutput.replace(/[\s#*`>_\-]+/g, ' ').trim().slice(0, 180);
     const { error } = await sb.from('teacher_resources').insert({
-      program: PROGRAM, class_key: $('dClass').value.trim() || null, subject: $('dSubject').value.trim() || null,
-      notion: $('dNotion').value.trim() || null, kind: KIND, title, content: lastOutput,
+      teacher_id: uid, program: PROGRAM, class_key: $('dClass').value.trim() || null, subject: $('dSubject').value.trim() || null,
+      notion: $('dNotion').value.trim() || null, kind: KIND, title, content: lastOutput, summary,
     });
     if (!error){ $('saveBtn').textContent = 'Enregistré ✓'; setTimeout(() => { $('saveBtn').textContent = 'Enregistrer'; }, 1800); loadResources(); }
   };
@@ -498,13 +501,39 @@
   async function loadResources(){
     try{
       const sb = await getSb();
-      const { data } = await sb.from('teacher_resources').select('title, kind, created_at').order('created_at', { ascending:false }).limit(30);
+      const { data } = await sb.from('teacher_resources')
+        .select('id, program, class_key, title, kind, subject, notion, summary, content, created_at')
+        .order('created_at', { ascending:false }).limit(60);
       const box = $('reslist');
       if (!data || !data.length){ box.innerHTML = '<p class="who">Aucune ressource enregistrée pour l\'instant.</p>'; return; }
       const KL = { fiche:'Fiche de cours', controle:'Contrôle + corrigé', diapos:'Diapositives', progression:'Progression' };
-      box.innerHTML = data.map(r => '<div class="resitem"><div class="t">' + (r.title || 'Sans titre').replace(/</g,'&lt;') +
-        '</div><div class="m">' + (KL[r.kind] || r.kind) + ' · ' + new Date(r.created_at).toLocaleDateString('fr-FR') + '</div></div>').join('');
+      box.innerHTML = '';
+      data.forEach(r => {
+        const el = document.createElement('div'); el.className = 'resitem';
+        el.innerHTML =
+          '<div class="t">' + (r.title || 'Sans titre').replace(/</g,'&lt;') + '</div>' +
+          '<div class="m">' + (KL[r.kind] || r.kind) + (r.subject ? (' · ' + r.subject) : '') + ' · ' + new Date(r.created_at).toLocaleDateString('fr-FR') + '</div>' +
+          (r.summary ? ('<div class="rsum" style="font-size:12.5px;opacity:.8;line-height:1.45;margin-top:6px">' + r.summary.replace(/</g,'&lt;') + '…</div>') : '') +
+          '<button class="ghost rdl" style="width:auto;margin:8px 0 0;padding:0 14px">📄 Régénérer le PDF</button>';
+        el.querySelector('.rdl').onclick = function(){ regenPdf(r, this); };
+        box.appendChild(el);
+      });
     } catch(e){ $('reslist').innerHTML = '<p class="who">—</p>'; }
+  }
+  // Régénère le PDF d'une ressource sauvegardée (accès même longtemps après). N'enregistre pas de doublon.
+  async function regenPdf(r, btn){
+    if (!r || !r.content){ return; }
+    const old = btn.textContent; btn.disabled = true; btn.textContent = '⏳ Préparation…';
+    try{
+      const res = await authedFetch('/api/teacher/pdf', { method:'POST', body: JSON.stringify({
+        program: r.program || PROGRAM, classKey: r.class_key || '', serie: null,
+        subject: r.subject || null, notion: r.notion || null, kind: r.kind || 'fiche', markdown: r.content || ''
+      }) });
+      const j = await res.json().catch(() => null);
+      if (j && j.signedUrl){ window.open(j.signedUrl, '_blank', 'noopener'); btn.textContent = old; }
+      else { btn.textContent = '⚠️ Réessayer'; }
+    } catch(e){ btn.textContent = '⚠️ Réessayer'; }
+    btn.disabled = false;
   }
 
   function openDashboard(profile){

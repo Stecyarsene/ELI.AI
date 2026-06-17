@@ -134,8 +134,9 @@
       .replace(/\[BILAN\][\s\S]*?\[\/BILAN\]/gi, '')          // blocs complets
       .replace(/\[FICHE\][\s\S]*?\[\/FICHE\]/gi, '')
       .replace(/\[DEVOIR\][\s\S]*?\[\/DEVOIR\]/gi, '')
+      .replace(/\[RAPPORT\][\s\S]*?\[\/RAPPORT\]/gi, '')
       .replace(/\[\/?VOIX\]/gi, '')                            // balises voix (ouvrante/fermante)
-      .replace(/\[(?:BILAN|FICHE|DEVOIR)\][\s\S]*$/i, '')      // bloc technique ouvert, pas encore fermé (stream)
+      .replace(/\[(?:BILAN|FICHE|DEVOIR|RAPPORT)\][\s\S]*$/i, '')      // bloc technique ouvert, pas encore fermé (stream)
       .replace(/\[\/?[A-Z]{0,6}$/, '')                          // tag technique PARTIEL en fin de flux ([VOI, [BIL, [/VOIX…)
       .replace(/[ \t]+\n/g, '\n')
       .trim();
@@ -210,6 +211,14 @@
     if (mdv) {
       try { var dj = JSON.parse(mdv[1].trim()); if (!dj.subject && subj) dj.subject = subj; renderDevoirCard(dj); } catch (e) {}
       text = text.replace(devRe, '');
+    }
+
+    // [RAPPORT] : restitution de fin de session d'un pilier -> rapport visuel Vert/Orange/Rouge + PDF ciblé.
+    var rapRe = /\[RAPPORT\]([\s\S]*?)\[\/RAPPORT\]/i;
+    var mrp = text.match(rapRe);
+    if (mrp) {
+      try { var rj = JSON.parse(mrp[1].trim()); if (!rj.subject && subj) rj.subject = subj; renderRapportCard(rj); } catch (e) {}
+      text = text.replace(rapRe, '');
     }
     return text.trim();
   }
@@ -291,6 +300,45 @@
       res.appendChild(cb);
     }
     var stream = document.getElementById('chatStream'); if (stream) stream.scrollTop = stream.scrollHeight;
+  }
+
+  /* Rapport de fin de session d'un pilier (canevas réutilisable) : restitution visuelle
+     Vert/Orange/Rouge style Espace Enseignant + PDF de plan de travail ciblé. */
+  function renderRapportCard(r) {
+    r = r || {};
+    var stream = document.getElementById('chatStream'); if (!stream) return;
+    var titre = String(r.titre || r.title || 'Ton rapport');
+    function block(label, arr, color, bg) {
+      var items = (Array.isArray(arr) ? arr : []).filter(Boolean);
+      if (!items.length) return '';
+      return '<div style="margin-top:10px;padding:11px 13px;border-radius:12px;background:' + bg + ';border-left:3px solid ' + color + '">' +
+        '<div style="font-weight:700;font-size:13px;color:' + color + '">' + label + '</div>' +
+        items.map(function (x) { return '<div style="font-size:13px;opacity:.92;margin-top:4px">• ' + String(x).replace(/</g, '&lt;') + '</div>'; }).join('') + '</div>';
+    }
+    var card = document.createElement('div');
+    card.className = 'eli-rapport-card';
+    card.style.cssText = 'margin:12px 0;padding:18px;border-radius:18px;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,rgba(0,194,113,.08),rgba(2,8,6,.10))';
+    card.innerHTML =
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="font-size:20px">📊</span>' +
+      '<div><div style="font-weight:800;font-size:16px">Ton rapport</div><div style="opacity:.75;font-size:12.5px">' + titre.replace(/</g, '&lt;') + '</div></div></div>' +
+      block('🟢 Acquis', r.vert, '#34D399', 'rgba(52,211,153,.08)') +
+      block('🟠 À consolider', r.orange, '#F5B544', 'rgba(245,181,68,.08)') +
+      block('🔴 Priorités à retravailler', r.rouge, '#FF6B6B', 'rgba(255,107,107,.08)') +
+      ((Array.isArray(r.plan) && r.plan.length) ? block('🎯 Ton plan de travail', r.plan, '#00C271', 'rgba(0,194,113,.07)') : '') +
+      ((Array.isArray(r.conseils) && r.conseils.length) ? block('💡 Garder le rythme', r.conseils, '#7FB3FF', 'rgba(127,179,255,.08)') : '') +
+      '<button class="eli-rap-pdf" style="margin-top:14px;width:100%;padding:13px;border:none;border-radius:12px;cursor:pointer;font-family:inherit;font-weight:800;font-size:14px;background:#F5B544;color:#04140D">📄 Télécharger mon plan de travail (PDF)</button>';
+    stream.appendChild(card); stream.scrollTop = stream.scrollHeight;
+
+    var btn = card.querySelector('.eli-rap-pdf');
+    btn.onclick = function () {
+      var sections = [];
+      if (Array.isArray(r.vert) && r.vert.length) sections.push({ heading: 'Ce qui est acquis', items: r.vert.map(String) });
+      if (Array.isArray(r.orange) && r.orange.length) sections.push({ heading: 'À consolider', items: r.orange.map(String) });
+      if (Array.isArray(r.rouge) && r.rouge.length) sections.push({ heading: 'Priorités à retravailler', items: r.rouge.map(String) });
+      if (Array.isArray(r.plan) && r.plan.length) sections.push({ heading: 'Plan de travail ciblé', items: r.plan.map(String) });
+      if (Array.isArray(r.conseils) && r.conseils.length) sections.push({ heading: 'Pour garder le rythme', items: r.conseils.map(String) });
+      eliDownloadPdf({ title: titre, subject: (r.subject || r.pilier || 'Rapport'), intro: 'Ton plan de travail personnalisé, établi par Éli à partir de cette session.', sections: sections }, 'mon-plan.pdf', btn);
+    };
   }
 
   function splitVoice(full) {
@@ -487,7 +535,7 @@
             if (sseBuf) { sseBuf += '\n'; consume(); }
             var full = plain || '…';
             if (authed) full = processBlocks(full, (payload && payload.focusSubject) || window.__eliFocusSubject__);
-            else full = full.replace(/\[BILAN\][\s\S]*?\[\/BILAN\]/i, '').replace(/\[FICHE\][\s\S]*?\[\/FICHE\]/i, '').replace(/\[DEVOIR\][\s\S]*?\[\/DEVOIR\]/i, '');
+            else full = full.replace(/\[BILAN\][\s\S]*?\[\/BILAN\]/i, '').replace(/\[FICHE\][\s\S]*?\[\/FICHE\]/i, '').replace(/\[DEVOIR\][\s\S]*?\[\/DEVOIR\]/i, '').replace(/\[RAPPORT\][\s\S]*?\[\/RAPPORT\]/i, '');
             var parts = splitVoice(full);
             var hasVoiceTag = /\[VOIX\]/i.test(full);
             var body = (parts.written && parts.written !== parts.speech) ? parts.written : '';
@@ -1101,6 +1149,71 @@
     ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
     document.body.appendChild(ov);
   }
+  /* ───────── VOIX UNIVERSELLE (PASSE 2) : parler partout ─────────
+     Enregistre le micro, transcrit via Gemini (tolérant à la diction des 4-6 ans), pose le texte
+     dans le champ de saisie. Repli sur la reconnaissance du navigateur si l'enregistrement échoue. */
+  var __eliRec = null, __eliChunks = [], __eliRecOn = false;
+  function eliVoiceUI(on, mode) {
+    __eliRecOn = !!on;
+    var mics = document.querySelectorAll('.chat-mic, .dock-mic, .chat-mic-big, [data-eli-mic]');
+    for (var i = 0; i < mics.length; i++) {
+      mics[i].classList.toggle('recording', !!on); mics[i].classList.toggle('rec', !!on);
+      mics[i].setAttribute('title', on ? (mode === 'transcribe' ? 'Transcription…' : 'À l\'écoute… (touche pour arrêter)') : 'Parler à Éli');
+    }
+    var hint = document.getElementById('eliVoiceHint');
+    if (on && !hint) {
+      hint = document.createElement('div'); hint.id = 'eliVoiceHint';
+      hint.style.cssText = 'position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:10002;background:#0B3D2E;color:#fff;font-family:inherit;font-size:13px;font-weight:700;padding:9px 16px;border-radius:999px;box-shadow:0 12px 36px rgba(0,0,0,.32)';
+      document.body.appendChild(hint);
+    }
+    if (hint) { if (on) hint.textContent = (mode === 'transcribe' ? '✍️ Je transcris…' : '🎙️ Parle, je t\'écoute…'); else { hint.remove(); } }
+  }
+  function eliBrowserSTT(inputId) {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { eliShowCanalToast && eliShowCanalToast('Le micro n\'est pas disponible sur ce navigateur.'); return; }
+    try {
+      var rec = new SR(); rec.lang = 'fr-FR'; rec.interimResults = false; rec.maxAlternatives = 1;
+      eliVoiceUI(true);
+      rec.onresult = function (e) { var t = (e.results[0] && e.results[0][0] && e.results[0][0].transcript) || ''; var inp = document.getElementById(inputId); if (inp && t) { inp.value = (inp.value ? inp.value + ' ' : '') + t; inp.focus(); } };
+      rec.onerror = function () { eliVoiceUI(false); };
+      rec.onend = function () { eliVoiceUI(false); };
+      rec.start();
+    } catch (e) { eliVoiceUI(false); }
+  }
+  window.eliToggleVoice = function (inputId) {
+    inputId = inputId || 'chatInput';
+    if (__eliRecOn && __eliRec) { try { __eliRec.stop(); } catch (e) {} return; }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) { return eliBrowserSTT(inputId); }
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+      __eliChunks = [];
+      var mr; try { mr = new MediaRecorder(stream); } catch (e) { stream.getTracks().forEach(function (t) { t.stop(); }); return eliBrowserSTT(inputId); }
+      __eliRec = mr; eliVoiceUI(true);
+      mr.ondataavailable = function (e) { if (e.data && e.data.size) __eliChunks.push(e.data); };
+      mr.onstop = function () {
+        try { stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
+        var blob = new Blob(__eliChunks, { type: (mr.mimeType || 'audio/webm') });
+        if (!blob.size) { eliVoiceUI(false); return; }
+        eliVoiceUI(true, 'transcribe');
+        var rd = new FileReader();
+        rd.onload = function () {
+          authedFetch('/api/ai/transcribe', { method: 'POST', body: JSON.stringify({ audioBase64: String(rd.result), mime: blob.type }) })
+            .then(function (r) { return r.json(); })
+            .then(function (j) {
+              eliVoiceUI(false);
+              var t = (j && j.text ? String(j.text) : '').trim();
+              if (!t) { eliShowCanalToast && eliShowCanalToast('Je n\'ai pas bien entendu, réessaie 🙂'); return; }
+              var inp = document.getElementById(inputId);
+              if (inp) { inp.value = (inp.value ? inp.value + ' ' : '') + t; inp.focus(); inp.dispatchEvent(new Event('input', { bubbles: true })); }
+            })
+            .catch(function () { eliVoiceUI(false); });
+        };
+        rd.readAsDataURL(blob);
+      };
+      mr.start();
+      setTimeout(function () { if (__eliRecOn && __eliRec) { try { __eliRec.stop(); } catch (e) {} } }, 15000); // garde-fou 15 s
+    }).catch(function () { eliBrowserSTT(inputId); });
+  };
+
   window.eliCrossCanal = eliCrossCanal; window.eliCelebrateSignup = eliCelebrateSignup;
 
   /* ───────── Présence WhatsApp permanente + invitation web ─────────

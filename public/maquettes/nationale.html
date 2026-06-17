@@ -841,7 +841,7 @@ body.bougie .universe{background:#10161C}
       <button class="nav-link nav-wa" onclick="scrollToSec('whatsapp')">💬 WhatsApp</button>
     </div>
     <div class="nav-actions">
-      <button class="theme-toggle" id="themeToggle" title="Mode Bougie" onclick="toggleBougie()">🌙</button>
+      <!-- (toggle Mode Bougie retiré de l'accueil : il surchargeait l'écran ; le mode lite reste activable programmatiquement) -->
       <button class="nav-signup" onclick="openSignup()">S'inscrire</button>
       <button class="nav-burger" onclick="openMobileMenu()"><span></span><span></span><span></span></button>
     </div>
@@ -945,7 +945,7 @@ body.bougie .universe{background:#10161C}
   <section class="section" id="examens">
     <div class="section-title-row"><div class="section-title-wrap"><span>✦</span><span class="section-label" style="margin:0;color:var(--gold-bright)">Réussis tes examens</span><span>✦</span></div></div>
     <div class="section-title-row"><h2 class="section-title">Les <em>trois grands rendez-vous</em></h2></div>
-    <p class="section-desc">CEP, BEPC, BAC : clique sur ton examen, Éli déploie son dispositif complet et 10 ans d'annales.</p>
+    <p class="section-desc">CEP, BEPC, BAC : clique sur ton examen, Éli déploie son dispositif complet et compose tes épreuves sur mesure.</p>
     <div class="bigexams-grid" id="bigExamsGrid"></div>
   </section>
 
@@ -1002,7 +1002,7 @@ body.bougie .universe{background:#10161C}
   <div class="dock">
     <div class="dock-inner" onclick="openChat()">
       <input class="dock-input" placeholder="Pose ta question à Éli, ou appuie sur le micro…" readonly />
-      <button class="dock-mic" aria-label="Parler"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" fill="#34D399"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4M8 22h8" stroke="#34D399" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
+      <button class="dock-mic" aria-label="Parler" onclick="toggleRec()"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" fill="#34D399"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4M8 22h8" stroke="#34D399" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
       <button class="dock-send" aria-label="Envoyer"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="#020806" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button>
     </div>
   </div>
@@ -1255,7 +1255,7 @@ const LOGO_MOOV="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST
 /* ═══ DONNÉES PILIERS ═══ */
 const PILLARS=[
   {ico:'🎙️',name:'Simulateur Oral',color:'rgba(0,194,113,.15)',border:'rgba(0,194,113,.3)',role:"Entraîne-toi à l'oral comme le jour J. Éli joue le rôle de l'examinateur, te pose des questions et t'aide à gagner en assurance, à structurer tes réponses et à dompter ton stress."},
-  {ico:'⚡',name:'Prédicteur',color:'rgba(245,181,68,.15)',border:'rgba(245,181,68,.3)',role:"Éli analyse dix années d'annales pour repérer les sujets qui tombent le plus souvent. Tu révises l'essentiel en priorité, sans perdre de temps sur ce qui compte le moins."},
+  {ico:'⚡',name:'Prédicteur',color:'rgba(245,181,68,.15)',border:'rgba(245,181,68,.3)',role:"Éli analyse notre base de sujets d'examens pour repérer ce qui tombe le plus souvent. Tu révises l'essentiel en priorité, sans perdre de temps sur ce qui compte le moins."},
   {ico:'📸',name:'Analyse Brouillon',color:'rgba(52,211,153,.15)',border:'rgba(52,211,153,.3)',role:"Photographie ta copie ou ton brouillon : Éli le lit, repère tes erreurs et te montre exactement où tu perds des points, avec des conseils clairs pour corriger."},
   {ico:'📷',name:'Scanner Tableau',color:'rgba(0,168,107,.15)',border:'rgba(0,168,107,.3)',role:"Prends le tableau en photo en classe. Éli le transforme aussitôt en fiche de révision propre, organisée et prête à apprendre, même si ton écriture est rapide."},
   {ico:'📚',name:'Fiches & Quiz',color:'rgba(0,194,113,.15)',border:'rgba(0,194,113,.3)',role:"Des fiches claires et des quiz qui s'adaptent à ton niveau. Plus tu te trompes sur une notion, plus Éli te la fait travailler jusqu'à ce que ce soit acquis."},
@@ -1286,9 +1286,9 @@ const EXAMS={
   college:{ico:'📐',name:'Collège',sub:'6ème → 3ème · vers le BEPC',intro:"De la 6ème au BEPC, Éli accompagne chaque matière et prépare le passage au lycée.",classes:[
     {n:'6ème · 5ème',d:"Transition en douceur : méthodes de travail, organisation et soutien dans toutes les matières."},
     {n:'4ème',d:"Approfondissement : maths, sciences, langues — Éli cible les difficultés une par une."},
-    {n:'3ème',d:"Préparation complète au BEPC : annales, oraux blancs et révisions ciblées."},
+    {n:'3ème',d:"Préparation complète au BEPC : épreuves composées, oraux blancs et révisions ciblées."},
   ],tools:[
-    {i:'⚡',n:'Prédicteur',d:"les sujets de BEPC les plus probables, 10 ans d'annales analysées"},
+    {i:'⚡',n:'Prédicteur',d:"les sujets de BEPC les plus probables, composés par Éli"},
     {i:'📸',n:'Analyse Brouillon',d:"photographie ta copie, Éli repère où tu perds des points"},
     {i:'🔴',n:'Protocole J-7',d:"les 7 derniers jours avant le BEPC en mode survie tactique"},
     {i:'📷',n:'Scanner Tableau',d:"le cours du tableau transformé en fiche claire"},
@@ -1630,10 +1630,6 @@ function openBigExam(k){
     <div class="panel-title">${e.name}</div>
     <p class="panel-text" style="color:var(--gold-bright);font-family:var(--fmono);font-size:12px;letter-spacing:.1em">${e.full} · ${e.level}</p>
     <p class="panel-text">${e.desc}</p>
-    <div class="panel-annales">
-      <div class="panel-annales-ic">🗄️</div>
-      <div><strong>10 ans d'annales officielles.</strong> ${e.annales}</div>
-    </div>
     <div class="bigexam-disp">
       <div class="bigexam-disp-item"><span>📋</span><div><strong>Fiches de révision</strong><br>${e.fiches}</div></div>
       <div class="bigexam-disp-item"><span>⚠️</span><div><strong>Les pièges à éviter</strong><br>${e.pieges}</div></div>
@@ -1679,7 +1675,7 @@ function pillarExtra(name){
   if(name==='Protocole J-7'){
     const days=[
       ['J-7','Diagnostic & plan','On repère tes zones rouges et les matières à fort coefficient. Éli construit ton planning sur mesure des 7 jours.'],
-      ['J-6','Priorité n°1','Matière la plus à risque : cours essentiel + 2 annales ciblées. Une fiche par notion clé.'],
+      ['J-6','Priorité n°1','Matière la plus à risque : cours essentiel + 2 épreuves ciblées. Une fiche par notion clé.'],
       ['J-5','Priorité n°2','Deuxième matière critique : mêmes principes, entraînement guidé sur les notions qui reviennent.'],
       ['J-4','Priorité n°3 + fiches','Troisième matière + révision active des fiches J-6/J-5 (quiz, par cœur utile).'],
       ['J-3','Sujets probables','Entraînement chronométré sur les sujets les plus probables (Prédicteur). Conditions réelles.'],
@@ -1701,7 +1697,7 @@ function pillarExtra(name){
     const cards=ex.map(e=>`<div style="padding:12px 14px;border-radius:13px;background:rgba(245,181,68,.08);border:1px solid rgba(245,181,68,.22);margin-bottom:9px"><div style="font-weight:700;font-size:14px;color:var(--gold-bright);margin-bottom:3px">${e[0]}</div><div style="font-size:12.5px;color:var(--faint);line-height:1.45">${e[1]}</div></div>`).join('');
     return `<div style="margin:16px 0">
       <div style="font-weight:700;margin-bottom:6px">⚡ Tes sujets probables</div>
-      <div style="font-size:12.5px;color:var(--faint);line-height:1.5;margin-bottom:12px">Éli croise dix ans d'annales avec ton programme pour cibler ce qui tombe le plus souvent. Voici les axes prioritaires — Éli les <strong>personnalise selon ta série et tes zones rouges</strong> dès que tu lui parles.</div>
+      <div style="font-size:12.5px;color:var(--faint);line-height:1.5;margin-bottom:12px">Éli croise notre base de sujets d'examens avec ton programme pour cibler ce qui tombe le plus souvent. Voici les axes prioritaires — Éli les <strong>personnalise selon ta série et tes zones rouges</strong> dès que tu lui parles.</div>
       ${cards}</div>`;
   }
   return '';
@@ -1728,10 +1724,6 @@ function openExam(key){
     <div class="panel-title">${e.name}</div>
     <p class="panel-text" style="color:var(--gold-bright);font-family:var(--fmono);font-size:12px;letter-spacing:.1em">${e.sub}</p>
     <p class="panel-text">${e.intro}</p>
-    <div class="panel-annales">
-      <div class="panel-annales-ic">🗄️</div>
-      <div><strong>10 ans d'annales à portée de voix.</strong> Éli puise dans une base de données des examens officiels des dix dernières années — toutes matières, tous sujets confondus. Il repère ce qui revient le plus souvent et t'entraîne en priorité dessus.</div>
-    </div>
     <h4 class="panel-h4">Choisis ta classe pour commencer</h4>
     <div class="panel-classes">${cls}</div>
     <h4 class="panel-h4">Les outils qu'Éli déploie pour toi</h4>
@@ -1772,7 +1764,7 @@ function resetChatWelcome(){
       <div class="chat-mic-label">Appuie et parle</div>
     </div>`;
 }
-function micWelcome(){document.getElementById('chatInput').focus();}
+function micWelcome(){ const i=document.getElementById('chatInput'); if(i) i.focus(); if(window.eliToggleVoice) window.eliToggleVoice('chatInput'); }
 function pushMsg(txt,who){
   const s=document.getElementById('chatStream');
   const w=s.querySelector('.chat-welcome');if(w)w.remove();
@@ -1792,10 +1784,9 @@ function sendChat(){
   }
 }
 function toggleRec(){
-  const b=document.getElementById('chatMicBtn');b.classList.toggle('recording');
-  if(b.classList.contains('recording')){
-    setTimeout(()=>{b.classList.remove('recording');document.getElementById('chatInput').value="Comment réussir mon examen ?";},1500);
-  }
+  // Capture vocale réelle (transcription tolérante à la diction des jeunes enfants).
+  if (window.eliToggleVoice) return window.eliToggleVoice('chatInput');
+  const b=document.getElementById('chatMicBtn'); if(b) b.classList.toggle('recording');
 }
 function showPaywall(){
   document.getElementById('chatInputBar').style.display='none';
@@ -2216,9 +2207,12 @@ function openChatContext(classKey,subject){
     else{pushMsg(`Salut ! Je suis Éli, ton professeur pour la classe de ${classKey}. Tu veux réviser une matière, t'organiser, ou que je te propose par où commencer aujourd'hui ?`,'eli');}
   },320);
 }
+/* Correspondance pilier (UI) -> rôle incarné par Éli (master prompt). */
+const PILLAR_KEY={'Simulateur Oral':'oral','Prédicteur':'examen','Analyse Brouillon':'exercices','Scanner Tableau':'cours','Fiches & Quiz':'revision','Protocole J-7':'examen','Mon Avenir':'avenir','Mode Bougie':'aide'};
 function openToolChat(name,intro){
   openChat();
-  setTimeout(()=>{const s=document.getElementById('chatStream');s.innerHTML='';pushMsg(intro||`Je suis Éli. On va travailler avec « ${name} ». Dis-moi ce dont tu as besoin et on s'y met.`,'eli');},320);
+  window.__eliPillar__ = PILLAR_KEY[name] || '';   // Éli bascule dans le registre exact du pilier
+  setTimeout(()=>{const s=document.getElementById('chatStream'); if(s){ s.innerHTML=''; pushMsg(intro||("Je suis Éli, on va travailler « "+name+" » ensemble. Dis-moi ce dont tu as besoin et on s'y met."),'eli'); }},320);
 }
 
 /* Séries techniques : suivi d'examen pour les classes d'examen (3ème → BEPC, Terminale → Bac technique) */
@@ -2226,7 +2220,7 @@ function openTechClass(cycleKey,sName,level){
   const subs=TECH[cycleKey].series[sName]||[];CURRENT_CLASS=sName+' · '+level;
   document.getElementById('uniTitle').textContent='🛠️ '+sName+' · '+level;
   const exk=(level==='3ème')?'bepc':(level==='Terminale')?'bac':'';
-  const eb=exk?`<div class="exam-banner exam-banner-${exk}" onclick="openExamDash('${exk}')"><span class="exam-banner-ic">${EXAM_DASH[exk].ico}</span><div class="exam-banner-txt"><strong>Filière technique — tu prépares le ${EXAM_DASH[exk].name}</strong><span>Ton espace examen dédié, adapté à ta série : compte à rebours, épreuves, annales et protocole J-7.</span></div><span class="exam-banner-go">Mon espace ${EXAM_DASH[exk].name} →</span></div>`:'';
+  const eb=exk?`<div class="exam-banner exam-banner-${exk}" onclick="openExamDash('${exk}')"><span class="exam-banner-ic">${EXAM_DASH[exk].ico}</span><div class="exam-banner-txt"><strong>Filière technique — tu prépares le ${EXAM_DASH[exk].name}</strong><span>Ton espace examen dédié, adapté à ta série : compte à rebours, épreuves et protocole J-7.</span></div><span class="exam-banner-go">Mon espace ${EXAM_DASH[exk].name} →</span></div>`:'';
   document.getElementById('universeBody').innerHTML=`
     <div class="class-hero"><div class="class-hero-logo">${eliLogo(54)}</div><h2 class="class-h2" style="font-size:clamp(22px,4vw,30px)">${sName}</h2><p class="class-sub"><strong style="color:#F5B544">${level}</strong> — voici toutes tes matières, tronc commun et spécialités. Choisis-en une pour travailler avec Éli.</p></div>
     ${eb}
@@ -2239,7 +2233,7 @@ function openTechClass(cycleKey,sName,level){
 /* Chaque pilier (outil Éli) a son propre dashboard plein écran + le chat plus bas */
 const PDASH=[
   {hero:'oral',cta:'🎤 Lancer une simulation',sim:true,steps:[['Présente ton sujet','Tu exposes ta question ou ton thème ; Éli se met dans la peau de l\'examinateur.'],['Éli te questionne','Il te pose de vraies questions, te relance et te pousse à argumenter clairement.'],['Bilan complet','Structure, débit, posture, gestion du stress : Éli te dit précisément quoi améliorer.']]},
-  {hero:'',cta:'⚡ Voir les sujets probables',steps:[['10 ans d\'annales analysées','Éli épluche une décennie de sujets officiels pour repérer ce qui revient.'],['Probabilité par chapitre','Tu vois quels chapitres tombent le plus souvent à ton examen.'],['Révise l\'essentiel d\'abord','Tu concentres ton énergie sur ce qui rapporte le plus de points.']]},
+  {hero:'',cta:'⚡ Voir les sujets probables',steps:[['Base de sujets composée par Éli','Éli compose et analyse les sujets officiels pour repérer ce qui revient.'],['Probabilité par chapitre','Tu vois quels chapitres tombent le plus souvent à ton examen.'],['Révise l\'essentiel d\'abord','Tu concentres ton énergie sur ce qui rapporte le plus de points.']]},
   {hero:'',cta:'📸 Analyser ma copie',steps:[['Photographie ta copie','Prends ton brouillon ou ta copie en photo, même manuscrite.'],['Éli repère tes erreurs','Il lit, identifie les fautes et les points perdus, ligne par ligne.'],['Conseils ciblés','Tu sais exactement comment corriger et gagner des points la prochaine fois.']]},
   {hero:'',cta:'📷 Scanner un tableau',steps:[['Photographie le tableau','En classe, capture le tableau même si ton écriture est rapide.'],['Éli structure une fiche','Il transforme la photo en fiche de révision claire et organisée.'],['Révise proprement','Tu repars avec une fiche prête à apprendre, archivée par matière.']]},
   {hero:'',cta:'📚 Générer mes fiches',steps:[['Fiches claires par notion','Des fiches synthétiques adaptées à ton niveau et ton programme.'],['Quiz adaptatifs','Plus tu te trompes sur une notion, plus Éli te la fait travailler.'],['Répétition espacée','Éli revient sur tes erreurs au bon moment pour ancrer durablement.']]},
@@ -2271,7 +2265,6 @@ function openPillar(i){
         ${d.steps.map((st,idx)=>`<div class="proto-step"><span class="proto-n">${idx+1}</span><span class="proto-t"><b>${st[0]}</b> — ${st[1]}</span></div>`).join('')}
       </div>
       ${anbgCard}
-      <div class="subjdash-chat" onclick="openToolChat('${p.name.replace(/'/g,"\\'")}',${JSON.stringify(introMsg)})"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Parler à Éli — ${p.name}</strong><span>Pose-moi tes questions, je t'accompagne pas à pas.</span></div><button class="class-chat-btn" onclick="event.stopPropagation();openToolChat('${p.name.replace(/'/g,"\\'")}',${JSON.stringify(introMsg)})">Ouvrir →</button></div>
     </div>`;
   uni.scrollTop=0;
 }
@@ -2295,7 +2288,7 @@ function openClassPage(classKey){
   uni.className='universe open uni-class';
   document.getElementById('uniTitle').textContent='📚 '+classKey;
   const exk=examForClass(classKey);
-  const examBanner=exk?`<div class="exam-banner exam-banner-${exk}" onclick="openExamDash('${exk}')"><span class="exam-banner-ic">${EXAM_DASH[exk].ico}</span><div class="exam-banner-txt"><strong>Tu prépares le ${EXAM_DASH[exk].name} cette année</strong><span>Accède à ton espace examen dédié : compte à rebours, épreuves, annales et protocole J-7.</span></div><span class="exam-banner-go">Mon espace ${EXAM_DASH[exk].name} →</span></div>`:'';
+  const examBanner=exk?`<div class="exam-banner exam-banner-${exk}" onclick="openExamDash('${exk}')"><span class="exam-banner-ic">${EXAM_DASH[exk].ico}</span><div class="exam-banner-txt"><strong>Tu prépares le ${EXAM_DASH[exk].name} cette année</strong><span>Accède à ton espace examen dédié : compte à rebours, épreuves et protocole J-7.</span></div><span class="exam-banner-go">Mon espace ${EXAM_DASH[exk].name} →</span></div>`:'';
   body.innerHTML=`
     <div class="class-hero"><div class="class-hero-logo">${eliLogo(58)}</div><h2 class="class-h2">${classKey}</h2><p class="class-sub">Voici toutes tes matières. Choisis-en une pour voir ta progression et travailler avec Éli.</p></div>
     ${examBanner}
@@ -2394,11 +2387,11 @@ const EXAM_DASH={
   bepc:{ico:'📐',name:'BEPC',full:"Brevet d'Études du Premier Cycle",level:'3ème',theme:'bepc',jdays:60,date:'Juin 2026',
     hero:"La porte du lycée. Éli connaît tous les sujets et t'entraîne épreuve par épreuve.",
     epreuves:[['Mathématiques',4,'orange'],['Français',4,'vert'],['PCT (Physique-Chimie-Techno)',3,'rouge'],['SVT',3,'vert'],['Histoire-Géographie',2,'orange'],['Anglais',2,'vert']],
-    protocole:['J-7 : planning des 6 matières','J-5 : annales de Maths + PCT','J-3 : épreuve blanche complète','J-1 : fiches + repos','Jour J : gère ton temps par épreuve']},
+    protocole:['J-7 : planning des 6 matières','J-5 : épreuves blanches de Maths + PCT','J-3 : épreuve blanche complète','J-1 : fiches + repos','Jour J : gère ton temps par épreuve']},
   bac:{ico:'🎓',name:'BAC',full:'Baccalauréat',level:'Terminale',theme:'bac',jdays:90,date:'Juin 2026',
     hero:"Le grand saut. Éli adapte tout à ta série et vise l'excellence.",
     epreuves:[['Épreuve de spécialité 1',5,'orange'],['Épreuve de spécialité 2',5,'rouge'],['Philosophie',3,'vert'],['Français (anticipé)',2,'vert'],['Anglais (LV1)',2,'orange'],['Histoire-Géographie',2,'vert']],
-    protocole:['J-7 : sujets probables par matière','J-5 : annales de tes spécialités','J-3 : épreuve blanche chronométrée','J-1 : relecture ciblée + repos','Jour J : méthode et gestion du stress']},
+    protocole:['J-7 : sujets probables par matière','J-5 : épreuves blanches de tes spécialités','J-3 : épreuve blanche chronométrée','J-1 : relecture ciblée + repos','Jour J : méthode et gestion du stress']},
 };
 function openExamDash(k){
   const e=EXAM_DASH[k];closeAll();
@@ -2430,11 +2423,6 @@ function openExamDash(k){
           ${e.protocole.map((p,idx)=>`<div class="proto-step"><span class="proto-n">${idx+1}</span><span class="proto-t">${p}</span></div>`).join('')}
         </div>
       </div>
-      <div class="examdash-card examdash-annales">
-        <div class="examdash-annales-ic">🗄️</div>
-        <div class="examdash-annales-txt"><strong>10 ans d'annales officielles</strong><span>Sujets ${e.name} corrigés et expliqués pas à pas, avec prédiction des sujets probables.</span></div>
-        <button class="examdash-btn ghost small" onclick="openChatContext('${e.level} · ${e.name}','Annales ${e.name}')">Ouvrir les annales →</button>
-      </div>
       <div class="subjdash-chat" onclick="openChatContext('${e.level} · ${e.name}','')"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Je suis ton coach ${e.name}</strong><span>Pose-moi n'importe quelle question sur tes épreuves : je t'entraîne jusqu'au jour J.</span></div><button class="class-chat-btn" onclick="event.stopPropagation();openChatContext('${e.level} · ${e.name}','')">Parler à Éli →</button></div>
     </div>`;
   uni.scrollTop=0;
@@ -2456,15 +2444,6 @@ function examBlanche(k){
 
 
 /* ── v13.1 : correctif piliers (passage par index, pas de guillemets dans onclick) ── */
-function openToolChat(i){
-  const p=PILLARS[i]||{name:'Éli'};const d=PDASH[i]||{};
-  let intro;
-  if(d.sim) intro="Très bien, mettons-nous dans les conditions de l'oral. 🎤 Présente-moi ton sujet en une phrase, puis lance-toi : je joue l'examinateur et je te relance, puis je te fais un bilan.";
-  else if(d.anbg) intro="Parlons de ton avenir. 🌟 Dis-moi ta classe et ce qui t'intéresse : on bâtit ensemble ta filière, et je t'explique comment préparer ton dossier de bourse auprès de l'ANBG.";
-  else intro="Je suis Éli. On va utiliser « "+p.name+" » ensemble. Dis-moi ta classe et ta matière, et on s'y met.";
-  openChat();
-  setTimeout(()=>{const s=document.getElementById('chatStream');s.innerHTML='';pushMsg(intro,'eli');},320);
-}
 function openPillar(i){
   const p=PILLARS[i];const d=PDASH[i]||{steps:[],cta:'🎤 Travailler avec Éli'};
   closeAll();
