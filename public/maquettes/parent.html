@@ -305,13 +305,21 @@
       if (res.status === 403){ $('childView').innerHTML = '<div class="card pad empty">Accès non autorisé à cet enfant.</div>'; return; }
       const d = await res.json();
       const eng = d.engagement || {}, subjects = d.subjects || [], sessions = d.sessions || [];
+      const sum = d.summary || {};
+      // Source unique de vérité : listes consolidées et dédupliquées côté serveur
+      // (repli sur l'agrégat client si la RPC est antérieure) -> aucun risque de contradiction.
+      const strengths = d.strengths_top || flat(subjects, 'strengths');
+      const improvements = d.improvements_top || flat(subjects, 'improvements');
+      const redzones = d.red_zones_top || flat(subjects, 'red_zones');
       $('kpis').innerHTML =
         '<div class="kpi"><div class="l">Temps passé</div><div class="v">'+fmtMin(eng.total_minutes)+'</div></div>'+
         '<div class="kpi"><div class="l">Série en cours 🔥</div><div class="v">'+(eng.streak_current||0)+' j</div></div>'+
-        '<div class="kpi"><div class="l">Sessions</div><div class="v">'+(eng.total_sessions||0)+'</div></div>';
-      $('strengths').innerHTML = listOrEmpty(flat(subjects,'strengths'), 'Les points forts apparaîtront au fil des séances.');
-      $('improvements').innerHTML = listOrEmpty(flat(subjects,'improvements'), 'Rien à signaler pour le moment.');
-      $('redzones').innerHTML = listOrEmpty(flat(subjects,'red_zones'), 'Aucune difficulté majeure détectée. 🌱');
+        '<div class="kpi"><div class="l">Sessions</div><div class="v">'+(eng.total_sessions||0)+'</div></div>'+
+        '<div class="kpi"><div class="l">Matières suivies</div><div class="v">'+(sum.subjects_total||subjects.length||0)+'</div>'+
+          '<div class="who" style="margin-top:6px">'+(sum.vert||0)+' 🟢 · '+(sum.orange||0)+' 🟠 · '+(sum.rouge||0)+' 🔴</div></div>';
+      $('strengths').innerHTML = listOrEmpty(strengths, 'Les points forts apparaîtront au fil des séances.');
+      $('improvements').innerHTML = listOrEmpty(improvements, 'Rien à signaler pour le moment.');
+      $('redzones').innerHTML = listOrEmpty(redzones, 'Aucune difficulté majeure détectée. 🌱');
       $('subjects').innerHTML = subjects.length
         ? subjects.map(function(s){ return '<div class="subj"><span><strong>'+esc(s.subject)+'</strong><br><span class="empty">'+esc(s.last_chapter||'À commencer')+'</span></span>'+statusPill(s.status)+'</div>'; }).join('')
         : '<div class="empty">Aucune matière travaillée pour l\'instant.</div>';
@@ -349,5 +357,6 @@
   setMode('signup');
   boot();
 </script>
+  <script src="eli-wa.js"></script>
 </body>
 </html>

@@ -980,6 +980,40 @@
   }
   window.eliCrossCanal = eliCrossCanal; window.eliCelebrateSignup = eliCelebrateSignup;
 
+  /* ───────── Présence WhatsApp permanente + invitation web ─────────
+     Lanceur fixe, visible et adaptatif sur CHAQUE interface. En version web (canal 'site'),
+     il propose de continuer sur WhatsApp ET d'installer l'application ; en mode appli, il se
+     limite à WhatsApp. Ultra-défensif : ne double jamais, n'échoue jamais silencieusement. */
+  window.addEventListener('beforeinstallprompt', function (e) { try { e.preventDefault(); window.__eliDeferredInstall__ = e; } catch (x) {} });
+  function eliMountWaLauncher() {
+    try {
+      if (document.getElementById('eliWaFab') || !document.body) return;
+      var inApp = (typeof eliChannel === 'function' && eliChannel() === 'app');
+      var wrap = document.createElement('div');
+      wrap.id = 'eliWaFab';
+      wrap.style.cssText = 'position:fixed;left:18px;bottom:18px;z-index:10000;font-family:inherit';
+      var panel = document.createElement('div');
+      panel.style.cssText = 'display:none;margin-bottom:10px;background:#fff;border-radius:16px;box-shadow:0 18px 48px rgba(0,0,0,.22);padding:14px;max-width:248px';
+      var head = inApp ? '' : '<div style="font-size:12.5px;color:#5C6A60;margin:0 2px 10px;line-height:1.45">Retrouve Éli partout : sur WhatsApp et dans l\'application.</div>';
+      var waBtn = '<a href="' + eliWaLink('Salut Éli ! Je veux continuer sur WhatsApp 🌱') + '" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:#04140D;text-decoration:none;font-weight:800;padding:12px 13px;border-radius:12px;font-size:14px">💬 Continuer sur WhatsApp</a>';
+      var dlBtn = inApp ? '' : '<button id="eliInstallBtn" type="button" style="margin-top:9px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:#0B3D2E;color:#fff;border:none;cursor:pointer;font-family:inherit;font-weight:700;padding:12px 13px;border-radius:12px;font-size:14px">📲 Télécharger l\'application</button>';
+      panel.innerHTML = head + waBtn + dlBtn;
+      var fab = document.createElement('button');
+      fab.type = 'button'; fab.setAttribute('aria-label', 'Éli sur WhatsApp et application');
+      fab.style.cssText = 'display:flex;align-items:center;gap:8px;background:#25D366;color:#04140D;border:none;cursor:pointer;font-family:inherit;font-weight:800;padding:12px 16px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:14px';
+      fab.innerHTML = '💬 <span style="white-space:nowrap">Éli partout</span>';
+      fab.onclick = function () { panel.style.display = (panel.style.display === 'none' ? 'block' : 'none'); };
+      wrap.appendChild(panel); wrap.appendChild(fab); document.body.appendChild(wrap);
+      var ib = document.getElementById('eliInstallBtn');
+      if (ib) ib.onclick = function () {
+        var dp = window.__eliDeferredInstall__;
+        if (dp && dp.prompt) { try { dp.prompt(); } catch (e) {} }
+        else { eliShowCanalToast("Pour installer Éli : menu de ton navigateur → « Ajouter à l'écran d'accueil » 📲"); }
+      };
+    } catch (e) {}
+  }
+  window.eliMountWaLauncher = eliMountWaLauncher;
+
   /* ───────── Installation ───────── */
   function install() {
     if (typeof window.submitSignup === 'function') window.__origSubmitSignup__ = window.submitSignup;
@@ -1032,6 +1066,12 @@
   // Dates d'examens : charge le calendrier réel et rafraîchit les compte-à-rebours chaque jour.
   try { eliLoadExamDates(); setInterval(eliRefreshCountdowns, 60000); } catch (e) {}
   try { eliLoadWa(); } catch (e) {}
+  // Présence WhatsApp permanente + invitation web, sur chaque interface.
+  try {
+    var _mountWa = function () { try { eliMountWaLauncher(); } catch (e) {} };
+    if (document.body) setTimeout(_mountWa, 600);
+    else window.addEventListener('DOMContentLoaded', function () { setTimeout(_mountWa, 600); });
+  } catch (e) {}
 
   if (document.readyState === 'complete' || document.readyState === 'interactive') setTimeout(install, 400);
   else window.addEventListener('DOMContentLoaded', function () { setTimeout(install, 400); });

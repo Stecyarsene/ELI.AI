@@ -27,6 +27,11 @@ export async function POST(req: Request) {
   if (!parsed.ok) return Response.json({ error: 'invalid_input', detail: parsed.error }, { status: 400 });
   const { program, classKey, serie, subject, notion, kind, markdown } = parsed.data;
 
+  // Garde anti-PDF-vide : on ne génère jamais un document sans contenu réel.
+  if (!markdown || markdown.replace(/[\s#*`>-]/g, '').length < 40) {
+    return Response.json({ error: 'empty_content', detail: 'Le matériel généré est vide ou incomplet.' }, { status: 422 });
+  }
+
   const meta = [
     program === 'aefe' ? 'AEFE' : 'National',
     classKey, serie || null, subject || null, notion || null, KIND_LABEL[kind] ?? kind,

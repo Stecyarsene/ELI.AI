@@ -183,13 +183,18 @@
           <button class="kind" data-kind="progression" aria-pressed="false" onclick="setKind('progression')">Progression</button>
         </div>
         <div class="row2" style="margin-top:6px">
-          <div><label for="dClass">Classe</label><input id="dClass" placeholder="ex. terminale" /></div>
-          <div><label for="dSerie">Série (option)</label><input id="dSerie" placeholder="ex. D" /></div>
+          <div><label for="dClass">Classe</label><select id="dClass"><option value="">Choisir…</option></select></div>
+          <div id="serieWrap" class="hidden"><label for="dSerie">Série / Filière</label><select id="dSerie"><option value="">Toutes</option></select></div>
         </div>
         <div class="row2">
-          <div><label for="dSubject">Matière</label><input id="dSubject" list="subjList" placeholder="ex. Mathématiques" /><datalist id="subjList"></datalist></div>
-          <div><label for="dNotion">Notion (option)</label><input id="dNotion" placeholder="ex. Logarithme népérien" /></div>
+          <div><label for="dSubject">Matière</label><select id="dSubject"><option value="">Choisir une classe d'abord…</option></select></div>
+          <div><label for="notionAdd">Ajouter une notion (hors liste)</label>
+            <div style="display:flex;gap:8px"><input id="notionAdd" placeholder="ex. Suites numériques" onkeydown="if(event.key==='Enter'){event.preventDefault();addNotion();}" /><button type="button" class="ghost" style="width:auto;margin:0;padding:0 16px" onclick="addNotion()">+</button></div>
+          </div>
         </div>
+        <label>Notions à couvrir <span class="who" id="notionHint">(choisissez une matière)</span></label>
+        <div id="notionBox" style="display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 2px"></div>
+        <input id="dNotion" type="hidden" />
         <label for="dMore">Précisions (option)</label>
         <input id="dMore" placeholder="ex. niveau difficile, durée 1h, axé sur les équations" />
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
@@ -328,13 +333,19 @@
 
   window.generate = async () => {
     const cls = $('dClass').value.trim(), subj = $('dSubject').value.trim();
-    if (!cls || !subj){ alert('Renseignez au moins la classe et la matière.'); return; }
+    if (!cls || !subj){ alert('Choisissez au moins la classe et la matière.'); return; }
+    const notions = $('dNotion').value.trim();
+    const more = $('dMore').value.trim();
+    const msgParts = [];
+    if (notions) msgParts.push('Couvre précisément et intégralement ces notions : ' + notions + '.');
+    if (more) msgParts.push(more);
+    const message = msgParts.join(' ') || undefined;
     const btn = $('genBtn'); btn.disabled = true; const old = btn.textContent; btn.innerHTML = '<span class="spin"></span>Génération…';
     $('saveBtn').classList.add('hidden'); $('pdfBtn').classList.add('hidden'); $('paywall').classList.add('hidden'); $('out').textContent = ''; lastOutput = '';
     try{
       const res = await authedFetch('/api/ai/teacher', { method:'POST', body: JSON.stringify({
         program: PROGRAM, classKey: cls, serie: $('dSerie').value.trim() || undefined, subject: subj,
-        notion: $('dNotion').value.trim() || undefined, kind: KIND, message: $('dMore').value.trim() || undefined,
+        notion: notions || undefined, kind: KIND, message,
       })});
       if (res.status === 402){ const j = await res.json().catch(() => ({})); showPaywall(j); return; }
       if (res.status === 401 || res.status === 403){ $('out').textContent = "Accès réservé aux enseignants validés."; return; }
@@ -410,15 +421,79 @@
     } catch(e){ $('paywall').innerHTML = '<h4>Connexion interrompue</h4><p>Réessayez.</p>'; }
   };
 
-  /* ───────── Saisie guidée des matières (T3 §a) ───────── */
-  function fillSubjectList(){
-    const COMMON = {
-      national: ['Mathématiques','Physique-Chimie','SVT','Français','Philosophie','Histoire-Géographie','Anglais','Espagnol','SES','Sciences physiques','Informatique','EPS'],
-      aefe: ['Mathématiques','Physique-Chimie','SVT','Français','Philosophie','Histoire-Géographie','Anglais','Espagnol','SES','NSI','Enseignement scientifique','HLP','SI'],
-    };
-    const dl = $('subjList'); if (!dl) return;
-    dl.innerHTML = (COMMON[PROGRAM] || []).map(s => '<option value="' + s + '"></option>').join('');
+  /* ───────── Sélecteur en cascade alimenté par le curriculum réel ─────────
+     Modulaire et ultra-défensif (fallbacks systématiques) pour préparer la
+     bascule future vers des composants React sans réécrire la logique métier. */
+  let CURRICULUM = null;        // { program, classes:[{classKey, series:[], subjects:[{name, notions:[]}]}] }
+  let EXTRA_NOTIONS = [];       // notions ajoutées hors liste par l'enseignant
+  const LABELS = { cm1:'CM1', cm2:'CM2', '6e':'6e', '5e':'5e', '4e':'4e', '3e':'3e', '2nde':'2nde', '1ere':'1ère', terminale:'Terminale' };
+  const classLabel = (k) => LABELS[k] || (k ? k.charAt(0).toUpperCase() + k.slice(1) : k);
+
+  async function loadCurriculum(){
+    try{ const res = await fetch('/api/curriculum?program=' + encodeURIComponent(PROGRAM)); CURRICULUM = res.ok ? await res.json() : null; }
+    catch(_){ CURRICULUM = null; }
+    populateClasses();
+    const dc = $('dClass'); if (dc) dc.onchange = applyClass;
+    const ds = $('dSerie'); if (ds) ds.onchange = () => populateSubjects();
+    const dsub = $('dSubject'); if (dsub) dsub.onchange = renderNotions;
   }
+  const currentClass = () => (CURRICULUM && Array.isArray(CURRICULUM.classes))
+    ? (CURRICULUM.classes.find(c => c.classKey === $('dClass').value) || null) : null;
+
+  function populateClasses(){
+    const sel = $('dClass'); if (!sel) return;
+    const classes = (CURRICULUM && CURRICULUM.classes) || [];
+    sel.innerHTML = classes.length
+      ? '<option value="">Choisir…</option>' + classes.map(c => '<option value="' + c.classKey + '">' + classLabel(c.classKey) + '</option>').join('')
+      : '<option value="">(curriculum indisponible)</option>';
+  }
+  function applyClass(){
+    const cl = currentClass(); const wrap = $('serieWrap'), ds = $('dSerie');
+    const series = (cl && cl.series) || [];
+    if (series.length && wrap && ds){
+      ds.innerHTML = '<option value="">Toutes</option>' + series.map(s => '<option value="' + s + '">' + s + '</option>').join('');
+      wrap.classList.remove('hidden');
+    } else if (wrap){ wrap.classList.add('hidden'); if (ds) ds.innerHTML = '<option value="">Toutes</option>'; }
+    populateSubjects();
+  }
+  function populateSubjects(){
+    const sel = $('dSubject'); if (!sel) return;
+    const cl = currentClass(); const subjects = (cl && cl.subjects) || [];
+    sel.innerHTML = subjects.length
+      ? '<option value="">Choisir une matière…</option>' + subjects.map(s => '<option value="' + s.name.replace(/"/g,'&quot;') + '">' + s.name + '</option>').join('')
+      : '<option value="">(sélectionnez une classe)</option>';
+    renderNotions();
+  }
+  function notionsForSubject(){
+    const cl = currentClass(); if (!cl) return [];
+    const s = (cl.subjects || []).find(x => x.name === $('dSubject').value);
+    return (s && s.notions) || [];
+  }
+  const chipBase = 'display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer';
+  function renderNotions(){
+    EXTRA_NOTIONS = [];
+    const box = $('notionBox'), hint = $('notionHint'); if (!box) return;
+    if (!$('dSubject').value){ box.innerHTML = ''; if (hint) hint.textContent = '(choisissez une matière)'; collectNotions(); return; }
+    const notions = notionsForSubject();
+    if (!notions.length){ box.innerHTML = '<span class="who">Aucune notion pré-listée — ajoutez les vôtres ci-dessus.</span>'; if (hint) hint.textContent = '(saisie libre)'; collectNotions(); return; }
+    if (hint) hint.textContent = '(' + notions.length + ' disponibles — cochez ce que vous voulez couvrir)';
+    box.innerHTML = notions.map(n => { const safe = n.replace(/</g,'&lt;');
+      return '<label style="' + chipBase + ';background:#fff;border:1px solid #e3ded0"><input type="checkbox" class="notionChk" style="width:auto;margin:0" value="' + safe.replace(/"/g,'&quot;') + '" onchange="collectNotions()"> ' + safe + '</label>';
+    }).join('');
+    collectNotions();
+  }
+  window.addNotion = () => {
+    const inp = $('notionAdd'); if (!inp) return; const v = inp.value.trim(); if (!v) return;
+    if (!EXTRA_NOTIONS.includes(v)) EXTRA_NOTIONS.push(v); inp.value = '';
+    const safe = v.replace(/</g,'&lt;');
+    $('notionBox').insertAdjacentHTML('beforeend',
+      '<label style="' + chipBase + ';background:#eef7f0;border:1px solid #0B6B3A"><input type="checkbox" class="notionChk" checked style="width:auto;margin:0" value="' + safe.replace(/"/g,'&quot;') + '" onchange="collectNotions()"> ' + safe + '</label>');
+    collectNotions();
+  };
+  window.collectNotions = () => {
+    const chosen = Array.from(document.querySelectorAll('.notionChk')).filter(c => c.checked).map(c => c.value);
+    const h = $('dNotion'); if (h) h.value = chosen.join('; ');
+  };
 
   async function loadResources(){
     try{
@@ -455,8 +530,9 @@
   }
 
   setMode('signup');
-  fillSubjectList();
+  loadCurriculum();
   boot();
 </script>
+  <script src="eli-wa.js"></script>
 </body>
 </html>

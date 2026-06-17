@@ -21,7 +21,9 @@ async function callGemini(model: string, system: string, message: string, maxOut
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
       contents: [{ role: 'user', parts: [{ text: message }] }],
-      generationConfig: { maxOutputTokens },
+      // thinkingBudget: 0 désactive le raisonnement interne de Gemini 2.5 (qui, par défaut,
+      // consomme le budget de tokens et tronquait/vidait la réponse) -> génération complète ET rapide.
+      generationConfig: { maxOutputTokens, temperature: 0.6, thinkingConfig: { thinkingBudget: 0 } },
     }),
   });
 }
@@ -104,8 +106,9 @@ export async function POST(req: Request) {
       ? message
       : `Génère le matériel demandé pour la matière « ${subject ?? ''} »${notion ? `, notion « ${notion} »` : ''}.`;
 
-  let upstream = await callGemini(GEMINI_PRIMARY, system, userMsg, 2048);
-  if (!upstream.ok || !upstream.body) upstream = await callGemini(GEMINI_FALLBACK, system, userMsg, 2048);
+  // 8192 tokens : matériel pédagogique complet (fiche, contrôle + corrigé, diapos) sans troncature.
+  let upstream = await callGemini(GEMINI_PRIMARY, system, userMsg, 8192);
+  if (!upstream.ok || !upstream.body) upstream = await callGemini(GEMINI_FALLBACK, system, userMsg, 8192);
   if (!upstream.ok || !upstream.body) return Response.json({ error: 'llm_unavailable' }, { status: 502 });
 
   return new Response(upstream.body, {
