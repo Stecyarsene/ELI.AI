@@ -109,7 +109,18 @@ export async function GET(req: Request) {
     if (error) return Response.json({ items: [] });
     return Response.json({ items: data ?? [] });
   }
-  const { data } = await supabaseAdmin().from('work_sessions').select('*')
-    .eq('user_id', user.id).order('started_at', { ascending: false }).limit(20);
-  return Response.json({ items: (data as WorkSession[] | null) ?? [] });
+  const sb = supabaseAdmin();
+  const { data } = await sb.from('work_sessions').select('*')
+    .eq('user_id', user.id).order('started_at', { ascending: false }).limit(40);
+  const rows = (data as WorkSession[] | null) ?? [];
+  // Resigne le PDF récap de chaque session (accès durable depuis « Mon Compagnon »).
+  const items = await Promise.all(rows.map(async (r) => {
+    let pdf_url: string | null = null;
+    if (r.pdf_path) {
+      const s = await sb.storage.from('documents').createSignedUrl(r.pdf_path, 3600);
+      pdf_url = s.data?.signedUrl ?? null;
+    }
+    return { ...r, pdf_url };
+  }));
+  return Response.json({ items });
 }

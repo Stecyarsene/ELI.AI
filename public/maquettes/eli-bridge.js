@@ -1214,6 +1214,53 @@
     }).catch(function () { eliBrowserSTT(inputId); });
   };
 
+  /* ───────── MON COMPAGNON (PASSE 5) : tout l'historique élève centralisé ─────────
+     Overlay autonome (même rendu sur National et AEFE) : sessions, rapports, statut couleur, PDF, reprise. */
+  function eliEsc(x){ return String(x == null ? '' : x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  window.eliOpenCompagnon = function () {
+    var prev = document.getElementById('eliCompagnon'); if (prev) prev.remove();
+    var ov = document.createElement('div'); ov.id = 'eliCompagnon';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:10050;background:rgba(2,8,6,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow:auto;font-family:inherit;color:#fff;padding:24px 18px';
+    ov.innerHTML =
+      '<div style="max-width:680px;margin:0 auto">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">' +
+      '<div style="font-weight:800;font-size:22px">🧭 Mon Compagnon</div>' +
+      '<button id="eliCompClose" aria-label="Fermer" style="background:rgba(255,255,255,.1);border:none;color:#fff;font-size:18px;width:38px;height:38px;border-radius:50%;cursor:pointer">✕</button></div>' +
+      '<div style="opacity:.75;font-size:13.5px;margin-bottom:18px">Tout ton travail avec Éli au même endroit : tes sessions, tes rapports et tes PDF — tu suis ta progression d\'un coup d\'œil.</div>' +
+      '<div id="eliCompList"><div style="opacity:.6;padding:34px;text-align:center">Chargement…</div></div></div>';
+    document.body.appendChild(ov);
+    document.getElementById('eliCompClose').onclick = function () { ov.remove(); };
+    authedFetch('/api/session').then(function (r) { return r.json(); }).then(function (j) {
+      var items = (j && j.items) || []; var box = document.getElementById('eliCompList'); if (!box) return;
+      if (!items.length) { box.innerHTML = '<div style="opacity:.6;padding:34px;text-align:center">Tu n\'as pas encore de session enregistrée. Lance un pilier ou une matière : tout ton travail apparaîtra ici automatiquement.</div>'; return; }
+      var EMO = { oral: '🎤', oral_sim: '🎤', grand_oral: '🎤', examen: '🎯', predicteur: '⚡', protocole_j7: '🔴', controle_continu: '📊', exercices: '✍️', brouillon: '📸', aide_devoirs: '📝', revision: '📚', fiches_quiz: '📚', fiches_revisions: '🗂️', scanner: '📷', cours: '📖', specialites: '📚', avenir: '🌟', avenir_orientation: '🌟', orientation_intl: '🌍' };
+      box.innerHTML = '';
+      items.forEach(function (s) {
+        var emo = EMO[(s.pillar || '').toLowerCase()] || '📘';
+        var dt = s.started_at ? new Date(s.started_at) : (s.created_at ? new Date(s.created_at) : null);
+        var date = dt ? dt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
+        var st = (s.status || '').toLowerCase();
+        var stColor = st === 'vert' ? '#34D399' : st === 'orange' ? '#F5B544' : st === 'rouge' ? '#FF6B6B' : '';
+        var card = document.createElement('div');
+        card.style.cssText = 'margin-bottom:12px;padding:15px 16px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)';
+        var title = s.title || s.subject || 'Session de travail';
+        var html = '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:19px">' + emo + '</span>' +
+          '<div style="flex:1"><div style="font-weight:700;font-size:14.5px">' + eliEsc(title) + '</div>' +
+          '<div style="opacity:.6;font-size:12px">' + (s.subject ? eliEsc(s.subject) + ' · ' : '') + date + (s.duration_min ? (' · ' + s.duration_min + ' min') : '') + '</div></div>' +
+          (stColor ? '<span title="' + st + '" style="width:11px;height:11px;border-radius:50%;background:' + stColor + ';flex-shrink:0"></span>' : '') + '</div>';
+        if (s.summary) html += '<div style="opacity:.82;font-size:13px;line-height:1.45;margin-top:8px">' + eliEsc(s.summary) + '</div>';
+        html += '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">';
+        if (s.subject) html += '<button data-subj="' + eliEsc(s.subject) + '" class="eli-comp-resume" style="padding:8px 14px;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-weight:700;font-size:13px;background:#00C271;color:#04140D">▶ Reprendre</button>';
+        if (s.pdf_url) html += '<a href="' + s.pdf_url + '" target="_blank" rel="noopener" style="padding:8px 14px;border-radius:10px;text-decoration:none;font-weight:700;font-size:13px;background:rgba(245,181,68,.18);color:#F5B544">📄 PDF</a>';
+        html += '</div>';
+        card.innerHTML = html;
+        var rb = card.querySelector('.eli-comp-resume');
+        if (rb) rb.onclick = function () { var subj = rb.getAttribute('data-subj'); ov.remove(); if (typeof window.openChatContext === 'function') window.openChatContext('', subj); };
+        box.appendChild(card);
+      });
+    }).catch(function () { var box = document.getElementById('eliCompList'); if (box) box.innerHTML = '<div style="opacity:.6;padding:34px;text-align:center">Impossible de charger ton historique pour l\'instant.</div>'; });
+  };
+
   window.eliCrossCanal = eliCrossCanal; window.eliCelebrateSignup = eliCelebrateSignup;
 
   /* ───────── Présence WhatsApp permanente + invitation web ─────────
