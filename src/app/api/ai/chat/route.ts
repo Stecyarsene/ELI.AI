@@ -65,7 +65,7 @@ export async function POST(req: Request) {
   if (!verdict.ok) return Response.json({ error: 'blocked', reason: verdict.reason }, { status: 400 });
 
   const system = buildSystemPrompt(p, (prog as Progress[] | null) ?? [], focusSubject ?? null, pillar ?? null, scope, school);
-  const maxOut = p.bougie ? 384 : 1024; // réduit pour la vitesse (réponses orales + écrites concises)
+  const maxOut = p.bougie ? 320 : 640; // réponses nettes et concises (style F1)
 
   let upstream = await callGemini(GEMINI_PRIMARY, system, message, maxOut);
   if (!upstream.ok || !upstream.body) {

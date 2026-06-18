@@ -483,11 +483,8 @@
     var bubble = ensureEliBubble();
     var focus = window.__eliFocusSubject__ || 'general';
 
-    // T8 — onboarding : si l'élève est égaré ou nomme sa classe, on le guide au lieu d'appeler le tuteur.
-    try {
-      var ob = eliOnboard(txt);
-      if (ob.intent !== 'normal') { eliRenderOnboarding(ob, bubble); return; }
-    } catch (e) {}
+    // Onboarding RETIRÉ : Éli ne renvoie JAMAIS vers un menu/lien. Il capte le contexte (classe connue
+    // via le profil + matière déduite du message) et enchaîne directement avec le tuteur.
 
     getSb().then(function (c) {
       return c.auth.getSession().then(function (res) {
@@ -708,25 +705,16 @@
     Object.keys(seen).forEach(function (k) { worked.push(seen[k]); });
     worked.sort(function (a, b) { return (b.updated_at || '').localeCompare(a.updated_at || ''); });
 
-    var welcome = '<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:18px;border-radius:14px;background:rgba(0,194,113,.1);margin-bottom:8px">'
-      + '<span>🌱 ' + (worked.length ? 'Reprends là où tu t\'étais arrêté.' : 'Commence ta première session avec Éli, tes matières apparaîtront ici au fur et à mesure.') + '</span>'
-      + '<button type="button" id="eliBackMenu" style="background:rgba(255,255,255,.12);color:inherit;border:1px solid rgba(255,255,255,.25);padding:9px 15px;border-radius:999px;font-weight:600;cursor:pointer;font-family:inherit;font-size:13.5px">↩ Revenir au menu de ma classe</button>'
-      + '</div>';
-    var cards = worked.length
-      ? worked.map(function (p) {
-          var col = p.status === 'vert' ? '#34D399' : p.status === 'rouge' ? '#F87171' : '#FBBF24';
-          var subjEsc = String(p.subject).replace(/"/g, '&quot;');
-          return '<button type="button" class="eli-subj-card" data-subj="' + subjEsc + '" style="text-align:left;padding:16px;border-radius:14px;background:rgba(255,255,255,.05);border:none;border-left:4px solid ' + col + ';color:inherit;cursor:pointer;font-family:inherit"><strong>' + p.subject + '</strong><br><small style="opacity:.7">' + (p.last_chapter || 'À commencer') + '</small></button>';
-        }).join('')
-      : '';
-    grid.innerHTML = welcome + cards;
+    // Retour épuré : un accueil immédiat + accès à « Mon Compagnon » (où TOUT l'historique est rassemblé)
+    // et au menu de classe. On NE déverse plus les cartes de matières ici (elles vivent dans Mon Compagnon).
+    grid.innerHTML = '<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:18px;border-radius:14px;background:rgba(0,194,113,.1)">'
+      + '<span>🌱 Content de te revoir ! Reprends ton travail ou choisis une matière.</span>'
+      + '<span style="display:flex;gap:8px;flex-wrap:wrap">'
+      + '<button type="button" id="eliCompagnonBtn" style="background:#00C271;color:#04140D;border:none;padding:9px 15px;border-radius:999px;font-weight:700;cursor:pointer;font-family:inherit;font-size:13.5px">🧭 Mon Compagnon</button>'
+      + '<button type="button" id="eliBackMenu" style="background:rgba(255,255,255,.12);color:inherit;border:1px solid rgba(255,255,255,.25);padding:9px 15px;border-radius:999px;font-weight:600;cursor:pointer;font-family:inherit;font-size:13.5px">↩ Menu de ma classe</button>'
+      + '</span></div>';
     var bk = document.getElementById('eliBackMenu'); if (bk) bk.onclick = eliGoClassMenu;
-    Array.prototype.forEach.call(grid.querySelectorAll('.eli-subj-card'), function (b) {
-      b.onclick = function () {
-        var subj = b.getAttribute('data-subj'); window.__eliFocusSubject__ = subj;
-        if (typeof window.openChatContext === 'function') window.openChatContext('', subj);
-      };
-    });
+    var cb = document.getElementById('eliCompagnonBtn'); if (cb) cb.onclick = function () { if (window.eliOpenCompagnon) window.eliOpenCompagnon(); };
   }
 
   function addAdminButton() {
@@ -843,7 +831,7 @@
     var b = document.getElementById('eliBougie');
     if (!b) {
       b = document.createElement('button'); b.id = 'eliBougie';
-      b.style.cssText = 'position:fixed;top:14px;left:14px;z-index:9998;display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:999px;border:1px solid rgba(245,181,68,.5);background:rgba(0,0,0,.30);color:#FFE7A8;font-weight:700;font-family:inherit;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)';
+      b.style.cssText = 'position:fixed;top:14px;left:14px;z-index:9998;display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:999px;border:1px solid rgba(245,181,68,.5);background:rgba(0,0,0,.30);color:#FFE7A8;font-weight:700;font-family:inherit;cursor:pointer;-webkit-';
       b.title = "Mode Bougie 🕯️ — interface allégée, idéale en connexion faible ou pour se concentrer. Éli répond en version courte et te garde une trace PDF de la séance.";
       b.onclick = toggleBougie;
       document.body.appendChild(b);
@@ -1134,7 +1122,7 @@
   // Félicitations d'inscription -> passerelle WhatsApp.
   function eliCelebrateSignup() {
     var ov = document.createElement('div');
-    ov.style.cssText = 'position:fixed;inset:0;z-index:10002;display:grid;place-items:center;background:rgba(2,8,6,.55);backdrop-filter:blur(4px)';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:10002;display:grid;place-items:center;background:rgba(2,8,6,.55);';
     var card = document.createElement('div');
     card.style.cssText = 'max-width:380px;margin:20px;background:#fff;color:#16241C;border-radius:20px;padding:28px;text-align:center;font-family:inherit;box-shadow:0 30px 80px rgba(0,0,0,.4)';
     card.innerHTML = '<div style="font-size:46px">🎉</div><h2 style="font-family:Fraunces,serif;margin:10px 0 6px;font-size:24px">Bienvenue dans Éli !</h2>'
@@ -1220,7 +1208,7 @@
   window.eliOpenCompagnon = function () {
     var prev = document.getElementById('eliCompagnon'); if (prev) prev.remove();
     var ov = document.createElement('div'); ov.id = 'eliCompagnon';
-    ov.style.cssText = 'position:fixed;inset:0;z-index:10050;background:rgba(2,8,6,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow:auto;font-family:inherit;color:#fff;padding:24px 18px';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:10050;background:rgba(2,8,6,.94);-webkit-overflow:auto;font-family:inherit;color:#fff;padding:24px 18px';
     ov.innerHTML =
       '<div style="max-width:680px;margin:0 auto">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">' +

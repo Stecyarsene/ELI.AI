@@ -1,6 +1,6 @@
 'use client';
 import { useEffect } from 'react';
-import { rememberProgram, forgetProgram } from '@/lib/program';
+import { rememberProgram } from '@/lib/program';
 import type { Program } from '@/types/db';
 
 /**
@@ -10,17 +10,9 @@ import type { Program } from '@/types/db';
  *    en oubliant l'indice local pour ne pas y être renvoyé automatiquement.
  */
 export default function RememberProgram({ program }: { program: Program }) {
+  // Mémorise le programme courant (reprise directe au prochain accès). Aucun élément visible :
+  // le lien « Changer d'espace » a été retiré (il surchargeait l'écran). Le changement d'espace
+  // reste possible via l'URL « /?choose=1 ».
   useEffect(() => { rememberProgram(program); }, [program]);
-
-  return (
-    <a
-      className="eli-switch"
-      href="/?choose=1"
-      onClick={() => forgetProgram()}
-      aria-label="Changer d'espace"
-      title="Changer d'espace"
-    >
-      ↔ Changer d&apos;espace
-    </a>
-  );
+  return null;
 }
