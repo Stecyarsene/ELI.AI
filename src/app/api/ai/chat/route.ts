@@ -2,6 +2,7 @@ import { supabaseAdmin, supabaseAsUser, tokenFromRequest, userFromRequest } from
 import { buildSystemPrompt } from '@/lib/llm/masterPrompt';
 import { inspectUserMessage } from '@/lib/security/guard';
 import { safeParse, chatInput } from '@/lib/validation/schemas';
+import { checkLimit } from '@/lib/ratelimit';
 import { canUseStudentTutor, type Role } from '@/lib/access';
 import type { Profile, Progress, Scope, SchoolStatus } from '@/types/db';
 
@@ -33,6 +34,15 @@ export async function POST(req: Request) {
   const user = await userFromRequest(req);
   if (!user) return Response.json({ error: 'unauthorized' }, { status: 401 });
 
+  // P0 — Anti-abus de coût par utilisateur (fail-OPEN : un blip Redis ne bloque pas un élève payant).
+  const rl = await checkLimit('ai', user.id);
+  if (!rl.ok) {
+    return Response.json(
+      { error: 'rate_limited', retryAfter: rl.retryAfter ?? 30 },
+      { status: 429, headers: { 'retry-after': String(rl.retryAfter ?? 30) } },
+    );
+  }
+
   const sb = supabaseAdmin();
   const token = tokenFromRequest(req);
   const asUser = token ? supabaseAsUser(token) : null;
@@ -59,12 +69,21 @@ export async function POST(req: Request) {
   const raw = (await bodyP) as unknown;
   const parsed = safeParse(chatInput, raw);
   if (!parsed.ok) return Response.json({ error: 'invalid_input', detail: parsed.error }, { status: 400 });
-  const { message, focusSubject, pillar } = parsed.data;
+  const { message, focusSubject, pillar, reflex } = parsed.data;
 
   const verdict = inspectUserMessage(message);
   if (!verdict.ok) return Response.json({ error: 'blocked', reason: verdict.reason }, { status: 400 });
 
-  const system = buildSystemPrompt(p, (prog as Progress[] | null) ?? [], focusSubject ?? null, pillar ?? null, scope, school);
+  // A.2 — Réflexe → modèle : on n'INJECTE la notion-réflexe que si le VRAI error_tally la confirme (seuil 3,
+  // aligné sur le front). Jamais forcé sur du vide ni sur une notion fournie par le client mais absente des données.
+  let reflexNotion: string | null = null;
+  if (reflex) {
+    const rows = (prog as Progress[] | null) ?? [];
+    const confirmed = rows.some((r) => (Number((r.error_tally ?? {})[reflex]) || 0) >= 3);
+    if (confirmed) reflexNotion = reflex;
+  }
+
+  const system = buildSystemPrompt(p, (prog as Progress[] | null) ?? [], focusSubject ?? null, pillar ?? null, scope, school, reflexNotion);
   const maxOut = p.bougie ? 320 : 640; // réponses nettes et concises (style F1)
 
   let upstream = await callGemini(GEMINI_PRIMARY, system, message, maxOut);

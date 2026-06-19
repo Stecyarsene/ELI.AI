@@ -15,9 +15,20 @@ const limiters = {
   content: make(120, '1 h'),
 } as const;
 
-export async function checkLimit(kind: keyof typeof limiters, id: string): Promise<{ ok: boolean; retryAfter?: number }> {
+export async function checkLimit(
+  kind: keyof typeof limiters,
+  id: string,
+  opts: { failClosed?: boolean } = {},
+): Promise<{ ok: boolean; retryAfter?: number; degraded?: boolean }> {
   const l = limiters[kind];
-  if (!l) return { ok: true };
-  const r = await l.limit(`${kind}:${id}`);
-  return r.success ? { ok: true } : { ok: false, retryAfter: Math.ceil((r.reset - Date.now()) / 1000) };
+  if (!l) return { ok: true };                       // Upstash non configuré (dev local) → passthrough
+  try {
+    const r = await l.limit(`${kind}:${id}`);
+    return r.success ? { ok: true } : { ok: false, retryAfter: Math.ceil((r.reset - Date.now()) / 1000) };
+  } catch {
+    // Panne/instabilité Redis : la STRATÉGIE est choisie par l'appelant.
+    //  • routes authentifiées  → fail-OPEN  (un blip réseau ne doit jamais bloquer un élève payant en pleine session)
+    //  • endpoint public coûteux (/api/ai/trial) → fail-CLOSED (jamais d'appel LLM payant sans plafond actif)
+    return opts.failClosed ? { ok: false, retryAfter: 30, degraded: true } : { ok: true, degraded: true };
+  }
 }

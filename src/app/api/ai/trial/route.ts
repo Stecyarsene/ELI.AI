@@ -1,4 +1,5 @@
 import { inspectUserMessage } from '@/lib/security/guard';
+import { checkLimit } from '@/lib/ratelimit';
 
 export const runtime = 'nodejs';
 
@@ -9,6 +10,18 @@ export async function POST(req: Request) {
   const body = (await req.json().catch(() => null)) as { message?: string; focusSubject?: string; program?: string } | null;
   if (!body?.message || body.message.length > 1000) {
     return Response.json({ error: 'invalid_input' }, { status: 400 });
+  }
+
+  // P0 — FAILLE FERMÉE : endpoint public qui appelle Gemini (payant). Plafond par IP, AVANT tout appel LLM.
+  // Fail-CLOSED : si Redis est indisponible, on refuse plutôt que d'ouvrir un robinet de coût non plafonné.
+  const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim()
+    || req.headers.get('x-real-ip') || 'unknown';
+  const rl = await checkLimit('ai', `trial:${ip}`, { failClosed: true });
+  if (!rl.ok) {
+    return Response.json(
+      { error: 'rate_limited', detail: 'Tu as atteint la limite d\'essais gratuits. Inscris-toi pour continuer avec Éli 🌱', retryAfter: rl.retryAfter ?? 30 },
+      { status: 429, headers: { 'retry-after': String(rl.retryAfter ?? 30) } },
+    );
   }
 
   const verdict = inspectUserMessage(body.message);

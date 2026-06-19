@@ -1,4 +1,5 @@
 import { userFromRequest } from '@/lib/supabase/server';
+import { checkLimit } from '@/lib/ratelimit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -14,6 +15,9 @@ const MODEL = 'gemini-2.5-flash'; // multimodal : transcription audio
 export async function POST(req: Request) {
   const user = await userFromRequest(req);
   if (!user) return Response.json({ error: 'unauthorized' }, { status: 401 });
+  // P0 — anti-abus de coût par utilisateur (fail-OPEN).
+  const rl = await checkLimit('ai', `transcribe:${user.id}`);
+  if (!rl.ok) return Response.json({ error: 'rate_limited', retryAfter: rl.retryAfter ?? 30 }, { status: 429, headers: { 'retry-after': String(rl.retryAfter ?? 30) } });
   if (!process.env.GEMINI_API_KEY) return Response.json({ error: 'no_key' }, { status: 500 });
 
   const b = (await req.json().catch(() => null)) as Record<string, unknown> | null;

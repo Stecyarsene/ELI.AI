@@ -135,8 +135,9 @@
       .replace(/\[FICHE\][\s\S]*?\[\/FICHE\]/gi, '')
       .replace(/\[DEVOIR\][\s\S]*?\[\/DEVOIR\]/gi, '')
       .replace(/\[RAPPORT\][\s\S]*?\[\/RAPPORT\]/gi, '')
+      .replace(/\[BRAVO\][\s\S]*?\[\/BRAVO\]/gi, '')           // micro-récompense (rendue à part)
       .replace(/\[\/?VOIX\]/gi, '')                            // balises voix (ouvrante/fermante)
-      .replace(/\[(?:BILAN|FICHE|DEVOIR|RAPPORT)\][\s\S]*$/i, '')      // bloc technique ouvert, pas encore fermé (stream)
+      .replace(/\[(?:BILAN|FICHE|DEVOIR|RAPPORT|BRAVO)\][\s\S]*$/i, '')      // bloc technique ouvert, pas encore fermé (stream)
       .replace(/\[\/?[A-Z]{0,6}$/, '')                          // tag technique PARTIEL en fin de flux ([VOI, [BIL, [/VOIX…)
       .replace(/[ \t]+\n/g, '\n')
       .trim();
@@ -217,10 +218,93 @@
     var rapRe = /\[RAPPORT\]([\s\S]*?)\[\/RAPPORT\]/i;
     var mrp = text.match(rapRe);
     if (mrp) {
-      try { var rj = JSON.parse(mrp[1].trim()); if (!rj.subject && subj) rj.subject = subj; renderRapportCard(rj); } catch (e) {}
+      try { var rj = JSON.parse(mrp[1].trim()); if (!rj.subject && subj) rj.subject = subj; renderRapportCard(rj); commitSession(rj); } catch (e) {}
       text = text.replace(rapRe, '');
     }
+    // [BRAVO] : micro-récompense de validation -> bulle dédiée avec glow (rare, sincère).
+    var bravoRe = /\[BRAVO\]([\s\S]*?)\[\/BRAVO\]/i;
+    var mbv = text.match(bravoRe);
+    if (mbv) { renderBravo(mbv[1].trim()); text = text.replace(bravoRe, ''); }
     return text.trim();
+  }
+
+  /* P1 — CANEVAS UNIVERSEL : 1 écriture atomique (work_sessions + progress via RPC commit_session),
+     3 lectures (Dashboard, menu du pilier, Historique). Mutation OPTIMISTE immédiate + reconciliation autoritaire. */
+  function commitSession(r) {
+    if (!r) return;
+    var subject = (r.subject && String(r.subject).trim())
+      || (window.__eliFocusSubject__ && window.__eliFocusSubject__ !== 'general' ? window.__eliFocusSubject__ : null);
+    if (!subject) return; // pas de matière rattachable -> rien à synchroniser
+    var nv = (r.vert || []).length, nr = (r.rouge || []).length;
+    var status = nr > 0 ? (nr >= nv ? 'rouge' : 'orange') : (nv > 0 ? 'vert' : 'orange');
+    var prog = (typeof PROGRAM !== 'undefined' ? PROGRAM : 'national');
+    var scope = window.__ELI_SCOPE__ || {};
+    var args = {
+      p_program: prog, p_subject: subject, p_pillar: window.__eliPillar__ || null, p_status: status,
+      p_title: r.titre || ('Session · ' + subject), p_summary: r.titre || '',
+      p_highlights: [{ t: 'vert', items: r.vert || [] }, { t: 'orange', items: r.orange || [] }, { t: 'rouge', items: r.rouge || [] }, { t: 'plan', items: r.plan || [] }],
+      p_last_chapter: r.titre || null,
+      p_strengths: r.vert || [], p_improvements: r.orange || [], p_red_zones: r.rouge || [],
+      p_class_key: scope.class_key || null, p_serie: scope.serie || null, p_duration_min: 0,
+    };
+    // SOCLE (0020) — alimente les 3 nouvelles colonnes : chrono de réaction moyen (oral), grille /20, notions en erreur.
+    // p_reaction_ms : moyenne (ms) des temps de réaction capturés par eliOral, UNIQUEMENT si la session COURANTE est orale.
+    // Anti-fuite inter-piliers : un tampon qa oral résiduel ne peut jamais contaminer un [RAPPORT] non-oral (ex. QCM Maths).
+    var _isOral = (typeof eliOralIsActive === 'function') && eliOralIsActive();
+    var _rdts = (_isOral && eliOral && eliOral.qa ? eliOral.qa : []).map(function (x) { return x.dtMs; }).filter(function (v) { return typeof v === 'number' && v > 0; });
+    if (_rdts.length) args.p_reaction_ms = Math.round(_rdts.reduce(function (a, b) { return a + b; }, 0) / _rdts.length);
+    if (_isOral) { eliOral.qa = []; eliOral.active = false; } // session orale consommée -> tampon vidé (PDF Mentor & Brique 2 ont déjà snapshotté)
+    // p_notes : grille de notation du jury /20 (conviction/rigueur/stress/structure) si l'oral l'a produite.
+    if (r.notes && typeof r.notes === 'object') args.p_notes = r.notes;
+    // p_error_notions : zones rouges -> incrément du tally par notion (fondation exacte du « 3× = réflexe »).
+    var _enotions = (Array.isArray(r.rouge) ? r.rouge : []).map(function (x) { return String(x == null ? '' : x).trim(); }).filter(Boolean);
+    if (_enotions.length) args.p_error_notions = _enotions;
+    // (1) OPTIMISTE : le cache de progression reflète déjà le nouvel état -> pastille correcte au prochain rendu, zéro attente.
+    window.__ELI_PROGRESS__ = window.__ELI_PROGRESS__ || {};
+    var prev = window.__ELI_PROGRESS__[subject] || {};
+    window.__ELI_PROGRESS__[subject] = { subject: subject, status: status, last_chapter: r.titre || prev.last_chapter || null, updated_at: new Date().toISOString() };
+    if (typeof window.eliApplyProgress === 'function') { try { window.eliApplyProgress(window.__ELI_PROGRESS__); } catch (e) {} }
+    // (2) ATOMIQUE serveur (RPC) puis RECONCILIATION autoritaire (re-fetch) -> garantit zéro désynchronisation durable.
+    //     GUEST (pas de compte) -> persistance LOCALE réelle en IndexedDB (jamais de démo). Décision via getSession (offline-safe).
+    getSb().then(function (c) {
+      return c.auth.getSession().then(function (s) {
+        var logged = !!(s && s.data && s.data.session);
+        if (logged) {
+          return c.rpc('commit_session', args).then(function () {
+            return c.auth.getUser().then(function (u) {
+              if (!u.data || !u.data.user) return;
+              return c.from('progress').select('*').eq('user_id', u.data.user.id).then(function (pr) {
+                if (pr && pr.data) {
+                  var map = {}; pr.data.forEach(function (row) { map[row.subject] = row; });
+                  window.__ELI_PROGRESS__ = map;
+                  if (typeof window.eliApplyProgress === 'function') { try { window.eliApplyProgress(map); } catch (e) {} }
+                  if (window.eliIDB) { try { window.eliIDB.cacheSet('progress', map); } catch (e) {} } // snapshot réel pour lecture hors-ligne
+                }
+              });
+            });
+          });
+        }
+        // GUEST : session locale réelle (ce que l'élève vient de faire), persistée pour le parcours visiteur hors-ligne.
+        if (window.eliIDB && typeof window.eliIDB.saveGuestSession === 'function') {
+          return window.eliIDB.saveGuestSession({
+            subject: subject, status: status, title: r.titre || subject, pillar: window.__eliPillar__ || null,
+            vert: r.vert || [], orange: r.orange || [], rouge: r.rouge || [],
+            reaction_ms: args.p_reaction_ms || 0, notes: (r.notes && typeof r.notes === 'object') ? r.notes : null,
+            ended_at: new Date().toISOString(),
+          });
+        }
+      });
+    }).catch(function () { /* hors-ligne : la mutation optimiste tient ; le guest est déjà en IndexedDB si disponible */ });
+  }
+
+  function renderBravo(txt) {
+    var stream = document.getElementById('chatStream'); if (!stream || !txt) return;
+    var b = document.createElement('div');
+    b.style.cssText = 'align-self:flex-start;max-width:85%;margin:6px 0;padding:11px 15px;border-radius:14px;background:linear-gradient(135deg,rgba(0,194,113,.18),rgba(52,211,153,.10));border:1px solid rgba(52,211,153,.45);color:#7CF3C0;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;opacity:0;transform:scale(.92);transition:opacity .3s ease,transform .3s cubic-bezier(.16,1,.3,1),box-shadow .35s ease';
+    b.innerHTML = '<span style="font-size:17px">✨</span><span>' + eliEsc(txt) + '</span>';
+    stream.appendChild(b); stream.scrollTop = stream.scrollHeight;
+    requestAnimationFrame(function () { b.style.opacity = '1'; b.style.transform = 'scale(1)'; b.style.boxShadow = '0 0 18px 2px rgba(52,211,153,.42)'; });
+    setTimeout(function () { b.style.boxShadow = '0 0 0 0 rgba(52,211,153,0)'; }, 950);
   }
 
   /* ───────── Flux DEVOIR / QCM / FEUILLE BLANCHE (élève) ─────────
@@ -315,22 +399,106 @@
         '<div style="font-weight:700;font-size:13px;color:' + color + '">' + label + '</div>' +
         items.map(function (x) { return '<div style="font-size:13px;opacity:.92;margin-top:4px">• ' + String(x).replace(/</g, '&lt;') + '</div>'; }).join('') + '</div>';
     }
+    // P2 — Grille de notation du jury (oral) : 4 critères /20 + moyenne, code couleur exigeant.
+    function notesBlock(n) {
+      if (!n || typeof n !== 'object') return '';
+      var crit = [['Conviction', n.conviction], ['Rigueur scientifique', n.rigueur], ['Gestion du stress', n.stress], ['Structure', n.structure]];
+      var vals = crit.map(function (c) { return Math.max(0, Math.min(20, Number(c[1]) || 0)); });
+      var moy = vals.reduce(function (a, b) { return a + b; }, 0) / crit.length;
+      function col(v) { return v >= 14 ? '#34D399' : v >= 10 ? '#F5B544' : '#FF6B6B'; }
+      var rows = crit.map(function (c, i) {
+        return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px"><span style="font-size:13px;opacity:.9">' + c[0] + '</span><span style="font-weight:800;font-size:13px;color:' + col(vals[i]) + '">' + vals[i] + '/20</span></div>';
+      }).join('');
+      return '<div style="margin-top:10px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1)">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between"><span style="font-weight:800;font-size:13px">⚖️ Notation du jury</span><span style="font-weight:800;font-size:15px;color:' + col(moy) + '">' + moy.toFixed(1) + '/20</span></div>' +
+        rows + '</div>';
+    }
     var card = document.createElement('div');
     card.className = 'eli-rapport-card';
     card.style.cssText = 'margin:12px 0;padding:18px;border-radius:18px;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,rgba(0,194,113,.08),rgba(2,8,6,.10))';
     card.innerHTML =
       '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="font-size:20px">📊</span>' +
       '<div><div style="font-weight:800;font-size:16px">Ton rapport</div><div style="opacity:.75;font-size:12.5px">' + titre.replace(/</g, '&lt;') + '</div></div></div>' +
+      notesBlock(r.notes) +
       block('🟢 Acquis', r.vert, '#34D399', 'rgba(52,211,153,.08)') +
       block('🟠 À consolider', r.orange, '#F5B544', 'rgba(245,181,68,.08)') +
       block('🔴 Priorités à retravailler', r.rouge, '#FF6B6B', 'rgba(255,107,107,.08)') +
       ((Array.isArray(r.plan) && r.plan.length) ? block('🎯 Ton plan de travail', r.plan, '#00C271', 'rgba(0,194,113,.07)') : '') +
-      ((Array.isArray(r.conseils) && r.conseils.length) ? block('💡 Garder le rythme', r.conseils, '#7FB3FF', 'rgba(127,179,255,.08)') : '') +
-      '<button class="eli-rap-pdf" style="margin-top:14px;width:100%;padding:13px;border:none;border-radius:12px;cursor:pointer;font-family:inherit;font-weight:800;font-size:14px;background:#F5B544;color:#04140D">📄 Télécharger mon plan de travail (PDF)</button>';
+      ((Array.isArray(r.conseils) && r.conseils.length) ? block('💡 Garder le rythme', r.conseils, '#7FB3FF', 'rgba(127,179,255,.08)') : '');
     stream.appendChild(card); stream.scrollTop = stream.scrollHeight;
 
+    // P2 (Blocs A+B) — ORAL : temps de réaction moyen + PDF Mentor (réutilise le moteur brandé /api/devoir/pdf).
+    if ((r.pilier === 'oral' || r.pillar === 'oral') && eliOral.qa && eliOral.qa.length) {
+      var dts = eliOral.qa.map(function (x) { return x.dtMs; }).filter(function (v) { return typeof v === 'number' && v > 0; });
+      var avg = dts.length ? (dts.reduce(function (a, b) { return a + b; }, 0) / dts.length / 1000) : null;
+      var foot = document.createElement('div');
+      foot.style.cssText = 'margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap';
+      if (avg != null) {
+        var chip = document.createElement('div');
+        chip.style.cssText = 'font-size:12.5px;opacity:.92;padding:7px 12px;border-radius:999px;background:rgba(127,179,255,.12);color:#9CC4FF;font-weight:700';
+        chip.textContent = '⏱ Temps de réaction moyen : ' + avg.toFixed(1) + ' s';
+        foot.appendChild(chip);
+      }
+      var mpdf = document.createElement('button');
+      mpdf.type = 'button'; mpdf.textContent = '📄 PDF Mentor';
+      mpdf.style.cssText = 'padding:9px 15px;border:none;border-radius:999px;cursor:pointer;font-family:inherit;font-weight:800;font-size:13px;background:#F5B544;color:#04140D';
+      var snap = eliOral.qa.slice(), notesSnap = r.notes, rougeSnap = Array.isArray(r.rouge) ? r.rouge : [], avgSnap = avg;
+      mpdf.onclick = function () {
+        var sections = [{ heading: 'Questions & réponses', items: snap.map(function (x, i) {
+          var t = (typeof x.dtMs === 'number' && x.dtMs > 0) ? (' [' + (x.dtMs / 1000).toFixed(1) + 's]') : '';
+          return 'Q' + (i + 1) + ' : ' + (x.q || '—') + t + '  —  Ta réponse : ' + (x.a || '—');
+        }) }];
+        if (notesSnap && typeof notesSnap === 'object') sections.push({ heading: 'Notation du jury (/20)', items: [
+          'Conviction : ' + (Number(notesSnap.conviction) || 0) + '/20', 'Rigueur scientifique : ' + (Number(notesSnap.rigueur) || 0) + '/20',
+          'Gestion du stress : ' + (Number(notesSnap.stress) || 0) + '/20', 'Structure : ' + (Number(notesSnap.structure) || 0) + '/20'] });
+        if (rougeSnap.length) sections.push({ heading: 'Erreurs à corriger', items: rougeSnap });
+        if (avgSnap != null) sections.push({ heading: 'Performance', items: ['Temps de réaction moyen : ' + avgSnap.toFixed(1) + ' s'] });
+        // Brique 4 — Fiche de remédiation sur l'erreur dominante : créée via /api/fiches puis RÉFÉRENCÉE dans le PDF Mentor.
+        // Moteur PDF unique et brandé /api/devoir/pdf (aucun second moteur). kind 'revision' = seul enum valide pour une fiche de remédiation.
+        var _subjPdf = (r.subject || 'Oral'), _dominant = rougeSnap.length ? String(rougeSnap[0] == null ? '' : rougeSnap[0]).trim() : '';
+        function _buildAndDownload(ficheTitle) {
+          if (ficheTitle) sections.push({ heading: 'Fiche de remédiation', items: [
+            'Notion prioritaire à corriger : ' + _dominant,
+            'Fiche ciblée « ' + ficheTitle + ' » ajoutée à tes fiches — à retravailler en priorité avant le prochain passage.'] });
+          eliDownloadPdf({ title: 'PDF Mentor — ' + titre, subject: _subjPdf, intro: 'Récapitulatif de ta session d\'oral avec Éli : questions, réponses, notation et axes de progression.', sections: sections }, 'pdf-mentor.pdf', mpdf);
+        }
+        if (_dominant) {
+          var _ftitle = 'Fiche de remédiation — ' + _dominant;
+          authedFetch('/api/fiches', { method: 'POST', body: JSON.stringify({ subject: _subjPdf, kind: 'revision', title: _ftitle, body: { type: 'remediation', notion: _dominant, origine: 'Simulation orale', zones_rouges: rougeSnap, notation: (notesSnap && typeof notesSnap === 'object' ? notesSnap : null) } }) })
+            .then(function () { _buildAndDownload(_ftitle); })
+            .catch(function () { _buildAndDownload(_ftitle); }); // le PDF reste cohérent même si l'enregistrement réseau échoue
+        } else { _buildAndDownload(null); }
+      };
+      foot.appendChild(mpdf);
+      card.appendChild(foot);
+      // Brique 2 — Progression comparée : delta de réaction vs la dernière session orale du même pilier.
+      // N'affiche RIEN s'il n'existe aucune session antérieure distincte (état honnête, pas de faux « +0 s »).
+      if (avg != null) {
+        var _curMs = Math.round(avg * 1000), _pil = window.__eliPillar__ || null;
+        getSb().then(function (c) {
+          return c.auth.getUser().then(function (u) {
+            if (!u.data || !u.data.user) return;
+            var q = c.from('work_sessions').select('reaction_ms,ended_at').eq('user_id', u.data.user.id).gt('reaction_ms', 0).order('ended_at', { ascending: false }).limit(2);
+            if (_pil) q = q.eq('pillar', _pil);
+            return q.then(function (pr) {
+              if (!pr || !pr.data || !pr.data.length) return;
+              var prevMs = 0; // ignore la session courante (déjà écrite ou non, selon l'ordre réseau) en sautant la valeur identique
+              for (var i = 0; i < pr.data.length; i++) { var v = Number(pr.data[i].reaction_ms) || 0; if (v > 0 && v !== _curMs) { prevMs = v; break; } }
+              if (!prevMs) return;
+              var deltaS = (prevMs - _curMs) / 1000; if (Math.abs(deltaS) < 0.1) return;
+              var gain = deltaS > 0, d = document.createElement('div');
+              d.style.cssText = 'font-size:12.5px;opacity:.95;padding:7px 12px;border-radius:999px;font-weight:700;background:' + (gain ? 'rgba(52,211,153,.14);color:#7CF3C0' : 'rgba(245,181,68,.14);color:#F5B544');
+              d.textContent = (gain ? '📈 Tu as gagné ' : '📉 Tu as perdu ') + Math.abs(deltaS).toFixed(1) + ' s vs ta dernière session';
+              foot.insertBefore(d, foot.firstChild);
+            });
+          });
+        }).catch(function () {});
+      }
+      eliOral.active = false; // session orale close -> la prochaine repart de zéro
+    }
+
     var btn = card.querySelector('.eli-rap-pdf');
-    btn.onclick = function () {
+    if (btn) btn.onclick = function () {
       var sections = [];
       if (Array.isArray(r.vert) && r.vert.length) sections.push({ heading: 'Ce qui est acquis', items: r.vert.map(String) });
       if (Array.isArray(r.orange) && r.orange.length) sections.push({ heading: 'À consolider', items: r.orange.map(String) });
@@ -349,6 +517,47 @@
   }
 
   /* ───────── Bulles de chat ───────── */
+  /* P2 (Blocs A+B) — Enregistreur de session orale : chrono de réaction + historique Q/R pour le PDF Mentor.
+     Aucune dépendance : pur état client, alimenté par les hooks d'envoi (réponse élève) et de fin de stream (question Éli). */
+  var eliOral = { active: false, lastQAt: 0, pendingQ: '', qa: [] };
+  function eliOralIsActive() { var p = window.__eliPillar__ || ''; return p === 'oral_sim' || p === 'grand_oral'; }
+  function eliOralReset() { eliOral = { active: eliOralIsActive(), lastQAt: 0, pendingQ: '', qa: [] }; }
+
+  /* Brique 3 — Rituel « 3× = réflexe » EXACT : au démarrage d'une session, lit progress.error_tally pour
+     la matière courante et, si une notion atteint le seuil (≥ 3), OUVRE par un avertissement nominatif.
+     Remplace l'ancienne approximation « zone rouge qui revient » par un déclenchement compté et déterministe.
+     Source autoritaire : le cache hydraté s'il porte error_tally, sinon un fetch frais (jamais d'invention si vide). */
+  var REFLEX_THRESHOLD = 3;
+  function eliReflexFire(tally, subj) {
+    if (!tally || typeof tally !== 'object') return;
+    var topNotion = null, topCount = 0;
+    Object.keys(tally).forEach(function (k) { var n = Number(tally[k]) || 0; if (n >= REFLEX_THRESHOLD && n > topCount) { topCount = n; topNotion = k; } });
+    if (!topNotion) return;
+    window.__eliReflexDone__ = subj + '|' + (window.__eliPillar__ || '');
+    window.__eliReflexNotion__ = topNotion; // exposé (forward-compatible) pour un éventuel ciblage côté modèle
+    var stream = document.getElementById('chatStream'); if (!stream) return;
+    var b = document.createElement('div');
+    b.className = 'chat-msg eli msg eli';
+    b.style.cssText = 'margin:8px 0;padding:11px 15px;border-radius:14px;background:rgba(255,107,107,.10);border:1px solid rgba(255,107,107,.35);white-space:pre-wrap;line-height:1.4';
+    b.textContent = '⚠️ Attention : on a repéré une fragilité récurrente sur « ' + topNotion + ' » (vue ' + topCount + ' fois lors de tes sessions). Cette fois, je ne tolère aucune erreur là-dessus — on l\'attaque en priorité.';
+    stream.appendChild(b); stream.scrollTop = stream.scrollHeight;
+  }
+  function eliMaybeReflexRitual() {
+    var subj = (window.__eliFocusSubject__ && window.__eliFocusSubject__ !== 'general') ? window.__eliFocusSubject__ : null;
+    if (!subj) return;
+    if (window.__eliReflexDone__ === subj + '|' + (window.__eliPillar__ || '')) return; // déjà déclenché pour cette session
+    var cache = window.__ELI_PROGRESS__ && window.__ELI_PROGRESS__[subj];
+    if (cache && cache.error_tally) { eliReflexFire(cache.error_tally, subj); return; }
+    getSb().then(function (c) {
+      return c.auth.getUser().then(function (u) {
+        if (!u.data || !u.data.user) return;
+        return c.from('progress').select('error_tally').eq('user_id', u.data.user.id).eq('subject', subj).limit(1).then(function (pr) {
+          if (pr && pr.data && pr.data.length) eliReflexFire(pr.data[0].error_tally, subj);
+        });
+      });
+    }).catch(function () {});
+  }
+
   function ensureEliBubble() {
     var stream = document.getElementById('chatStream');
     if (!stream) return null;
@@ -478,7 +687,14 @@
     if (!inp) return;
     var txt = inp.value.trim();
     if (!txt) return;
+    if (window.__eliCooldownUntil__ && Date.now() < window.__eliCooldownUntil__) return; // 429 en cours : aucun envoi empilé
     if (typeof pushMsg === 'function') { try { pushMsg(txt, 'user'); } catch (e) {} }
+    if (eliOralIsActive()) {
+      if (!eliOral.active) eliOralReset();
+      var _dt = eliOral.lastQAt ? (Date.now() - eliOral.lastQAt) : null;     // temps de réaction (ms)
+      eliOral.qa.push({ q: eliOral.pendingQ || '', a: txt, dtMs: _dt });
+      eliOral.pendingQ = '';
+    }
     inp.value = '';
     var bubble = ensureEliBubble();
     var focus = window.__eliFocusSubject__ || 'general';
@@ -489,7 +705,7 @@
     getSb().then(function (c) {
       return c.auth.getSession().then(function (res) {
         var loggedIn = !!(res.data && res.data.session);
-        if (loggedIn) return stream('/api/ai/chat', { message: txt, focusSubject: focus !== 'general' ? focus : undefined, pillar: window.__eliPillar__ || undefined }, bubble, true);
+        if (loggedIn) return stream('/api/ai/chat', { message: txt, focusSubject: focus !== 'general' ? focus : undefined, pillar: window.__eliPillar__ || undefined, reflex: window.__eliReflexNotion__ || undefined }, bubble, true);
         // visiteur
         if (tCount(focus) >= TRIAL_MAX) { if (bubble) bubble.textContent = "Tu as profité de tes 2 essais gratuits 🌱"; showSignup(); return; }
         var n = tInc(focus);
@@ -507,11 +723,45 @@
       if (res.status === 401) { if (bubble) bubble.textContent = "Connecte-toi pour continuer 🌱"; showSignup(); return; }
       if (res.status === 402) { if (bubble) bubble.textContent = 'Active ton abonnement pour continuer 🌱'; if (typeof showPaywall === 'function') setTimeout(showPaywall, 400); return; }
       if (res.status === 403) { if (bubble) bubble.textContent = "Termine ton inscription 🌱"; showSignup(); return; }
+      // P0 (front) — Rate-limit serveur atteint : message propre piloté par le VRAI en-tête retry-after.
+      // Ne se déclenche que sur un authentique 429 ; aucune valeur inventée si l'en-tête est absent.
+      if (res.status === 429) {
+        var _inp429 = document.getElementById('chatInput');
+        if (bubble) {
+          var _ra = parseInt(res.headers.get('retry-after') || '', 10);
+          if (_ra > 0) {
+            window.__eliCooldownUntil__ = Date.now() + _ra * 1000; // verrou : realSendChat refuse les envois jusque-là
+            if (_inp429) _inp429.disabled = true;                  // l'élève ne peut plus spammer Entrée pendant le cooldown
+            var _rem = _ra;
+            var _msg = function (n) { return 'Tu vas un peu vite 🌱 Limite atteinte — réessaie dans ' + n + ' s.'; };
+            bubble.textContent = _msg(_rem);
+            var _iv = setInterval(function () {
+              _rem -= 1;
+              if (_rem <= 0) { clearInterval(_iv); window.__eliCooldownUntil__ = 0; if (_inp429) { _inp429.disabled = false; } bubble.textContent = 'C\'est bon, tu peux réessayer 🌱'; }
+              else bubble.textContent = _msg(_rem);
+            }, 1000);
+          } else {
+            bubble.textContent = 'Tu vas un peu vite 🌱 Limite atteinte — réessaie dans un instant.';
+          }
+        }
+        return;
+      }
       if (!res.ok || !res.body) { if (bubble) bubble.textContent = "Je n'ai pas pu répondre, réessaie."; return; }
-      var reader = res.body.getReader(), dec = new TextDecoder(), sseBuf = '', plain = '', spoken = false, raf = 0;
+      var reader = res.body.getReader(), dec = new TextDecoder(), sseBuf = '', plain = '', spoken = false, raf = 0, dispCut = -1, dispScan = 0;
       var st = document.getElementById('chatStream');
       var raf_fn = window.requestAnimationFrame || function (f) { return setTimeout(f, 16); };
-      function paint() { raf = 0; if (bubble) bubble.textContent = cleanForDisplay(plain) || '…'; if (st) st.scrollTop = st.scrollHeight; }
+      // Affichage du flux en O(n) AMORTI : un seul scan progressif pour figer la coupe dès qu'un bloc
+      // technique s'ouvre (zéro flash), puis un strip léger des balises VOIX. Plus de re-nettoyage O(n²) par frame.
+      function streamDisplay() {
+        if (dispCut < 0) {
+          var from = dispScan > 8 ? dispScan - 8 : 0;
+          var m = plain.slice(from).match(/\[(?:BILAN|FICHE|DEVOIR|RAPPORT|BRAVO)/i);
+          if (m) dispCut = from + m.index; else dispScan = plain.length;
+        }
+        var s = dispCut >= 0 ? plain.slice(0, dispCut) : plain;
+        return s.replace(/\[\/?VOIX\]/gi, '');
+      }
+      function paint() { raf = 0; if (bubble) bubble.textContent = streamDisplay() || '…'; if (st) st.scrollTop = st.scrollHeight; }
       function schedule() { if (!raf) raf = raf_fn(paint); }          // 1 rendu par frame max (fluide sur mobile)
       function consume() {                                            // parse INCRÉMENTAL des lignes SSE complètes
         var nl;
@@ -542,6 +792,7 @@
             // VOIX : on lit le texte nettoyé pour la parole (jamais les symboles/markdown/ponctuation parasite).
             if (!spoken) { speakAll(cleanForSpeech(toRead)); spoken = true; }
             if (bubble) bubble.textContent = dispBody ? ('🔊 ' + dispSpeech + '\n\n' + dispBody) : ('🔊 ' + dispSpeech);
+            if (authed && eliOralIsActive()) { if (!eliOral.active) { eliOral.qa = []; } eliOral.active = true; eliOral.pendingQ = (cleanForDisplay(parts.speech) || dispBody || '').trim(); eliOral.lastQAt = Date.now(); }
             if (st) st.scrollTop = st.scrollHeight;
             return;
           }
@@ -667,6 +918,7 @@
           // Périmètre réel (classe, examen, série) pour piloter l'affichage examen/normal des piliers
           c.rpc('my_scope').then(function (sr) { if (sr && sr.data) { window.__ELI_SCOPE__ = sr.data; if (typeof window.eliApplyScope === 'function') try { window.eliApplyScope(sr.data); } catch (e) {} } }).catch(function () {});
           renderContinuity(progress);
+          addHistoriqueButton();
           renderResumable();
           renderBougie(!!(profile && profile.bougie));
           registerPush();
@@ -683,6 +935,78 @@
   window.eliGoClassMenu = eliGoClassMenu;
 
   function renderRealDashboard(progress) {
+    // NEUTRALISÉ : cette fonction masquait le vrai dashboard de la maquette pour y injecter un
+    // message générique (« Content de te revoir »), ce qui laissait une page vide en sortie de pilier.
+    // Le vrai dashboard (vraies données vert/orange/rouge) est désormais hydraté par renderContinuity().
+    return;
+  }
+
+  /* P4 (assainissement) — Dashboard RÉEL : remplit #dashSubjects/#dashHistory/#dashGaps avec la vraie
+     donnée (progress / work_sessions / error_tally). AUCUNE stat, pourcentage ou historique inventé :
+     statut qualitatif réel, et états honnêtes (« Première session à débloquer ») quand c'est vide. */
+  var ELI_SUBJ_IC = { mathematiques: '📐', physiquechimie: '⚗️', svt: '🧬', philosophie: '💭', histoiregeo: '🌍', histoiregeographie: '🌍', anglais: '🇬🇧', francais: '📖' };
+  function eliSubjIcon(name) { var k = eliRadarNorm(name); return ELI_SUBJ_IC[k] || '📚'; }
+  window.eliHydrateDashboard = function () {
+    try {
+      var LBL = { vert: 'Acquis', orange: 'À renforcer', rouge: 'À travailler' };
+      var COL = { vert: '#1F9D6B', orange: '#E08A00', rouge: '#C0392B' };
+      var P = window.__ELI_PROGRESS__ || {};
+      var EMPT = function (m) { return '<div style="padding:16px;border:1px dashed rgba(255,255,255,.22);border-radius:12px;opacity:.85;color:inherit">' + m + '</div>'; };
+      // 1) Matières — statut RÉEL (jamais de %)
+      var ds = document.getElementById('dashSubjects');
+      if (ds) {
+        var subs = Object.keys(P).filter(function (k) { return P[k] && P[k].status && LBL[P[k].status]; });
+        ds.innerHTML = subs.length ? subs.map(function (k) {
+          var st = P[k].status, col = COL[st] || '#888';
+          return '<div style="padding:11px 13px;border-radius:12px;background:rgba(255,255,255,.06);margin:8px 0">'
+            + '<div style="display:flex;align-items:center;gap:8px"><span>' + eliSubjIcon(k) + '</span><span style="flex:1;font-weight:600">' + eliEsc(k) + '</span>'
+            + '<span style="font-size:12px;font-weight:700;color:' + col + '">' + LBL[st] + '</span></div>'
+            + '<div style="height:5px;border-radius:999px;background:rgba(255,255,255,.12);margin-top:7px"><div style="height:100%;width:100%;border-radius:999px;background:' + col + '"></div></div></div>';
+        }).join('') : EMPT('🌱 Tes matières apparaîtront ici après ta première session — première session à débloquer.');
+      }
+      // 3) Lacunes — error_tally RÉEL
+      var dg = document.getElementById('dashGaps');
+      if (dg) {
+        var gaps = [];
+        Object.keys(P).forEach(function (subj) {
+          var et = P[subj] && P[subj].error_tally;
+          if (et && typeof et === 'object') Object.keys(et).forEach(function (notion) { var n = Number(et[notion]) || 0; if (n >= 1) gaps.push({ n: notion, m: subj, c: n }); });
+        });
+        gaps.sort(function (a, b) { return b.c - a.c; }); gaps = gaps.slice(0, 6);
+        dg.innerHTML = gaps.length ? gaps.map(function (g) {
+          return '<div style="display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:12px;background:rgba(255,107,107,.10);margin:8px 0">'
+            + '<span>⚠️</span><div style="flex:1"><div style="font-weight:600">' + eliEsc(g.n) + (g.c >= 3 ? ' · réflexe à ancrer' : '') + '</div>'
+            + '<div style="font-size:12px;opacity:.7">' + eliEsc(g.m) + '</div></div>'
+            + '<button class="eli-gap-go" style="border:none;background:rgba(255,255,255,.14);color:inherit;padding:7px 12px;border-radius:999px;font-weight:600;cursor:pointer;font-family:inherit;font-size:12.5px">Surmonter →</button></div>';
+        }).join('') : EMPT('Aucune lacune détectée pour l\'instant — elles apparaîtront au fil de tes sessions.');
+        Array.prototype.forEach.call(dg.querySelectorAll('.eli-gap-go'), function (b) { b.onclick = function () { if (typeof window.closeDashboard === 'function') window.closeDashboard(); if (typeof window.openChat === 'function') window.openChat(); }; });
+      }
+      // 2) Historique — work_sessions RÉELLES (asynchrone)
+      var dh = document.getElementById('dashHistory');
+      if (dh) {
+        var empt = EMPT('Ton historique apparaîtra ici après ta première session.');
+        dh.innerHTML = '<div style="opacity:.6;padding:10px">Chargement…</div>';
+        getSb().then(function (c) {
+          return c.auth.getUser().then(function (u) {
+            if (!u.data || !u.data.user) { dh.innerHTML = empt; return; }
+            return c.from('work_sessions').select('title,subject,ended_at,created_at').eq('user_id', u.data.user.id).order('created_at', { ascending: false }).limit(6).then(function (r) {
+              var rows = (r && r.data) || [];
+              if (!rows.length) { dh.innerHTML = empt; return; }
+              dh.innerHTML = rows.map(function (h) {
+                var d = String(h.ended_at || h.created_at || '').slice(0, 10);
+                return '<button class="eli-hist-go" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:none;background:rgba(255,255,255,.06);color:inherit;padding:11px 13px;border-radius:12px;margin:8px 0;cursor:pointer;font-family:inherit">'
+                  + '<div style="flex:1"><div style="font-size:11.5px;opacity:.6">' + eliEsc(d) + '</div><div style="font-weight:600">' + eliEsc(h.title || 'Session') + '</div><div style="font-size:12px;opacity:.7">' + eliEsc(h.subject || '') + '</div></div>'
+                  + '<span style="font-size:12.5px;opacity:.8">Rouvrir →</span></button>';
+              }).join('');
+              Array.prototype.forEach.call(dh.querySelectorAll('.eli-hist-go'), function (b) { b.onclick = function () { if (typeof window.closeDashboard === 'function') window.closeDashboard(); if (typeof window.openChat === 'function') window.openChat(); }; });
+            });
+          });
+        }).catch(function () { dh.innerHTML = empt; });
+      }
+    } catch (e) {}
+  };
+
+  function renderRealDashboard_DISABLED(progress) {
     var dash = document.getElementById('dashboard');
     if (!dash) return;
     var grid = document.getElementById('dashSubjects');
@@ -717,6 +1041,15 @@
     var cb = document.getElementById('eliCompagnonBtn'); if (cb) cb.onclick = function () { if (window.eliOpenCompagnon) window.eliOpenCompagnon(); };
   }
 
+  function addHistoriqueButton() {
+    if (document.getElementById('eliHistBtn')) return;
+    var b = document.createElement('button');
+    b.id = 'eliHistBtn'; b.type = 'button';
+    b.textContent = '📋 Historique';
+    b.style.cssText = 'position:fixed;bottom:18px;right:18px;z-index:9997;background:rgba(0,194,113,.16);color:#00C271;border:1px solid rgba(0,194,113,.4);padding:10px 16px;border-radius:999px;font-weight:700;cursor:pointer;font-family:inherit;font-size:13.5px';
+    b.onclick = function () { if (window.eliOpenCompagnon) window.eliOpenCompagnon(); };
+    document.body.appendChild(b);
+  }
   function addAdminButton() {
     if (document.getElementById('eliAdminBtn')) return;
     var b = document.createElement('button');
@@ -731,6 +1064,7 @@
   function renderStreak(eng) {
     if (!eng) return;
     window.__ELI_ENGAGEMENT__ = eng;
+    return; // badge « N jours » retiré de l'UI (demande Stecy)
     var n = eng.streak_current || 0;
     var chip = document.getElementById('eliStreak');
     if (!chip) {
@@ -845,6 +1179,23 @@
     getSb().then(function (c) { c.rpc('set_bougie', { p_on: next }).catch(function () {}); }).catch(function () {});
   }
 
+  /* P3 (finition TTS) — Contrôle voix : bouton flottant pour couper/réactiver la lecture à voix haute d'Éli.
+     Câble la mécanique existante __eliToggleMute__ (sinon inaccessible hors console). N'AUTO-LIT rien : ne fait que basculer l'état. */
+  function eliMountVoiceToggle() {
+    if (document.getElementById('eliVoice')) return;
+    var v = document.createElement('button'); v.id = 'eliVoice'; v.type = 'button';
+    v.style.cssText = 'position:fixed;top:60px;left:14px;z-index:9998;width:40px;height:40px;border-radius:999px;border:1px solid rgba(127,179,255,.45);background:rgba(0,0,0,.30);color:#CFE3FF;font-size:17px;line-height:1;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center';
+    function paint() {
+      var muted = !!window.__eliMuted__;
+      v.innerHTML = muted ? '🔇' : '🔊';
+      v.title = muted ? "Voix d'Éli coupée — clique pour réactiver" : "Éli lit ses réponses à voix haute — clique pour couper";
+      v.style.opacity = muted ? '.6' : '1';
+    }
+    v.onclick = function () { if (typeof window.__eliToggleMute__ === 'function') window.__eliToggleMute__(); paint(); };
+    document.body.appendChild(v); paint();
+  }
+  window.eliMountVoiceToggle = eliMountVoiceToggle;
+
   /* ───────── Sessions de travail : transcript, ouverture, clôture + PDF ───────── */
   function collectTranscript() {
     var out = [], st = document.getElementById('chatStream'); if (!st) return out;
@@ -906,9 +1257,12 @@
     var t = document.getElementById('uniTitle'); var title = t ? (t.textContent || '') : '';
     var body = document.getElementById('universeBody'); if (!body) return;
     var track = /Parcoursup/i.test(title) ? 'parcoursup' : (/Avenir/i.test(title) ? 'mon_avenir' : null);
-    if (!track || body.querySelector('#eliWishes')) return;
-    var mount = document.createElement('div'); mount.id = 'eliWishes'; mount.style.cssText = 'margin-top:16px'; body.appendChild(mount);
-    eliRenderOrientation(track, mount);
+    if (!track) return;
+    if (!body.querySelector('#eliWishes')) {
+      var mount = document.createElement('div'); mount.id = 'eliWishes'; mount.style.cssText = 'margin-top:16px'; body.appendChild(mount);
+      eliRenderOrientation(track, mount);
+    }
+    eliMountAvenirRadar(track, body); // P4-b — Radar d'orientation (référentiel Gabon réel)
   }
   function eliRenderOrientation(track, mount) {
     var STAT = { envisage: 'À envisager', candidate: 'Candidature', accepte: 'Accepté', refuse: 'Refusé', confirme: 'Confirmé' };
@@ -937,6 +1291,135 @@
         b.onclick = function () { authedFetch('/api/orientation?id=' + b.getAttribute('data-id'), { method: 'DELETE' }).then(function () { eliRenderOrientation(track, mount); }).catch(function () {}); };
       });
     }).catch(function () { mount.innerHTML = '<div style="opacity:.7;color:#16243a">Connecte-toi pour gérer tes vœux.</div>'; });
+  }
+
+  /* ───────── P4-b — RADAR D'ORIENTATION : croise la série réelle (__ELI_SCOPE__) avec le référentiel
+     RÉEL schools/concours/bourses (filieres_visees / series_admissibles). Affiche TOUJOURS source + date_verif.
+     Honnêteté stricte : « donnée non disponible » sur chaque NULL ; état vide explicite ; jamais de seuil/date inventé. ───────── */
+  function eliMountAvenirRadar(track, body) {
+    if (track !== 'mon_avenir') return;                 // référentiel = Gabon (pilier national)
+    if (body.querySelector('#eliRadar')) return;         // idempotent
+    var mount = document.createElement('div'); mount.id = 'eliRadar'; mount.style.cssText = 'margin-top:18px';
+    body.appendChild(mount);
+    eliRenderRadar(mount);
+  }
+  /* P4-b (overlay maîtrise) — mappe les matières-clés d'une filière puis lit la MAÎTRISE RÉELLE dans
+     __ELI_PROGRESS__. Aucun score/percentile inventé : statut réel (Acquis/À renforcer/À travailler) ou
+     « pas encore de session » si la matière n'a pas de progression réelle. */
+  function eliRadarNorm(x) { return String(x == null ? '' : x).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]/g, ''); }
+  function eliFindMastery(subjectName) {
+    var P = window.__ELI_PROGRESS__ || {}; var target = eliRadarNorm(subjectName); if (!target) return null;
+    var keys = Object.keys(P);
+    for (var i = 0; i < keys.length; i++) {
+      var nk = eliRadarNorm(keys[i]);
+      if (nk && (nk === target || nk.indexOf(target) === 0 || target.indexOf(nk) === 0)) {
+        var st = P[keys[i]] && P[keys[i]].status; if (st) return st;
+      }
+    }
+    return null; // aucune progression réelle -> on n'invente rien
+  }
+  function eliKeySubjects(s) {
+    var n = eliRadarNorm(s.name) + ' ' + eliRadarNorm(s.kind) + ' ' + eliRadarNorm(s.description || '');
+    if (/sante|medec/.test(n)) return ['SVT', 'Physique-Chimie'];
+    if (/agronom|biotech|eauxetforet|foret/.test(n)) return ['SVT', 'Physique-Chimie', 'Mathématiques'];
+    if (/ingenieur|polytechniqu|mines|geologi|technologi/.test(n)) return ['Mathématiques', 'Physique-Chimie'];
+    if (/magistratur|droit|omarbongo/.test(n)) return ['Français', 'Philosophie', 'Histoire-Géo'];
+    if (/normale/.test(n)) return ['Français', 'Mathématiques'];
+    return []; // discipline trop large/indéterminée -> pas d'overlay (plutôt que mapper à tort)
+  }
+  var ELI_MASTERY_LBL = { vert: 'Acquis', orange: 'À renforcer', rouge: 'À travailler' };
+  function eliMasteryLine(s) {
+    var subs = eliKeySubjects(s); if (!subs.length) return '';
+    var parts = subs.map(function (sub) {
+      var st = eliFindMastery(sub);
+      return eliEsc(sub) + ' : ' + (st && ELI_MASTERY_LBL[st] ? '<strong>' + ELI_MASTERY_LBL[st] + '</strong>' : '<em style="opacity:.55">pas encore de session</em>');
+    });
+    return '<div style="font-size:12px;margin-top:6px;color:#16243a">📊 Tes acquis sur les matières clés — ' + parts.join(' · ') + '</div>';
+  }
+
+  /* P4-c — PDF « Chances Réelles » : via le moteur brandé UNIQUE (/api/devoir/pdf, eliDownloadPdf).
+     Reprend source + date_verif, la maîtrise réelle, et « donnée non disponible » sur chaque NULL. */
+  function eliBuildChancesPdf(serie, schools, concours, bourses, btn) {
+    function naT(v) { return (v === null || v === undefined || v === '') ? 'donnée non disponible' : String(v); }
+    function srcT(o) { return '  [Source : ' + naT(o.source) + (o.date_verif ? ', vérifié le ' + o.date_verif : '') + ']'; }
+    function mastT(s) {
+      var subs = eliKeySubjects(s); if (!subs.length) return '';
+      return ' | Acquis : ' + subs.map(function (x) { var st = eliFindMastery(x); return x + ' = ' + (st && ELI_MASTERY_LBL[st] ? ELI_MASTERY_LBL[st] : 'pas de session'); }).join(', ');
+    }
+    var sections = [
+      { heading: 'Écoles pertinentes (série ' + serie + ')', items: schools.length
+        ? schools.map(function (s) { return s.name + ' — ' + [s.kind, s.city].filter(Boolean).join(', ') + mastT(s) + srcT(s); })
+        : ['Aucune école référencée pour ta série.'] },
+      { heading: 'Concours (série ' + serie + ')', items: concours.length
+        ? concours.map(function (k) { return k.name + ' — Seuil : ' + naT(k.seuil_info) + ' | Dates : ' + ((k.date_ouverture || k.date_cloture) ? (naT(k.date_ouverture) + ' → ' + naT(k.date_cloture)) : 'donnée non disponible') + srcT(k); })
+        : ['Aucun concours référencé pour ta série.'] },
+      { heading: 'Bourses (ANBG)', items: bourses.length
+        ? bourses.map(function (b) { return b.name + ' — Seuil : ' + naT(b.seuil_info) + ' | Date limite : ' + naT(b.date_limite) + srcT(b); })
+        : ['Référentiel bourses en cours de constitution.'] },
+      { heading: 'Note de fiabilité', items: ['Données du référentiel Éli (sources et dates de vérification indiquées). « donnée non disponible » = information non encore vérifiée : confirme toujours auprès de l\'établissement / de l\'ANBG.'] }
+    ];
+    eliDownloadPdf({ title: 'Mon Avenir — Chances Réelles', subject: 'Orientation (série ' + serie + ')', intro: 'Synthèse personnalisée pour ta série ' + serie + ' : écoles, concours et bourses pertinents, tes acquis réels et les sources vérifiées.', sections: sections }, 'chances-reelles.pdf', btn);
+  }
+
+  function eliRenderRadar(mount) {
+    var HEAD = '<div style="font-weight:800;margin:6px 0 8px;color:#0B3D2E">🧭 Radar d\'orientation — Gabon</div>';
+    function card(inner) { return '<div style="padding:12px 14px;border:1px solid rgba(0,0,0,.1);border-radius:12px;margin:8px 0;background:#fff;color:#16243a">' + inner + '</div>'; }
+    function box(msg) { return '<div style="padding:14px;border:1px dashed rgba(0,0,0,.18);border-radius:12px;text-align:center;color:#16243a;opacity:.85">' + eliEsc(msg) + '</div>'; }
+    function na(v) { return (v === null || v === undefined || v === '') ? '<em style="opacity:.6">donnée non disponible</em>' : eliEsc(String(v)); }
+    function soft(v) { return (v === null || v === undefined || v === '') ? '' : eliEsc(String(v)); }
+    function badge(o) { var d = o.date_verif ? (' · vérifié le ' + eliEsc(o.date_verif)) : ''; return '<div style="font-size:11px;opacity:.65;margin-top:6px">📌 ' + (o.source ? eliEsc(o.source) : 'source non précisée') + d + '</div>'; }
+
+    var serie = (window.__ELI_SCOPE__ && window.__ELI_SCOPE__.serie ? String(window.__ELI_SCOPE__.serie) : '').trim().toUpperCase();
+    if (!serie) {
+      mount.innerHTML = HEAD + box('Renseigne ta série (ex. C, D, A1…) avec Éli pour activer le radar : il croisera écoles, concours et bourses pertinents pour ton profil.');
+      return;
+    }
+    mount.innerHTML = HEAD + '<div style="opacity:.7;color:#16243a;font-size:13px">Analyse pour ta série <strong>' + eliEsc(serie) + '</strong>…</div>';
+
+    getSb().then(function (c) {
+      return Promise.all([
+        c.from('schools').select('name,kind,city,prerequis,source,source_url,date_verif').eq('country_code', 'GA').overlaps('filieres_visees', [serie]),
+        c.from('concours').select('name,seuil_info,modalites,date_ouverture,date_cloture,source,source_url,date_verif').eq('country_code', 'GA').overlaps('series_admissibles', [serie]),
+        c.from('bourses').select('name,seuil_info,criteres,date_limite,source,source_url,date_verif').eq('country_code', 'GA')
+      ]);
+    }).then(function (res) {
+      var schools = (res[0] && res[0].data) || [], concours = (res[1] && res[1].data) || [], bourses = (res[2] && res[2].data) || [];
+      var html = HEAD + '<div style="opacity:.7;color:#16243a;font-size:12.5px;margin-bottom:4px">Voies pertinentes pour ta série <strong>' + eliEsc(serie) + '</strong> (données réelles, sourcées).</div>';
+
+      html += '<div style="font-weight:700;margin:14px 0 6px;color:#0B3D2E">🎓 Écoles (' + schools.length + ')</div>';
+      html += schools.length ? schools.map(function (s) {
+        return card('<strong>' + eliEsc(s.name) + '</strong><span style="opacity:.7;font-size:12.5px"> ' + [soft(s.kind), soft(s.city)].filter(Boolean).join(' · ') + '</span>'
+          + (s.prerequis ? '<div style="font-size:12.5px;margin-top:4px">Prérequis : ' + eliEsc(s.prerequis) + '</div>' : '')
+          + eliMasteryLine(s)
+          + badge(s));
+      }).join('') : box('Aucune école référencée pour ta série pour l\'instant.');
+
+      html += '<div style="font-weight:700;margin:14px 0 6px;color:#0B3D2E">🏛️ Concours (' + concours.length + ')</div>';
+      html += concours.length ? concours.map(function (k) {
+        var dates = (k.date_ouverture || k.date_cloture) ? ('Inscriptions : du ' + na(k.date_ouverture) + ' au ' + na(k.date_cloture)) : 'Dates : <em style="opacity:.6">donnée non disponible</em>';
+        return card('<strong>' + eliEsc(k.name) + '</strong>'
+          + '<div style="font-size:12.5px;margin-top:4px">Seuil : ' + na(k.seuil_info) + '</div>'
+          + '<div style="font-size:12.5px">' + dates + '</div>'
+          + (k.modalites ? '<div style="font-size:12px;opacity:.8;margin-top:3px">' + eliEsc(k.modalites) + '</div>' : '')
+          + badge(k));
+      }).join('') : box('Aucun concours référencé pour ta série pour l\'instant.');
+
+      html += '<div style="font-weight:700;margin:14px 0 6px;color:#0B3D2E">💸 Bourses ANBG (' + bourses.length + ')</div>';
+      html += bourses.length ? bourses.map(function (b) {
+        return card('<strong>' + eliEsc(b.name) + '</strong>'
+          + '<div style="font-size:12.5px;margin-top:4px">Seuil : ' + na(b.seuil_info) + '</div>'
+          + (b.criteres ? '<div style="font-size:12px;opacity:.85;margin-top:3px">' + eliEsc(b.criteres) + '</div>' : '')
+          + '<div style="font-size:12.5px">Date limite : ' + na(b.date_limite) + '</div>'
+          + badge(b));
+      }).join('') : box('Référentiel bourses en cours de constitution.');
+
+      html += '<button id="eliRadarPdf" style="margin-top:16px;padding:11px 18px;border:none;border-radius:10px;background:#0B3D2E;color:#fff;font-weight:700;cursor:pointer;font-family:inherit">📄 Générer mon PDF « Chances Réelles »</button>';
+      mount.innerHTML = html;
+      var pbtn = mount.querySelector('#eliRadarPdf');
+      if (pbtn) pbtn.onclick = function () { eliBuildChancesPdf(serie, schools, concours, bourses, pbtn); };
+    }).catch(function () {
+      mount.innerHTML = HEAD + box('Référentiel en cours de constitution — bientôt disponible.');
+    });
   }
 
   /* ───────── Calendrier examens : compte à rebours DYNAMIQUE (recalcul quotidien) ───────── */
@@ -1212,7 +1695,7 @@
     ov.innerHTML =
       '<div style="max-width:680px;margin:0 auto">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">' +
-      '<div style="font-weight:800;font-size:22px">🧭 Mon Compagnon</div>' +
+      '<div style="font-weight:800;font-size:22px">📋 Mon historique</div>' +
       '<button id="eliCompClose" aria-label="Fermer" style="background:rgba(255,255,255,.1);border:none;color:#fff;font-size:18px;width:38px;height:38px;border-radius:50%;cursor:pointer">✕</button></div>' +
       '<div style="opacity:.75;font-size:13.5px;margin-bottom:18px">Tout ton travail avec Éli au même endroit : tes sessions, tes rapports et tes PDF — tu suis ta progression d\'un coup d\'œil.</div>' +
       '<div id="eliCompList"><div style="opacity:.6;padding:34px;text-align:center">Chargement…</div></div></div>';
@@ -1285,6 +1768,60 @@
   }
   window.eliMountWaLauncher = eliMountWaLauncher;
 
+  /* ───────── P3 — IndexedDB : persistance LOCALE réelle (sessions guest + snapshots hors-ligne). Jamais de démo. ───────── */
+  var eliIDB = (function () {
+    var DBN = 'eli', VER = 1, _db = null;
+    function open() {
+      return new Promise(function (resolve, reject) {
+        if (_db) return resolve(_db);
+        if (typeof indexedDB === 'undefined') return reject(new Error('no-idb'));
+        var rq = indexedDB.open(DBN, VER);
+        rq.onupgradeneeded = function () {
+          var db = rq.result;
+          if (!db.objectStoreNames.contains('sessions')) db.createObjectStore('sessions', { keyPath: 'id', autoIncrement: true });
+          if (!db.objectStoreNames.contains('cache')) db.createObjectStore('cache', { keyPath: 'k' });
+        };
+        rq.onsuccess = function () { _db = rq.result; resolve(_db); };
+        rq.onerror = function () { reject(rq.error || new Error('idb-open')); };
+      });
+    }
+    function store(name, mode) { return open().then(function (db) { return db.transaction(name, mode).objectStore(name); }); }
+    return {
+      saveGuestSession: function (s) {
+        return store('sessions', 'readwrite').then(function (os) {
+          return new Promise(function (res, rej) { var r = os.add(s); r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error); }; });
+        }).catch(function () {});
+      },
+      listGuestSessions: function () {
+        return store('sessions', 'readonly').then(function (os) {
+          return new Promise(function (res) { var r = os.getAll(); r.onsuccess = function () { res(r.result || []); }; r.onerror = function () { res([]); }; });
+        }).catch(function () { return []; });
+      },
+      cacheSet: function (k, v) {
+        return store('cache', 'readwrite').then(function (os) {
+          return new Promise(function (res) { var r = os.put({ k: k, v: v, t: Date.now() }); r.onsuccess = function () { res(true); }; r.onerror = function () { res(false); }; });
+        }).catch(function () { return false; });
+      },
+      cacheGet: function (k) {
+        return store('cache', 'readonly').then(function (os) {
+          return new Promise(function (res) { var r = os.get(k); r.onsuccess = function () { res(r.result ? r.result.v : null); }; r.onerror = function () { res(null); }; });
+        }).catch(function () { return null; });
+      },
+    };
+  })();
+  window.eliIDB = eliIDB;
+
+  /* P3 — Service Worker (socle hors-ligne, network-first : voir public/sw.js). Enregistrement fail-safe. */
+  function eliRegisterSW() {
+    try { if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(function () {}); } catch (e) {}
+  }
+  // Kill-switch : désinscrit le SW et purge tous les caches (en cas de souci en prod).
+  window.__eliKillSW__ = function () {
+    try { if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(function (rs) { rs.forEach(function (r) { r.unregister(); }); }); } catch (e) {}
+    try { if (typeof caches !== 'undefined') caches.keys().then(function (ks) { ks.forEach(function (k) { caches.delete(k); }); }); } catch (e) {}
+    return 'SW désinscrit, caches purgés — recharge la page.';
+  };
+
   /* ───────── Installation ───────── */
   function install() {
     if (typeof window.submitSignup === 'function') window.__origSubmitSignup__ = window.submitSignup;
@@ -1292,6 +1829,8 @@
     window.loginReturn = realLogin;
     window.loginByPhone = loginByPhone;
     window.eliAuthedFetch = authedFetch; // exposé aux maquettes pour eliHydrateProgress()
+    eliRegisterSW();                      // P3 — active le socle hors-ligne (sans bloquer si indisponible)
+    try { eliMountVoiceToggle(); } catch (e) {} // P3 — contrôle voix accessible (mute/unmute TTS)
     if (findIn('formSignup', 'email') || findIn('formS', 'email')) window.submitSignup = realSignup;
 
     ['openChatContext', 'openToolChat', 'startClassChat'].forEach(function (fn) {
@@ -1304,6 +1843,7 @@
             else if (fn === 'openToolChat') { if (typeof a[0] === 'string') window.__eliPillar__ = normalizePillar(a[0]); }
             else { window.__eliFocusSubject__ = (typeof a[0] === 'string' ? a[0] : 'general'); }
           } catch (e) {}
+          if (fn === 'openToolChat' || fn === 'openChatContext') { try { setTimeout(eliMaybeReflexRitual, 160); } catch (e) {} }
           return orig.apply(this, arguments);
         };
       }
@@ -1320,7 +1860,7 @@
     ['closeChat', 'closeMM', 'closeAll', 'closeOverlay'].forEach(function (fn) {
       if (typeof window[fn] === 'function') {
         var o = window[fn];
-        window[fn] = function () { try { if (window.__eliChatOpenedAt__) { onChatClose(); eliCrossCanal('chat'); } } catch (e) {} window.__eliChatOpenedAt__ = null; return o.apply(this, arguments); };
+        window[fn] = function () { try { if (window.__eliChatOpenedAt__) { onChatClose(); eliCrossCanal('chat'); } } catch (e) {} window.__eliChatOpenedAt__ = null; window.__eliReflexDone__ = null; window.__eliReflexNotion__ = null; return o.apply(this, arguments); };
       }
     });
 

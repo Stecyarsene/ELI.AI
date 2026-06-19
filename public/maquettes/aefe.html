@@ -413,6 +413,7 @@ body{background:var(--ivory);color:var(--navy);font-family:var(--fbody);min-heig
 .st-vert{color:#15803D;background:#DCFCE7}.st-vert .st-dot{background:#16A34A}
 .st-orange{color:#B45309;background:#FEF3C7}.st-orange .st-dot{background:#D97706}
 .st-rouge{color:#B91C1C;background:#FEE2E2}.st-rouge .st-dot{background:#DC2626}
+.st-new{color:#9fb0c8;background:rgba(159,176,200,.12)}.st-new .st-dot{background:#9fb0c8}
 .subj-special{border-left-color:#6D28D9}
 .class-chat-cta{display:flex;align-items:center;gap:16px;max-width:700px;margin:0 auto;padding:18px 22px;border-radius:16px;background:var(--azure);border:1px solid #C9D8EE}
 .class-chat-logo{width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
@@ -516,7 +517,6 @@ body{background:var(--ivory);color:var(--navy);font-family:var(--fbody);min-heig
 .ep-status{width:12px;height:12px;border-radius:50%;flex-shrink:0}
 .ep-status.st-vert{background:#16A34A}.ep-status.st-orange{background:#D97706}.ep-status.st-rouge{background:#DC2626}
 .ep-name{flex:1;text-align:left;font-size:14px;color:var(--navy)}
-.ep-coef{font-family:var(--fmono);font-size:11px;color:var(--france);padding:3px 9px;border-radius:99px;background:var(--azure)}
 .ep-go{color:var(--platine)}
 .examdash-note{font-size:12px;color:var(--ink);line-height:1.5;margin-top:4px}
 .proto-step{display:flex;align-items:center;gap:14px;margin-bottom:10px}
@@ -1171,15 +1171,13 @@ function closeLegal(){document.getElementById('legalModal').classList.remove('sh
 /* DASHBOARD */
 function openDashboard(){
   closeAll();
-  const SUB=[{n:'Mathématiques',ic:'📐',p:74},{n:'Physique-Chimie',ic:'⚗️',p:61},{n:'SES',ic:'📈',p:80},{n:'HGGSP',ic:'🌍',p:55},{n:'Philosophie',ic:'💭',p:43},{n:'Grand Oral',ic:'🎙️',p:66}];
-  const ds=document.getElementById('dashSubjects');ds.innerHTML='';
-  SUB.forEach(s=>{const el=document.createElement('div');el.className='dsub';el.innerHTML=`<div class="dsub-top"><span class="dsub-ic">${s.ic}</span><span class="dsub-n">${s.n}</span><span class="dsub-p">${s.p}%</span></div><div class="dsub-bar"><div style="width:${s.p}%"></div></div>`;el.onclick=()=>{closeDashboard();openChat();};ds.appendChild(el);});
-  const HIST=[{d:'Aujourd\'hui',t:'Structuration du Grand Oral',m:'Grand Oral'},{d:'Hier',t:'Dissertation de philosophie',m:'Philosophie'},{d:'Mardi',t:'Lettre de motivation Parcoursup',m:'Parcoursup'},{d:'Lundi',t:'Étude de doc en HGGSP',m:'HGGSP'}];
-  const dh=document.getElementById('dashHistory');dh.innerHTML='';
-  HIST.forEach(h=>{const el=document.createElement('button');el.className='dhist';el.innerHTML=`<div class="dhist-l"><span class="dhist-day">${h.d}</span><span class="dhist-t">${h.t}</span><span class="dhist-m">${h.m}</span></div><span class="dhist-go">Rouvrir →</span>`;el.onclick=()=>{closeDashboard();openChat();};dh.appendChild(el);});
-  const GAPS=[{n:'Transition entre les axes du Grand Oral',m:'Grand Oral'},{n:'Problématisation en dissertation',m:'Philosophie'},{n:'Calcul intégral',m:'Mathématiques'}];
-  const dg=document.getElementById('dashGaps');dg.innerHTML='';
-  GAPS.forEach(g=>{const el=document.createElement('div');el.className='dgap';el.innerHTML=`<div class="dgap-l"><span class="dgap-ic">⚠️</span><div><div class="dgap-n">${g.n}</div><div class="dgap-m">${g.m}</div></div></div><button class="dgap-btn" onclick="closeDashboard();openChat()">Surmonter →</button>`;dg.appendChild(el);});
+  // Données RÉELLES (matières / historique / lacunes) hydratées par le bridge — ZÉRO donnée factice.
+  if (typeof window.eliHydrateDashboard === 'function') { try { window.eliHydrateDashboard(); } catch(e){} }
+  else {
+    var _ds=document.getElementById('dashSubjects'); if(_ds) _ds.innerHTML='<div style="padding:16px;opacity:.7">Chargement de tes données…</div>';
+    var _dh=document.getElementById('dashHistory'); if(_dh) _dh.innerHTML='';
+    var _dg=document.getElementById('dashGaps'); if(_dg) _dg.innerHTML='';
+  }
   const TOOLS=[{ic:'📝',n:'Aide aux devoirs',fi:1},{ic:'🗂️',n:'Fiches & révisions',fi:3},{ic:'🎙️',n:'Grand Oral',fi:0},{ic:'📚',n:'Spécialités',fi:2}];
   const dt=document.getElementById('dashTools');dt.innerHTML='';
   TOOLS.forEach(t=>{const el=document.createElement('div');el.className='dtool';el.innerHTML=`<div class="dtool-ic">${t.ic}</div><div class="dtool-n">${t.n}</div>`;el.onclick=()=>openFeat(t.fi);dt.appendChild(el);});
@@ -1209,6 +1207,10 @@ const PROG_AEFE={
 };
 function eliHydrateProgress(){var get=window.eliAuthedFetch;if(typeof get!=='function')return Promise.resolve(false);return get('/api/progress',{method:'GET'}).then(function(r){return r&&r.ok?r.json():null;}).then(function(j){if(!j||!Array.isArray(j.progress))return false;var map={};j.progress.forEach(function(p){map[p.subject]=p;});window.__ELI_PROGRESS__=map;window.__ELI_HYDRATED__=true;return true;}).catch(function(){return false;});}
 window.eliHydrateProgress=eliHydrateProgress;
+/* P1 (dernier maillon) — Repeint EN DIRECT la pastille de matière depuis le VRAI __ELI_PROGRESS__
+   (mutation optimiste du canevas après [RAPPORT], puis reconciliation autoritaire). Ne peint QUE sur un statut
+   réel ; crée le badge s'il est absent (cartes AEFE sans statut), saute les cartes spéciales, n'invente jamais. */
+window.eliApplyProgress=function(map){try{map=map||window.__ELI_PROGRESS__||{};var LBL={vert:'Acquis',orange:'À renforcer',rouge:'À travailler'};var cards=document.querySelectorAll('.subj-card');Array.prototype.forEach.call(cards,function(card){if(card.classList&&card.classList.contains('subj-special'))return;var nameEl=card.querySelector('.subj-name');if(!nameEl)return;var subj=(nameEl.textContent||'').trim();if(!subj)return;var row=map[subj];var st=row&&row.status?row.status:null;if(!st||!LBL[st])return;var badge=card.querySelector('.subj-status');if(!badge){badge=document.createElement('div');card.appendChild(badge);}badge.className='subj-status st-'+st;badge.innerHTML='<span class="st-dot"></span>'+LBL[st];});}catch(e){}};
 window.__ELI_PROGRESS__=window.__ELI_PROGRESS__||{};window.__ELI_HYDRATED__=false;
 function realStatus(subj){var p=window.__ELI_PROGRESS__[subj];return p&&p.status?p.status:null;}
 function realChapter(subj){var p=window.__ELI_PROGRESS__[subj];return p&&p.last_chapter?p.last_chapter:null;}
@@ -1226,13 +1228,7 @@ function eliEmptySubjectHTML(s,col,classLabel,cls,subjE,subj,backCall){return `
       <div class="subjdash-resume"><div class="resume-k">🌱 Nouvelle matière</div><div class="resume-t">Tu n'as pas encore commencé <b>${subj}</b>. Lance ta première session : ta progression, tes points forts et ton historique se rempliront ici automatiquement, au fil de ton travail avec Éli.</div><div class="subjdash-actions"><button class="sd-btn sd-primary" onclick="openChatContext('${cls}','${subjE}')">▶ Commencer ${subj}</button></div></div>
       <div class="subjdash-chat" onclick="openChatContext('${cls}','${subjE}')"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Je suis ton assistant ${subj}</strong><span>Pose-moi ta première question, niveau ${classLabel}.</span></div><button class="class-chat-btn" onclick="event.stopPropagation();openChatContext('${cls}','${subjE}')">Ouvrir →</button></div>
     </div>`;}
-function demoStatus(i){const m=['vert','vert','orange','vert','rouge','orange','vert','vert','orange','vert','vert','rouge','vert','orange','vert','vert','orange'];return m[i%m.length];}
 function catIcon(cat){const m={'Français':'📖','Maths':'📐','Sciences':'🔬','Sciences humaines':'🌍','Langues':'🗣️','Économie':'📈','Philo':'💭','Arts':'🎨','Sport':'🤸','EMC':'⚖️','Numérique':'💻','Spécialité':'⭐','Épreuve':'🎙️','Orientation':'🎓'};return m[cat]||'📘';}
-function demoChapter(s){const m={'Mathématiques':'Les fonctions','Maths (spé)':'La dérivation','Philosophie':'La conscience','Français':'Le roman & ses personnages','Français (écrit & oral)':"L'argumentation",'SES (spé)':'Les marchés concurrentiels','HGGSP (spé)':'Les frontières','Physique-Chimie (spé)':'Les ondes','SVT (spé)':'La génétique','Histoire-Géographie':'La mondialisation'};return realChapter(s)||m[s]||'Chapitre en cours';}
-function demoStrong(s){const m={'Mathématiques':['Calcul','Géométrie'],'Philosophie':['Analyse de notions'],'Français':['Commentaire de texte','Lecture']};return realStrong(s)||m[s]||['Bases du programme','Méthodologie acquise'];}
-function demoImprove(s){const m={'Mathématiques':['Les probabilités'],'Philosophie':['La problématisation'],'Français':['La dissertation']};return realImprove(s)||m[s]||['Chapitre à consolider'];}
-function demoRed(s){const m={'Mathématiques':['Calcul intégral'],'Philosophie':['Construire un plan dialectique'],'Français':["L'analyse stylistique"]};return realGapAll(s)||m[s]||['Notion clé à retravailler'];}
-function demoHistory(s){return [['Hier','Quiz : '+demoChapter(s),'vert'],['Il y a 3 j','Méthode avec Éli','orange'],['Semaine dernière','Première leçon du chapitre','vert'],['Il y a 10 j','Évaluation diagnostique','rouge']];}
 
 function closeUniverse(){document.getElementById('universe').classList.remove('open');}
 let CURRENT_CLASS='',CURRENT_SUBJECT='';
@@ -1247,15 +1243,15 @@ function openClassPage(k){
   uni.classList.add('open');
   document.getElementById('uniTitle').textContent='📚 '+lvl;
   const exk=examForClass(k);
-  const eb=exk?`<div class="exam-banner exam-banner-${exk}" onclick="openExamAEFE('${exk}')"><span class="exam-banner-ic">${EXAM_AEFE[exk].ico}</span><div class="exam-banner-txt"><strong>Tu prépares le ${EXAM_AEFE[exk].name} cette année</strong><span>Ton espace examen dédié : compte à rebours, épreuves coefficientées et protocole J-7.</span></div><span class="exam-banner-go">Mon espace ${EXAM_AEFE[exk].name} →</span></div>`:'';
+  const eb=exk?`<div class="exam-banner exam-banner-${exk}" onclick="openExamAEFE('${exk}')"><span class="exam-banner-ic">${EXAM_AEFE[exk].ico}</span><div class="exam-banner-txt"><strong>Tu prépares le ${EXAM_AEFE[exk].name} cette année</strong><span>Ton espace examen dédié : compte à rebours, épreuves et protocole J-7.</span></div><span class="exam-banner-go">Mon espace ${EXAM_AEFE[exk].name} →</span></div>`:'';
   document.getElementById('universeBody').innerHTML=`
     <div class="class-hero"><div class="class-hero-logo">${eliLogo(58)}</div><h2 class="class-h2">${lvl}</h2><p class="class-sub">Voici toutes tes matières. Choisis-en une pour voir ta progression et travailler avec Éli.</p></div>
     ${eb}
     <div class="subj-grid">
-      ${subs.map((s,i)=>{const st=realStatus(s[0])||demoStatus(i);
+      ${subs.map((s,i)=>{const st=realStatus(s[0]);
         if(s[1]==='Épreuve')return `<button class="subj-card subj-special" style="--sc:#6D28D9" onclick="openGrandOral()"><div class="subj-cat">Épreuve du Bac</div><div class="subj-name">🎙️ ${s[0]}</div><div class="subj-status st-orange"><span class="st-dot"></span>Atelier dédié</div></button>`;
         if(s[1]==='Orientation')return `<button class="subj-card subj-special" style="--sc:#1565C0" onclick="openParcoursup()"><div class="subj-cat">Orientation</div><div class="subj-name">🎓 ${s[0]}</div><div class="subj-status st-orange"><span class="st-dot"></span>Tableau de bord</div></button>`;
-        const col=CAT_COLOR[s[1]]||'#1565C0';return `<button class="subj-card" style="--sc:${col}" onclick="openSubject(${i})"><div class="subj-cat">${s[1]}</div><div class="subj-name">${s[0]}</div><div class="subj-status st-${st}"><span class="st-dot"></span>${st==='vert'?'Acquis':st==='orange'?'À renforcer':'À travailler'}</div></button>`;}).join('')}
+        const col=CAT_COLOR[s[1]]||'#1565C0';const st2=realStatus(s[0]);const badge=st2?`<div class="subj-status st-${st2}"><span class="st-dot"></span>${st2==='vert'?'Acquis':st2==='orange'?'À renforcer':'À travailler'}</div>`:'';return `<button class="subj-card" style="--sc:${col}" onclick="openSubject(${i})"><div class="subj-cat">${s[1]}</div><div class="subj-name">${s[0]}</div>${badge}</button>`;}).join('')}
     </div>
     <div class="class-chat-cta"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Une question générale sur ton année ?</strong><span>Éli peut t'aider à réviser, t'organiser ou choisir par où commencer.</span></div><button class="class-chat-btn" onclick="openChatContext('${lvl.replace(/'/g,"\\'")}','')">Parler à Éli →</button></div>`;
   uni.scrollTop=0;
@@ -1263,7 +1259,7 @@ function openClassPage(k){
 let CURRENT_CLASS_KEY='';
 function openSubject(i){
   const subs=PROG_AEFE[CURRENT_CLASS_KEY]||[];const s=subs[i];if(!s)return;
-  CURRENT_SUBJECT=s[0];const col=CAT_COLOR[s[1]]||'#1565C0';const st=realStatus(s[0])||demoStatus(i);
+  CURRENT_SUBJECT=s[0];const col=CAT_COLOR[s[1]]||'#1565C0';const st=realStatus(s[0]);
   const vert=st==='vert'?68:st==='orange'?45:22,orange=st==='vert'?22:35,rouge=100-vert-orange;
   document.getElementById('uniTitle').textContent=s[0]+' · '+CURRENT_CLASS;
   document.getElementById('universeBody').innerHTML=subjectDashHTML(s,col,vert,orange,rouge,CURRENT_CLASS,`openClassPage('${CURRENT_CLASS_KEY}')`);
@@ -1272,22 +1268,23 @@ function openSubject(i){
 function subjectDashHTML(s,col,vert,orange,rouge,classLabel,backCall){
   const subj=s[0];const cls=classLabel.replace(/'/g,"\\'");const subjE=subj.replace(/'/g,"\\'");
   const row=(window.__ELI_PROGRESS__||{})[subj];
-  if(window.__ELI_HYDRATED__&&!row){return eliEmptySubjectHTML(s,col,classLabel,cls,subjE,subj,backCall);}
-  const forts=(row&&row.strengths&&row.strengths.length?row.strengths:demoStrong(subj)),amel=(row&&row.improvements&&row.improvements.length?row.improvements:demoImprove(subj)),rouges=(row&&row.red_zones&&row.red_zones.length?row.red_zones:demoRed(subj)),hist=realHistory(subj)||demoHistory(subj);
+  if(!row){return eliEmptySubjectHTML(s,col,classLabel,cls,subjE,subj,backCall);}
+  const forts=(row.strengths&&row.strengths.length)?row.strengths:[],amel=(row.improvements&&row.improvements.length)?row.improvements:[],rouges=(row.red_zones&&row.red_zones.length)?row.red_zones:[],hist=realHistory(subj)||[];
+  const lastChap=realChapter(subj)||(row.last_chapter||'');
   const evo=evolutionLine(row);
   return `
     <div class="subjdash" style="--sc:${col}">
       <button class="subjdash-back" onclick="${backCall}">← Toutes mes matières</button>
       <div class="subjdash-head"><div class="subjdash-ic">${catIcon(s[1])}</div><div><div class="subjdash-cat">${s[1]} · ${classLabel}</div><h2 class="subjdash-name">${subj}</h2></div></div>
       ${evo}
-      <div class="subjdash-resume"><div class="resume-k">📌 Ton dernier cours</div><div class="resume-t">La dernière fois, tu travaillais « <b>${demoChapter(subj)}</b> ». Tu étais à mi-parcours du chapitre.</div><div class="subjdash-actions"><button class="sd-btn sd-primary" onclick="openChatContext('${cls}','${subjE}')">▶ Poursuivre : ${demoChapter(subj)}</button><button class="sd-btn sd-ghost" onclick="openChatContext('${cls}','${subjE}')">＋ Nouveau chapitre</button></div></div>
+      <div class="subjdash-resume"><div class="resume-k">📌 Ton dernier cours</div><div class="resume-t">${lastChap?`La dernière fois, tu travaillais « <b>${lastChap}</b> ».`:'Reprends le fil quand tu veux : Éli te propose la suite dès ta prochaine session.'}</div><div class="subjdash-actions">${lastChap?`<button class="sd-btn sd-primary" onclick="openChatContext('${cls}','${subjE}')">▶ Poursuivre : ${lastChap}</button>`:''}<button class="sd-btn sd-ghost" onclick="openChatContext('${cls}','${subjE}')">＋ Nouveau chapitre</button></div></div>
       <div class="subjdash-prog"><div class="prog-title">Ma progression</div><div class="prog-bar"><div class="prog-seg pv" style="width:${vert}%"></div><div class="prog-seg po" style="width:${orange}%"></div><div class="prog-seg pr" style="width:${rouge}%"></div></div><div class="prog-legend"><span><i class="lg lgv"></i>Acquis ${vert}%</span><span><i class="lg lgo"></i>À renforcer ${orange}%</span><span><i class="lg lgr"></i>Lacunes ${rouge}%</span></div></div>
       <div class="subjdash-3col">
-        <div class="zone zone-v"><div class="zone-h"><span class="zone-dot"></span>Points forts</div>${forts.map(x=>`<div class="zone-item">${x}</div>`).join('')}</div>
-        <div class="zone zone-o"><div class="zone-h"><span class="zone-dot"></span>À améliorer</div>${amel.map(x=>`<div class="zone-item">${x}</div>`).join('')}</div>
-        <div class="zone zone-r"><div class="zone-h"><span class="zone-dot"></span>Zones rouges</div>${rouges.map(x=>`<button class="zone-item zone-clic" onclick="openChatContext('${cls}','${subjE}')">${x}<span> · Surmonter →</span></button>`).join('')}</div>
+        <div class="zone zone-v"><div class="zone-h"><span class="zone-dot"></span>Points forts</div>${forts.length?forts.map(x=>`<div class="zone-item">${x}</div>`).join(''):'<div class="zone-item" style="opacity:.55">Tes points forts se révéleront au fil de tes sessions.</div>'}</div>
+        <div class="zone zone-o"><div class="zone-h"><span class="zone-dot"></span>À améliorer</div>${amel.length?amel.map(x=>`<div class="zone-item">${x}</div>`).join(''):'<div class="zone-item" style="opacity:.55">Éli identifiera ici ce qui mérite d\'être consolidé.</div>'}</div>
+        <div class="zone zone-r"><div class="zone-h"><span class="zone-dot"></span>Zones rouges</div>${rouges.length?rouges.map(x=>`<button class="zone-item zone-clic" onclick="openChatContext('${cls}','${subjE}')">${x}<span> · Surmonter →</span></button>`).join(''):'<div class="zone-item" style="opacity:.55">Aucune lacune détectée pour l\'instant. Continue comme ça.</div>'}</div>
       </div>
-      <div class="subjdash-hist"><div class="prog-title">📜 Mon historique en ${subj}</div>${hist.map(hh=>`<button class="hist-row" onclick="openChatContext('${cls}','${subjE}')"><span class="hist-day">${hh[0]}</span><span class="hist-t">${hh[1]}</span><span class="hist-badge st-${hh[2]}">${hh[2]==='vert'?'Réussi':hh[2]==='orange'?'À revoir':'Difficile'}</span></button>`).join('')}</div>
+      <div class="subjdash-hist"><div class="prog-title">📜 Mon historique en ${subj}</div>${hist.length?hist.map(hh=>`<button class="hist-row" onclick="openChatContext('${cls}','${subjE}')"><span class="hist-day">${hh[0]}</span><span class="hist-t">${hh[1]}</span><span class="hist-badge st-${hh[2]}">${hh[2]==='vert'?'Réussi':hh[2]==='orange'?'À revoir':'Difficile'}</span></button>`).join(''):'<div class="hist-row" style="opacity:.55">Ton historique apparaîtra ici dès ta première session.</div>'}</div>
       <div class="subjdash-chat" onclick="openChatContext('${cls}','${subjE}')"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Je suis ton assistant ${subj}</strong><span>Pose-moi n'importe quelle question sur ce cours, niveau ${classLabel}.</span></div><button class="class-chat-btn" onclick="event.stopPropagation();openChatContext('${cls}','${subjE}')">Ouvrir →</button></div>
     </div>`;
 }
@@ -1376,8 +1373,8 @@ function openExamAEFE(k){
         <p class="examdash-lead">${e.hero}</p>
         <div class="examdash-actions"><button class="sdash-hero-btn solid" onclick="openChatContext('${e.name}','')">🎤 Préparer avec Éli</button><button class="sdash-hero-btn outline" onclick="examBlancheAEFE('${k}')">📝 Épreuve blanche</button></div>
       </div>
-      <div class="examdash-card"><div class="prog-title">📊 Mes épreuves & coefficients</div>
-        ${e.epreuves.map(ep=>`<button class="ep-row" onclick="openChatContext('${e.name}','${ep[0].replace(/'/g,"\\'")}')"><span class="ep-status st-${ep[2]}"></span><span class="ep-name">${ep[0]}</span><span class="ep-coef">${k==='brevet'?ep[1]+' pts':'coef '+ep[1]}</span><span class="ep-go">→</span></button>`).join('')}
+      <div class="examdash-card"><div class="prog-title">📊 Mes épreuves</div>
+        ${e.epreuves.map(ep=>`<button class="ep-row" onclick="openChatContext('${e.name}','${ep[0].replace(/'/g,"\\'")}')"><span class="ep-status st-${ep[2]}"></span><span class="ep-name">${ep[0]}</span><span class="ep-go">→</span></button>`).join('')}
         <div class="examdash-note">${e.note}</div>
       </div>
       <div class="examdash-card"><div class="prog-title">🗓️ Mon protocole J-7</div>

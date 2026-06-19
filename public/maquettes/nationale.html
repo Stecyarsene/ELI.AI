@@ -650,6 +650,7 @@ body.bougie .universe{background:#10161C}
 .st-vert{color:#34D399;background:rgba(52,211,153,.12)}.st-vert .st-dot{background:#34D399}
 .st-orange{color:#FBBF24;background:rgba(251,191,36,.12)}.st-orange .st-dot{background:#FBBF24}
 .st-rouge{color:#F87171;background:rgba(248,113,113,.12)}.st-rouge .st-dot{background:#F87171}
+.st-new{color:#9fb0c8;background:rgba(159,176,200,.12)}.st-new .st-dot{background:#9fb0c8}
 .class-chat-cta{display:flex;align-items:center;gap:16px;max-width:680px;margin:0 auto;padding:18px 22px;border-radius:18px;background:linear-gradient(135deg,rgba(0,194,113,.12),rgba(0,90,56,.18));border:1px solid rgba(0,194,113,.25)}
 .class-chat-logo{width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .class-chat-txt{flex:1;display:flex;flex-direction:column;gap:3px}
@@ -766,7 +767,6 @@ body.bougie .universe{background:#10161C}
 .ep-status{width:12px;height:12px;border-radius:50%;flex-shrink:0}
 .ep-status.st-vert{background:#34D399}.ep-status.st-orange{background:#FBBF24}.ep-status.st-rouge{background:#F87171}
 .ep-name{flex:1;text-align:left;font-size:14px;color:#fff}
-.ep-coef{font-family:var(--fmono);font-size:11px;color:var(--gold-bright);padding:3px 9px;border-radius:99px;background:rgba(245,181,68,.12)}
 .ep-go{color:var(--mist)}
 .examdash-coef-note{font-size:12px;color:var(--mist);line-height:1.5}
 .examdash-protocole{display:flex;flex-direction:column;gap:10px}
@@ -835,7 +835,7 @@ body.bougie .universe{background:#10161C}
     </div>
     <div class="nav-links">
       <button class="nav-link" onclick="scrollToSec('top')">Accueil</button>
-      <button class="nav-link" onclick="openChat()">Professeur Éli</button><button class="nav-link" onclick="eliOpenCompagnon()">🧭 Mon Compagnon</button>
+      <button class="nav-link" onclick="openChat()">Professeur Éli</button>
       <button class="nav-link" onclick="scrollToSec('examens')">Examens</button>
       <button class="nav-link" onclick="scrollToSec('cycles')">Programme général / technique</button>
       <button class="nav-link" onclick="scrollToSec('piliers')">Fonctionnalités</button>
@@ -859,7 +859,7 @@ body.bougie .universe{background:#10161C}
     <button class="mm-close" onclick="closeMobileMenu()">✕</button>
   </div>
   <button class="mm-link" onclick="closeMobileMenu();scrollToSec('top')">Accueil</button>
-  <button class="mm-link" onclick="closeMobileMenu();openChat()">Professeur Éli</button><button class="mm-link" onclick="closeMobileMenu();eliOpenCompagnon()">🧭 Mon Compagnon</button>
+  <button class="mm-link" onclick="closeMobileMenu();openChat()">Professeur Éli</button>
   <button class="mm-link" onclick="closeMobileMenu();scrollToSec('examens')">Examens</button>
   <button class="mm-link" onclick="closeMobileMenu();scrollToSec('cycles')">Programme général / technique</button>
   <button class="mm-link" onclick="closeMobileMenu();scrollToSec('piliers')">Fonctionnalités</button>
@@ -896,23 +896,6 @@ body.bougie .universe{background:#10161C}
       <div class="exam-badge">Primaire <span>· CP1 → CM2</span></div>
       <div class="exam-badge">Collège <span>· 6ème → 3ème</span></div>
       <div class="exam-badge">Lycée <span>· 2nde → Tle</span></div>
-    </div>
-  </section>
-
-  <!-- DÉMO (cliquable) -->
-  <section class="demo">
-    <div class="demo-frame" onclick="openChat()">
-      <div class="demo-head">
-        <div class="demo-avatar"><svg width="42" height="42" viewBox="0 0 200 200"><defs><radialGradient id="x3_1" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#388E3C"/><stop offset="100%" stop-color="#1B5E20"/></radialGradient><linearGradient id="x3_2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFE082"/><stop offset="100%" stop-color="#FFA000"/></linearGradient><linearGradient id="x3_3" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#FFA000"/><stop offset="60%" stop-color="#FFD54F"/><stop offset="100%" stop-color="#FFFDE7"/></linearGradient></defs><circle cx="100" cy="100" r="86" fill="url(#x3_1)"/><rect x="61" y="44" width="13" height="108" rx="6" fill="url(#x3_2)"/><rect x="61" y="44" width="78" height="13" rx="6" fill="url(#x3_2)"/><rect x="61" y="91" width="60" height="13" rx="6" fill="url(#x3_2)"/><rect x="61" y="139" width="78" height="13" rx="6" fill="url(#x3_2)"/><path d="M147 44C145 34,141 24,147 12C150 5,156 1,156 1C156 1,167 10,164 24C162 32,156 38,156 44Z" fill="url(#x3_3)"/><circle cx="82" cy="172" r="4.5" fill="url(#x3_2)" opacity=".9"/><circle cx="100" cy="176" r="5.5" fill="url(#x3_2)"/><circle cx="118" cy="172" r="4.5" fill="url(#x3_2)" opacity=".9"/></svg></div>
-        <div class="demo-id"><div class="demo-name">Professeur Éli</div><div class="demo-state">● En ligne · prêt à t'aider</div></div>
-        <div class="demo-tag">Aperçu</div>
-      </div>
-      <div class="bubbles">
-        <div class="bubble bubble-eli">Bonjour ! Sur quoi veut-on travailler aujourd'hui ? 🌱</div>
-        <div class="bubble bubble-user">Les fractions, je comprends rien…</div>
-        <div class="bubble bubble-eli">Pas de panique 😊 Si tu coupes une mangue en <strong>4 parts égales</strong> et que tu en prends 2, quelle fraction ça fait selon toi ?</div>
-      </div>
-      <div class="demo-hint">↑ Clique pour continuer la conversation avec Éli</div>
     </div>
   </section>
 
@@ -1108,7 +1091,6 @@ body.bougie .universe{background:#10161C}
     <!-- Inscription -->
     <div class="signup-form" id="formSignup">
       <input type="text" placeholder="Ton prénom" />
-      <input type="email" placeholder="Ton adresse email" />
       <input type="tel" placeholder="Numéro de téléphone WhatsApp" />
       <input type="password" placeholder="Choisis un mot de passe (min. 6 caractères)" />
       <label class="signup-field-label">Ta date de naissance</label>
@@ -1139,6 +1121,7 @@ body.bougie .universe{background:#10161C}
     <!-- Connexion -->
     <div class="signup-form" id="formLogin" style="display:none">
       <input type="email" id="loginEmail" placeholder="Ton adresse email" />
+      <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;opacity:.85;margin:6px 2px 0;cursor:pointer"><input type="checkbox" id="loginRemember" checked style="width:16px;height:16px;cursor:pointer"/> Se souvenir de moi</label>
       <input type="password" id="loginPassword" placeholder="Ton mot de passe" />
       <button class="signup-submit" onclick="loginReturn()">Me connecter</button>
       <div class="signup-or" style="text-align:center;margin:10px 0;opacity:.6">— ou par téléphone —</div>
@@ -1367,6 +1350,10 @@ const PROG={
 const CAT_COLOR={'Français':'#6D28D9','Maths':'#1565C0','Sciences':'#0E9F6E','Sciences humaines':'#C2410C','Langues':'#0891B2','Économie':'#B45309','Philo':'#7C3AED','Arts':'#DB2777','Sport':'#059669','Étude du milieu':'#0E7490'};
 function eliHydrateProgress(){var get=window.eliAuthedFetch;if(typeof get!=='function')return Promise.resolve(false);return get('/api/progress',{method:'GET'}).then(function(r){return r&&r.ok?r.json():null;}).then(function(j){if(!j||!Array.isArray(j.progress))return false;var map={};j.progress.forEach(function(p){map[p.subject]=p;});window.__ELI_PROGRESS__=map;window.__ELI_HYDRATED__=true;return true;}).catch(function(){return false;});}
 window.eliHydrateProgress=eliHydrateProgress;
+/* P1 (dernier maillon) — Repeint EN DIRECT la pastille de matière depuis le VRAI __ELI_PROGRESS__
+   (mutation optimiste du canevas après [RAPPORT], puis reconciliation autoritaire). Ne peint QUE sur un statut
+   réel ; jamais de faux statut, ne dégrade jamais l'état honnête « À débuter », n'écrase pas les cartes spéciales. */
+window.eliApplyProgress=function(map){try{map=map||window.__ELI_PROGRESS__||{};var LBL={vert:'Acquis',orange:'À renforcer',rouge:'À travailler'};var cards=document.querySelectorAll('.subj-card');Array.prototype.forEach.call(cards,function(card){if(card.classList&&card.classList.contains('subj-special'))return;var nameEl=card.querySelector('.subj-name');if(!nameEl)return;var subj=(nameEl.textContent||'').trim();if(!subj)return;var row=map[subj];var st=row&&row.status?row.status:null;if(!st||!LBL[st])return;var badge=card.querySelector('.subj-status');if(!badge){badge=document.createElement('div');card.appendChild(badge);}badge.className='subj-status st-'+st;badge.innerHTML='<span class="st-dot"></span>'+LBL[st];});}catch(e){}};
 window.__ELI_PROGRESS__=window.__ELI_PROGRESS__||{};window.__ELI_HYDRATED__=false;
 function realStatus(subj){var p=window.__ELI_PROGRESS__[subj];return p&&p.status?p.status:null;}
 function realChapter(subj){var p=window.__ELI_PROGRESS__[subj];return p&&p.last_chapter?p.last_chapter:null;}
@@ -1382,7 +1369,6 @@ function eliEmptySubjectHTML(s,col,classLabel,cls,subjE,subj,backCall){return `
       <div class="subjdash-resume"><div class="resume-k">🌱 Nouvelle matière</div><div class="resume-t">Tu n'as pas encore commencé <b>${subj}</b>. Lance ta première session : ta progression, tes points forts et ton historique se rempliront ici automatiquement, au fil de ton travail avec Éli.</div><div class="subjdash-actions"><button class="sd-btn sd-primary" onclick="openChatContext('${cls}','${subjE}')">▶ Commencer ${subj}</button></div></div>
       <div class="subjdash-chat" onclick="openChatContext('${cls}','${subjE}')"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Je suis ton assistant ${subj}</strong><span>Pose-moi ta première question, niveau ${classLabel}.</span></div><button class="class-chat-btn" onclick="event.stopPropagation();openChatContext('${cls}','${subjE}')">Ouvrir →</button></div>
     </div>`;}
-function demoStatus(i){const m=['vert','vert','orange','vert','rouge','orange','vert','vert','orange','vert','vert','rouge','vert','orange','vert','vert'];return m[i%m.length];}
 
 /* ENSEIGNEMENT TECHNIQUE — séries gabonaises (à valider par un enseignant technique) */
 const TECH={
@@ -1411,8 +1397,6 @@ const TECH={
 /* FLUX : classe → matières (+chat général) → matière → dashboard matière → chat contextuel */
 let CURRENT_CLASS='', CURRENT_SUBJECT='';
 function catIcon(cat){const m={'Français':'📖','Maths':'📐','Sciences':'🔬','Sciences humaines':'🌍','Langues':'🗣️','Économie':'📈','Philo':'💭','Arts':'🎨','Sport':'🤸','Étude du milieu':'🧭','Tronc':'📘','Spécialité':'⚙️','Atelier':'🛠️'};return m[cat]||'📘';}
-function demoChapter(subj){const m={'Mathématiques':'Les fonctions affines','SVT':'La cellule vivante','Français':'Le texte argumentatif','Physique-Chimie':'Les forces','Histoire':'La décolonisation'};return realChapter(subj)||m[subj]||'Chapitre 3';}
-function demoGap(subj){const m={'Mathématiques':'Résolution d\'équations','SVT':'La mitose','Français':'L\'accord du participe passé','Physique-Chimie':'Les équations chimiques'};return realGap(subj)||m[subj]||'Notion clé du chapitre 2';}
 
 /* SECTION TECHNIQUE : cycle → série → matières → dashboard matière */
 function openTech(){
@@ -2059,45 +2043,13 @@ function closeLegal(){document.getElementById('legalModal').classList.remove('sh
 /* ═══ TABLEAU DE BORD ═══ */
 function openDashboard(){
   closeAll();
-  // Programme par matières + jauges
-  const SUBJECTS=[
-    {n:'Mathématiques',ic:'📐',p:72},{n:'Physique-Chimie',ic:'⚗️',p:58},
-    {n:'SVT',ic:'🧬',p:64},{n:'Philosophie',ic:'💭',p:40},
-    {n:'Histoire-Géo',ic:'🌍',p:55},{n:'Anglais',ic:'🇬🇧',p:80},
-  ];
-  const ds=document.getElementById('dashSubjects');ds.innerHTML='';
-  SUBJECTS.forEach(s=>{
-    const el=document.createElement('div');el.className='dash-subject';
-    el.innerHTML=`<div class="dash-subject-top"><span class="dash-subject-ic">${s.ic}</span><span class="dash-subject-n">${s.n}</span><span class="dash-subject-p">${s.p}%</span></div><div class="dash-subject-bar"><div style="width:${s.p}%"></div></div>`;
-    el.onclick=()=>{closeDashboard();openChat();};
-    ds.appendChild(el);
-  });
-  // Historique interactif
-  const HISTORY=[
-    {d:'Aujourd\'hui',t:'Les fractions équivalentes',m:'Mathématiques'},
-    {d:'Hier',t:'Analyse de texte sur Épicure',m:'Philosophie'},
-    {d:'Mardi',t:'Les fonctions affines',m:'Mathématiques'},
-    {d:'Lundi',t:'La décolonisation de l\'Afrique',m:'Histoire-Géo'},
-  ];
-  const dh=document.getElementById('dashHistory');dh.innerHTML='';
-  HISTORY.forEach(h=>{
-    const el=document.createElement('button');el.className='dash-hist';
-    el.innerHTML=`<div class="dash-hist-l"><span class="dash-hist-day">${h.d}</span><span class="dash-hist-t">${h.t}</span><span class="dash-hist-m">${h.m}</span></div><span class="dash-hist-go">Rouvrir →</span>`;
-    el.onclick=()=>{closeDashboard();openChat();};
-    dh.appendChild(el);
-  });
-  // Espace lacunes
-  const GAPS=[
-    {n:'Maîtrise insuffisante des vecteurs',m:'Mathématiques'},
-    {n:'Confusion sur les dates de la décolonisation',m:'Histoire-Géo'},
-    {n:'Équilibrage des équations chimiques',m:'Physique-Chimie'},
-  ];
-  const dg=document.getElementById('dashGaps');dg.innerHTML='';
-  GAPS.forEach(g=>{
-    const el=document.createElement('div');el.className='dash-gap';
-    el.innerHTML=`<div class="dash-gap-l"><span class="dash-gap-ic">⚠️</span><div><div class="dash-gap-n">${g.n}</div><div class="dash-gap-m">${g.m}</div></div></div><button class="dash-gap-btn" onclick="closeDashboard();openChat()">Surmonter →</button>`;
-    dg.appendChild(el);
-  });
+  // Données RÉELLES (matières / historique / lacunes) hydratées par le bridge — ZÉRO donnée factice.
+  if (typeof window.eliHydrateDashboard === 'function') { try { window.eliHydrateDashboard(); } catch(e){} }
+  else {
+    var _ds=document.getElementById('dashSubjects'); if(_ds) _ds.innerHTML='<div style="padding:16px;opacity:.7">Chargement de tes données…</div>';
+    var _dh=document.getElementById('dashHistory'); if(_dh) _dh.innerHTML='';
+    var _dg=document.getElementById('dashGaps'); if(_dg) _dg.innerHTML='';
+  }
   // Outils
   const dp=document.getElementById('dashPillars');dp.innerHTML='';
   PILLARS.forEach((p,i)=>{
@@ -2169,12 +2121,13 @@ function openClassPage(classKey){
   uni.className='universe open uni-class';
   document.getElementById('uniTitle').textContent='📚 '+classKey;
   const exk=examForClass(classKey);
-  const examBanner=exk?`<div class="exam-banner exam-banner-${exk}" onclick="openExamDash('${exk}')"><span class="exam-banner-ic">${EXAM_DASH[exk].ico}</span><div class="exam-banner-txt"><strong>Tu prépares le ${EXAM_DASH[exk].name} cette année</strong><span>Accède à ton espace examen dédié : compte à rebours, épreuves et protocole J-7.</span></div><span class="exam-banner-go">Mon espace ${EXAM_DASH[exk].name} →</span></div>`:'';
+  const _exDays=(exk&&window.eliDaysUntil)?window.eliDaysUntil(exk==='bac'?'bac_general':exk):null;
+  const examBanner=(exk && !(_exDays!=null && _exDays<0))?`<div class="exam-banner exam-banner-${exk}" onclick="openExamDash('${exk}')"><span class="exam-banner-ic">${EXAM_DASH[exk].ico}</span><div class="exam-banner-txt"><strong>Tu prépares le ${EXAM_DASH[exk].name} cette année</strong><span>Accède à ton espace examen dédié : compte à rebours, épreuves et protocole J-7.</span></div><span class="exam-banner-go">Mon espace ${EXAM_DASH[exk].name} →</span></div>`:'';
   body.innerHTML=`
     <div class="class-hero"><div class="class-hero-logo">${eliLogo(58)}</div><h2 class="class-h2">${classKey}</h2><p class="class-sub">Voici toutes tes matières. Choisis-en une pour voir ta progression et travailler avec Éli.</p></div>
     ${examBanner}
     <div class="subj-grid">
-      ${subs.map((s,i)=>{const st=realStatus(s[0])||demoStatus(i);const col=CAT_COLOR[s[1]]||'#1565C0';return `<button class="subj-card" style="--sc:${col}" onclick="openSubject(${i})"><div class="subj-cat">${s[1]}</div><div class="subj-name">${s[0]}</div><div class="subj-status st-${st}"><span class="st-dot"></span>${st==='vert'?'Acquis':st==='orange'?'À renforcer':'À travailler'}</div></button>`;}).join('')}
+      ${subs.map((s,i)=>{const st=realStatus(s[0]);const col=CAT_COLOR[s[1]]||'#1565C0';const badge=st?`<div class="subj-status st-${st}"><span class="st-dot"></span>${st==='vert'?'Acquis':st==='orange'?'À renforcer':'À travailler'}</div>`:`<div class="subj-status st-new"><span class="st-dot"></span>À débuter</div>`;return `<button class="subj-card" style="--sc:${col}" onclick="openSubject(${i})"><div class="subj-cat">${s[1]}</div><div class="subj-name">${s[0]}</div>${badge}</button>`;}).join('')}
     </div>
     <div class="class-chat-cta"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Une question générale sur ton année ?</strong><span>Éli peut t'aider à réviser, t'organiser ou choisir par où commencer.</span></div><button class="class-chat-btn" onclick="openChatContext('${classKey.replace(/'/g,"\\'")}','')">Parler à Éli →</button></div>`;
   uni.scrollTop=0;
@@ -2183,34 +2136,31 @@ function openClassPage(classKey){
 function subjectDashHTML(s,col,vert,orange,rouge,classLabel,backCall){
   const subj=s[0];const cls=classLabel.replace(/'/g,"\\'");const subjE=subj.replace(/'/g,"\\'");
   const row=(window.__ELI_PROGRESS__||{})[subj];
-  if(window.__ELI_HYDRATED__&&!row){return eliEmptySubjectHTML(s,col,classLabel,cls,subjE,subj,backCall);}
-  const forts=(row&&row.strengths&&row.strengths.length?row.strengths:demoStrong(subj)),amel=(row&&row.improvements&&row.improvements.length?row.improvements:demoImprove(subj)),rouges=(row&&row.red_zones&&row.red_zones.length?row.red_zones:demoRed(subj)),hist=realHistory(subj)||demoHistory(subj);
+  if(!row){return eliEmptySubjectHTML(s,col,classLabel,cls,subjE,subj,backCall);}
+  const forts=(row.strengths&&row.strengths.length)?row.strengths:[],amel=(row.improvements&&row.improvements.length)?row.improvements:[],rouges=(row.red_zones&&row.red_zones.length)?row.red_zones:[],hist=realHistory(subj)||[];
+  const lastChap=realChapter(subj)||(row.last_chapter||'');
   const evo=evolutionLine(row);
   return `
     <div class="subjdash" style="--sc:${col}">
       <button class="subjdash-back" onclick="${backCall}">← Toutes mes matières</button>
       <div class="subjdash-head"><div class="subjdash-ic">${catIcon(s[1])}</div><div><div class="subjdash-cat">${s[1]} · ${classLabel}</div><h2 class="subjdash-name">${subj}</h2></div></div>
       ${evo}
-      <div class="subjdash-resume"><div class="resume-k">📌 Ton dernier cours</div><div class="resume-t">La dernière fois, tu travaillais « <b>${demoChapter(subj)}</b> ». Tu étais à mi-parcours du chapitre.</div><div class="subjdash-actions"><button class="sd-btn sd-primary" onclick="openChatContext('${cls}','${subjE}')">▶ Poursuivre : ${demoChapter(subj)}</button><button class="sd-btn sd-ghost" onclick="openChatContext('${cls}','${subjE}')">＋ Débuter un nouveau chapitre</button></div></div>
+      <div class="subjdash-resume"><div class="resume-k">📌 Ton dernier cours</div><div class="resume-t">${lastChap?`La dernière fois, tu travaillais « <b>${lastChap}</b> ».`:'Reprends le fil quand tu veux : Éli te propose la suite dès ta prochaine session.'}</div><div class="subjdash-actions">${lastChap?`<button class="sd-btn sd-primary" onclick="openChatContext('${cls}','${subjE}')">▶ Poursuivre : ${lastChap}</button>`:''}<button class="sd-btn sd-ghost" onclick="openChatContext('${cls}','${subjE}')">＋ Débuter un nouveau chapitre</button></div></div>
       <div class="subjdash-prog"><div class="prog-title">Ma progression</div><div class="prog-bar"><div class="prog-seg pv" style="width:${vert}%"></div><div class="prog-seg po" style="width:${orange}%"></div><div class="prog-seg pr" style="width:${rouge}%"></div></div><div class="prog-legend"><span><i class="lg lgv"></i>Acquis ${vert}%</span><span><i class="lg lgo"></i>À renforcer ${orange}%</span><span><i class="lg lgr"></i>Lacunes ${rouge}%</span></div></div>
       <div class="subjdash-3col">
-        <div class="zone zone-v"><div class="zone-h"><span class="zone-dot st-vert"></span>Points forts</div>${forts.map(x=>`<div class="zone-item">${x}</div>`).join('')}</div>
-        <div class="zone zone-o"><div class="zone-h"><span class="zone-dot st-orange"></span>À améliorer</div>${amel.map(x=>`<div class="zone-item">${x}</div>`).join('')}</div>
-        <div class="zone zone-r"><div class="zone-h"><span class="zone-dot st-rouge"></span>Zones rouges</div>${rouges.map(x=>`<button class="zone-item zone-clic" onclick="openChatContext('${cls}','${subjE}')">${x}<span> · Surmonter →</span></button>`).join('')}</div>
+        <div class="zone zone-v"><div class="zone-h"><span class="zone-dot st-vert"></span>Points forts</div>${forts.length?forts.map(x=>`<div class="zone-item">${x}</div>`).join(''):'<div class="zone-item" style="opacity:.55">Tes points forts se révéleront au fil de tes sessions.</div>'}</div>
+        <div class="zone zone-o"><div class="zone-h"><span class="zone-dot st-orange"></span>À améliorer</div>${amel.length?amel.map(x=>`<div class="zone-item">${x}</div>`).join(''):'<div class="zone-item" style="opacity:.55">Éli identifiera ici ce qui mérite d\'être consolidé.</div>'}</div>
+        <div class="zone zone-r"><div class="zone-h"><span class="zone-dot st-rouge"></span>Zones rouges</div>${rouges.length?rouges.map(x=>`<button class="zone-item zone-clic" onclick="openChatContext('${cls}','${subjE}')">${x}<span> · Surmonter →</span></button>`).join(''):'<div class="zone-item" style="opacity:.55">Aucune lacune détectée pour l\'instant. Continue comme ça.</div>'}</div>
       </div>
-      <div class="subjdash-hist"><div class="prog-title">📜 Mon historique en ${subj}</div>${hist.map(hh=>`<button class="hist-row" onclick="openChatContext('${cls}','${subjE}')"><span class="hist-day">${hh[0]}</span><span class="hist-t">${hh[1]}</span><span class="hist-badge st-${hh[2]}">${hh[2]==='vert'?'Réussi':hh[2]==='orange'?'À revoir':'Difficile'}</span></button>`).join('')}</div>
+      <div class="subjdash-hist"><div class="prog-title">📜 Mon historique en ${subj}</div>${hist.length?hist.map(hh=>`<button class="hist-row" onclick="openChatContext('${cls}','${subjE}')"><span class="hist-day">${hh[0]}</span><span class="hist-t">${hh[1]}</span><span class="hist-badge st-${hh[2]}">${hh[2]==='vert'?'Réussi':hh[2]==='orange'?'À revoir':'Difficile'}</span></button>`).join(''):'<div class="hist-row" style="opacity:.55">Ton historique en '+subj+' apparaîtra ici dès ta première session.</div>'}</div>
       <div class="subjdash-chat" onclick="openChatContext('${cls}','${subjE}')"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Je suis ton assistant ${subj}</strong><span>Pose-moi n'importe quelle question sur ce cours, niveau ${classLabel}.</span></div><button class="class-chat-btn" onclick="event.stopPropagation();openChatContext('${cls}','${subjE}')">Ouvrir →</button></div>
     </div>`;
 }
-function demoStrong(subj){const m={'Mathématiques':['Calcul littéral','Géométrie plane'],'SVT':['Le vivant','La nutrition'],'Français':['Compréhension de texte','Vocabulaire']};return m[subj]||['Bases du chapitre 1',"Notions d'introduction"];}
-function demoImprove(subj){const m={'Mathématiques':['Les fractions','La proportionnalité'],'SVT':['La respiration',"Le cycle de l'eau"],'Français':['La conjugaison',"L'analyse grammaticale"]};return m[subj]||['Chapitre 2 à consolider'];}
-function demoRed(subj){const m={'Mathématiques':["Résolution d'équations",'Théorème de Pythagore'],'SVT':['La mitose','La génétique'],'Français':["L'accord du participe passé"]};return m[subj]||['Notion clé du chapitre en cours'];}
-function demoHistory(subj){return [['Hier','Quiz : '+demoChapter(subj),'vert'],['Il y a 3 j','Exercice guidé avec Éli','orange'],['Semaine dernière','Première leçon du chapitre','vert'],['Il y a 10 j','Évaluation diagnostique','rouge']];}
 
 function openSubject(i){
   const subs=PROG[CURRENT_CLASS]||[];const s=subs[i];if(!s)return;
-  CURRENT_SUBJECT=s[0];const col=CAT_COLOR[s[1]]||'#1565C0';const st=realStatus(s[0])||demoStatus(i);
-  const vert=st==='vert'?68:st==='orange'?45:22,orange=st==='vert'?22:35,rouge=100-vert-orange;
+  CURRENT_SUBJECT=s[0];const col=CAT_COLOR[s[1]]||'#1565C0';const st=realStatus(s[0]);
+  const vert=st==='vert'?68:st==='orange'?45:st==='rouge'?22:0,orange=st==='vert'?22:st?35:0,rouge=st?100-vert-orange:0;
   document.getElementById('uniTitle').textContent=s[0]+' · '+CURRENT_CLASS;
   document.getElementById('universeBody').innerHTML=subjectDashHTML(s,col,vert,orange,rouge,CURRENT_CLASS,`openClassPage('${CURRENT_CLASS.replace(/'/g,"\\'")}')`);
   document.getElementById('universe').scrollTop=0;
@@ -2232,7 +2182,7 @@ function openTechClass(cycleKey,sName,level){
   document.getElementById('universeBody').innerHTML=`
     <div class="class-hero"><div class="class-hero-logo">${eliLogo(54)}</div><h2 class="class-h2" style="font-size:clamp(22px,4vw,30px)">${sName}</h2><p class="class-sub"><strong style="color:#F5B544">${level}</strong> — voici toutes tes matières, tronc commun et spécialités. Choisis-en une pour travailler avec Éli.</p></div>
     <button class="subjdash-back" style="margin:0 auto 18px;display:block" onclick="openTechSerie('${cycleKey}','${sName.replace(/'/g,"\\'")}')">← Changer de classe</button>
-    <div class="subj-grid">${subs.map((s,i)=>{const st=realStatus(s[0])||demoStatus(i);const col=s[1]==='Spécialité'?'#C2410C':s[1]==='Atelier'?'#B45309':s[1]==='Langues'?'#0891B2':'#1565C0';return `<button class="subj-card" style="--sc:${col}" onclick="openTechSubject('${cycleKey}','${sName.replace(/'/g,"\\'")}',${i},'${level}')"><div class="subj-cat">${s[1]}</div><div class="subj-name">${s[0]}</div><div class="subj-status st-${st}"><span class="st-dot"></span>${st==='vert'?'Acquis':st==='orange'?'À renforcer':'À travailler'}</div></button>`;}).join('')}</div>
+    <div class="subj-grid">${subs.map((s,i)=>{const st=realStatus(s[0]);const col=s[1]==='Spécialité'?'#C2410C':s[1]==='Atelier'?'#B45309':s[1]==='Langues'?'#0891B2':'#1565C0';const badge=st?`<div class="subj-status st-${st}"><span class="st-dot"></span>${st==='vert'?'Acquis':st==='orange'?'À renforcer':'À travailler'}</div>`:`<div class="subj-status st-new"><span class="st-dot"></span>À débuter</div>`;return `<button class="subj-card" style="--sc:${col}" onclick="openTechSubject('${cycleKey}','${sName.replace(/'/g,"\\'")}',${i},'${level}')"><div class="subj-cat">${s[1]}</div><div class="subj-name">${s[0]}</div>${badge}</button>`;}).join('')}</div>
     <div class="class-chat-cta"><div class="class-chat-logo">${eliLogo(40)}</div><div class="class-chat-txt"><strong>Une question sur ta filière ?</strong><span>Éli connaît ton programme technique ${level} et t'accompagne matière par matière.</span></div><button class="class-chat-btn" onclick="openChatContext('${(sName+' · '+level).replace(/'/g,"\\'")}','')">Parler à Éli →</button></div>`;
   document.getElementById('universe').scrollTop=0;
 }
@@ -2240,7 +2190,7 @@ function openTechSubject(cycleKey,sName,i,level){
   const s=TECH[cycleKey].series[sName][i];if(!s)return;
   const label=sName+(level?(' · '+level):'');CURRENT_CLASS=label;CURRENT_SUBJECT=s[0];
   const col=s[1]==='Spécialité'?'#C2410C':s[1]==='Atelier'?'#B45309':'#1565C0';
-  const st=realStatus(s[0])||demoStatus(i);const vert=st==='vert'?68:st==='orange'?45:22,orange=st==='vert'?22:35,rouge=100-vert-orange;
+  const st=realStatus(s[0]);const vert=st==='vert'?68:st==='orange'?45:st==='rouge'?22:0,orange=st==='vert'?22:st?35:0,rouge=st?100-vert-orange:0;
   document.getElementById('uniTitle').textContent=s[0];
   document.getElementById('universeBody').innerHTML=subjectDashHTML(s,col,vert,orange,rouge,label,`openTechClass('${cycleKey}','${sName.replace(/'/g,"\\'")}','${level||''}')`);
   document.getElementById('universe').scrollTop=0;
@@ -2296,11 +2246,10 @@ function openExamDash(k){
         </div>
       </div>
       <div class="examdash-card">
-        <div class="prog-title">📊 Mes épreuves & coefficients</div>
+        <div class="prog-title">📊 Mes épreuves</div>
         <div class="examdash-epreuves">
-          ${e.epreuves.map(ep=>`<button class="ep-row" onclick="openChatContext('${e.level} · ${e.name}','${ep[0].replace(/'/g,"\\'")}','examen')"><span class="ep-status st-${ep[2]}"></span><span class="ep-name">${ep[0]}</span><span class="ep-coef">coef ${ep[1]}</span><span class="ep-go">→</span></button>`).join('')}
+          ${e.epreuves.map(ep=>`<button class="ep-row" onclick="openChatContext('${e.level} · ${e.name}','${ep[0].replace(/'/g,"\\'")}','examen')"><span class="ep-status st-${ep[2]}"></span><span class="ep-name">${ep[0]}</span><span class="ep-go">→</span></button>`).join('')}
         </div>
-        <div class="examdash-coef-note">Total des coefficients : <b>${totalCoef}</b> · Éli priorise les épreuves à fort coefficient et tes zones rouges.</div>
       </div>
       <div class="examdash-card">
         <div class="prog-title">🗓️ Mon protocole J-7</div>

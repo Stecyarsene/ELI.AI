@@ -10,6 +10,7 @@ export interface Progress {
   user_id: string; program: Program; subject: string; status: Status;
   last_chapter: string | null; strengths: string[]; improvements: string[];
   red_zones: string[]; history: Array<{ d: string; t: string; s: Status }>;
+  error_tally?: Record<string, number>;   // {"<notion>": <count>} — compteur réel d'erreurs (rituel « 3× = réflexe »)
 }
 export interface Plan { id: string; program: Program; label: string; amount_fcfa: number; duration_days: number; }
 export interface Payment { tx_id: string; user_id: string; program: Program; plan_id: string; amount_fcfa: number; status: 'pending' | 'success' | 'failed'; }

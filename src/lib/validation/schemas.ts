@@ -5,6 +5,7 @@ export const chatInput = z.object({
   message: z.string().min(1).max(4000),
   focusSubject: z.string().max(60).optional(),
   pillar: z.string().max(60).optional(),
+  reflex: z.string().trim().min(1).max(120).optional(),   // notion-réflexe (validée SERVEUR contre le vrai error_tally)
 }).strict();
 
 export const payInit = z.object({

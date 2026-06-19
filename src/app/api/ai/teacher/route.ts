@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase/server';
 import { requireRole } from '@/lib/roles';
+import { checkLimit } from '@/lib/ratelimit';
 import { buildTeacherPrompt, type TeacherKind } from '@/lib/llm/teacherPrompt';
 import { inspectUserMessage } from '@/lib/security/guard';
 import { safeParse, teacherInput } from '@/lib/validation/schemas';
@@ -54,6 +55,9 @@ function chaptersFor(curriculum: CurriculumPayload | null, subject: string | nul
 export async function POST(req: Request) {
   const gate = await requireRole(req, ['teacher', 'school_admin', 'super_admin']);
   if ('error' in gate) return gate.error;
+  // P0 — anti-abus de coût par utilisateur (fail-OPEN).
+  const rl = await checkLimit('ai', `teacher:${gate.user.id}`);
+  if (!rl.ok) return Response.json({ error: 'rate_limited', retryAfter: rl.retryAfter ?? 30 }, { status: 429, headers: { 'retry-after': String(rl.retryAfter ?? 30) } });
 
   const raw = (await req.json().catch(() => null)) as unknown;
   const parsed = safeParse(teacherInput, raw);
