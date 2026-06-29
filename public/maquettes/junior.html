@@ -1090,7 +1090,7 @@ function renderJournal(){
 function eliReadLesson(){const l=state.currentLesson?.lesson;if(!l)return;eliSpeak(l.title+'. '+l.content.replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim());}
 
 // ===== QUIZ =====
-function startQuiz(lesson,pillarIdx,lessonIdx){state.quizQuestions=lesson.questions||[];state.quizIndex=0;state.quizScore=0;state.hearts=3;state.combo=0;state.maxCombo=0;state.currentPillar=pillarIdx;document.getElementById('quiz-title').textContent=lesson.title;renderQuizQuestion();goTo('screen-quiz');}
+function startQuiz(lesson,pillarIdx,lessonIdx){if(window.EliTrial&&!EliTrial.use('junior'))return;state.quizQuestions=lesson.questions||[];state.quizIndex=0;state.quizScore=0;state.hearts=3;state.combo=0;state.maxCombo=0;state.currentPillar=pillarIdx;document.getElementById('quiz-title').textContent=lesson.title;renderQuizQuestion();goTo('screen-quiz');}
 function heartsHTML(){return `<div class="hearts">${[0,1,2].map(i=>`<span class="heart${i>=state.hearts?' lost':''}">❤️</span>`).join('')}</div>`;}
 function renderQuizQuestion(){
   const content=document.getElementById('quiz-content');
@@ -1294,5 +1294,6 @@ window.addEventListener('load',()=>{
 });
 if(window.speechSynthesis)window.speechSynthesis.addEventListener('voiceschanged',()=>window.speechSynthesis.getVoices());
 </script>
+<script src="eli-trial.js"></script>
 </body>
 </html>

@@ -774,6 +774,8 @@ function renderPilier(p){({accueil:renderAccueil,comprendre:renderComprendre,ave
 function goJ7FromOral(){go('j7',{fromOral:true,theme:'Brassage génétique',weak:['Forme — structure du propos','Aisance — gestion du stress']});}
 function go(p,opts){
   opts=opts||{};
+  // Essais de découverte : ouvrir un pilier consomme un essai (sauf l'accueil). Mon Avenir a sa propre limite (1).
+  if(window.EliTrial&&p&&p!=='accueil'&&!(opts&&opts.noTrial)&&!EliTrial.use(p==='avenir'?'avenir':'piliers'))return;
   if(eliOral&&eliOral.timer){clearInterval(eliOral.timer);eliOral.timer=null;try{window.speechSynthesis&&window.speechSynthesis.cancel();}catch(e){}}
   if(p==='j7'){
     if(opts.fromOral){STATE.j7ctx={from:'oral',theme:opts.theme,weak:opts.weak||[]};STATE.gate.j7=true;}
@@ -852,5 +854,6 @@ function enterApp(){
 }
 updateWho(); refreshTags(); startEntry();
 </script>
+<script src="eli-trial.js"></script>
 </body>
 </html>

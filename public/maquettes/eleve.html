@@ -154,8 +154,8 @@ footer.demo{border-top:1px solid var(--line);padding:18px 22px;text-align:center
   <span class="nl" onclick="document.getElementById('piliers').scrollIntoView()">Les Piliers</span>
   <span class="nl" onclick="document.getElementById('examens').scrollIntoView()">Examens</span>
   <span class="nl" onclick="document.getElementById('wa').scrollIntoView()">💬 WhatsApp</span>
-  <button class="login" onclick="location.href='hub.html'">Se connecter</button>
-  <button class="cta" onclick="location.href='hub.html'">S'inscrire</button>
+  <button class="login" onclick="location.href='/nationale'">Se connecter</button>
+  <button class="cta" onclick="location.href='/nationale'">S'inscrire</button>
 </nav>
 
 <div class="wrap">
@@ -166,8 +166,8 @@ footer.demo{border-top:1px solid var(--line);padding:18px 22px;text-align:center
     <h1>Apprends avec <em>Éli</em>,<br>ton professeur personnel</h1>
     <p class="lead">Un professeur qui te connaît, s'adapte à ton rythme et te pousse à te dépasser — du primaire à la Terminale. Une seule intelligence, pour toute ta scolarité.</p>
     <div class="ctas">
-      <button class="btn btn-p" onclick="location.href='hub.html'">Commencer gratuitement →</button>
-      <button class="btn btn-g" onclick="toast('Découvrir')">Découvrir Éli</button>
+      <button class="btn btn-p" onclick="openEli(true)">Commencer avec Éli →</button>
+      <button class="btn btn-g" onclick="document.getElementById('univers').scrollIntoView({behavior:'smooth'})">Découvrir Éli</button>
     </div>
     
   </section>
@@ -244,7 +244,7 @@ footer.demo{border-top:1px solid var(--line);padding:18px 22px;text-align:center
       <div style="flex:1">
         <h3>Éli est aussi sur WhatsApp</h3>
         <p>Pas besoin d'ouvrir le site à chaque fois. Pose tes questions, reçois tes fiches, passe tes quiz et poursuis tes révisions directement dans WhatsApp — l'appli que tu utilises déjà tous les jours. Ton travail te suit partout, même avec peu de connexion.</p>
-        <button class="b" onclick="toast('Démarrer sur WhatsApp')">Démarrer sur WhatsApp</button>
+        <button class="b" onclick="waEli()">Démarrer sur WhatsApp</button>
       </div>
     </div>
   </section>
@@ -253,7 +253,7 @@ footer.demo{border-top:1px solid var(--line);padding:18px 22px;text-align:center
   <section class="final">
     <h2>Prêt à apprendre avec <em>Éli</em> ?</h2>
     <p>Rejoins les élèves qui progressent chaque jour avec leur professeur personnel.</p>
-    <button class="btn btn-p" onclick="location.href='hub.html'">Commencer gratuitement →</button>
+    <button class="btn btn-p" onclick="openEli(true)">Commencer avec Éli →</button>
   </section>
 </div>
 
@@ -277,7 +277,7 @@ footer.demo{border-top:1px solid var(--line);padding:18px 22px;text-align:center
       <button onclick="document.getElementById('piliers').scrollIntoView()">Les Piliers</button>
       <button onclick="document.getElementById('examens').scrollIntoView()">Examens</button>
       <button onclick="document.getElementById('wa').scrollIntoView()">WhatsApp</button>
-      <button onclick="toast('Inscription')">S'inscrire</button>
+      <button onclick="location.href='/nationale'">S'inscrire</button>
     </div>
     <div class="ft-col">
       <h4>Niveaux</h4>
@@ -295,21 +295,78 @@ footer.demo{border-top:1px solid var(--line);padding:18px 22px;text-align:center
     </div>
   </div>
   <div class="ft-bottom">
-    <span>© 2026 Éli, tous droits réservés.</span>
+    <span>© 2026 Éli — une plateforme Olunova. Tous droits réservés.</span>
     <span class="slo">L'intelligence au service de ta réussite</span>
   </div>
 </div>
 
-<button class="wa-float" onclick="toast('Éli sur WhatsApp')" aria-label="WhatsApp">
+<button class="wa-float" onclick="waEli()" aria-label="WhatsApp">
   <svg viewBox="0 0 32 32" fill="#fff"><path d="M16 3C9.4 3 4 8.4 4 15c0 2.1.6 4.1 1.6 5.9L4 29l8.3-1.6c1.7.9 3.6 1.4 5.7 1.4 6.6 0 12-5.4 12-12S22.6 3 16 3zm0 21.8c-1.8 0-3.5-.5-5-1.4l-.4-.2-3.7.7.7-3.6-.2-.4c-1-1.6-1.5-3.4-1.5-5.3 0-5.5 4.5-9.9 10-9.9s9.9 4.4 9.9 9.9-4.4 9.9-9.8 9.9zm5.4-7.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.7 1-.9 1.2-.2.2-.3.2-.6.1-1.8-.9-3-1.6-4.2-3.6-.3-.5.3-.5.9-1.6.1-.2 0-.4 0-.5 0-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.2.2 2.1 3.3 5.2 4.6 2 .8 2.7.9 3.7.8.6-.1 1.8-.8 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.1-.3-.2-.6-.3z"/></svg>
 </button>
 <div class="toast" id="toast"></div>
 
+<!-- ============ CHAT ÉLI (officiel, guidant) ============ -->
+<style>
+.wa-float{left:22px;right:auto !important}
+#eliDock{position:fixed;bottom:22px;right:22px;z-index:60;display:flex;flex-direction:column;align-items:flex-end;gap:12px}
+#eliPanel{display:none;width:min(370px,92vw);height:480px;background:var(--panel);border:1px solid var(--line2);border-radius:22px;overflow:hidden;flex-direction:column;box-shadow:0 30px 70px -20px rgba(0,0,0,.8)}
+#eliPanel.open{display:flex}
+.ep-head{display:flex;align-items:center;gap:11px;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--panel2)}
+.ep-head .av{width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#388E3C,#1B5E20);display:grid;place-items:center}
+.ep-head .av svg{width:30px;height:30px}
+.ep-head .nm{font-family:var(--fd);font-weight:700;font-size:16px}.ep-head .st{font-size:11px;color:var(--jade)}
+.ep-head .x{margin-left:auto;background:none;border:none;color:var(--faint);font-size:20px;cursor:pointer}
+.ep-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:11px}
+.msg{max-width:86%;padding:11px 14px;border-radius:16px;font-size:14px;line-height:1.5}
+.msg.eli{background:var(--raise,#143524);border:1px solid var(--line);border-top-left-radius:5px;align-self:flex-start}
+.msg.me{background:linear-gradient(120deg,var(--emerald),var(--jade));color:#04140d;border-top-right-radius:5px;align-self:flex-end;font-weight:500}
+.ep-chips{display:flex;flex-wrap:wrap;gap:7px;padding:0 14px 8px}
+.ep-chips button{font-size:12.5px;background:rgba(0,194,113,.12);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:7px 11px;cursor:pointer;font-family:inherit}
+.ep-foot{padding:12px;border-top:1px solid var(--line);display:flex;gap:8px}
+.ep-foot input{flex:1;background:var(--deep);border:1px solid var(--line);color:var(--cream);border-radius:12px;padding:11px 13px;font-family:inherit;font-size:14px;outline:none}
+.ep-foot button{background:var(--emerald);border:none;color:#04140d;width:44px;border-radius:12px;cursor:pointer;font-size:17px}
+#eliFab{width:62px;height:62px;border-radius:50%;border:none;cursor:pointer;background:radial-gradient(circle at 38% 32%,#388E3C,#1B5E20);box-shadow:0 12px 30px -8px var(--emerald);display:grid;place-items:center;position:relative;transition:transform .25s}
+#eliFab:hover{transform:scale(1.08)}
+#eliFab::before{content:'';position:absolute;inset:-5px;border-radius:50%;border:2px solid rgba(0,194,113,.4);animation:eliring 2.4s ease-in-out infinite}
+@keyframes eliring{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.16);opacity:0}}
+#eliFab svg{width:40px;height:40px}
+</style>
+<div id="eliDock">
+  <div id="eliPanel">
+    <div class="ep-head"><div class="av" id="epAv"></div><div><div class="nm">Éli</div><div class="st">● en ligne · ton professeur</div></div><button class="x" onclick="openEli(false)">✕</button></div>
+    <div class="ep-body" id="epBody"></div>
+    <div class="ep-chips">
+      <button onclick="eliRoute('junior')">🎒 Éli Junior</button>
+      <button onclick="eliRoute('piliers')">🏛️ Les Piliers</button>
+      <button onclick="eliSay('Comment Éli peut m\'aider ?')">❓ Comment ça marche</button>
+    </div>
+    <div class="ep-foot"><input id="epIn" placeholder="Pose ta question à Éli…" onkeydown="if(event.key==='Enter')eliSend()"><button onclick="eliSend()">➤</button></div>
+  </div>
+  <button id="eliFab" onclick="openEli()" aria-label="Discuter avec Éli"></button>
+</div>
+
+<script>
+const WA_ELI='https://wa.me/24177374043?text='+encodeURIComponent('Salut Éli ! Je veux commencer 🌱');
+function waEli(){window.open(WA_ELI,'_blank','noopener');}
+let eliPrimed=false;
+function openEli(force){
+  const p=document.getElementById('eliPanel');
+  const open=force===undefined?!p.classList.contains('open'):!!force;
+  p.classList.toggle('open',open);
+  if(open&&!eliPrimed){eliPrimed=true;eliAdd('eli',"Bonjour ! Je suis Éli, ton professeur personnel 🌱. Dis-moi ta classe ou ta question, et je t'oriente : Éli Junior (primaire) ou Les Piliers (collège & lycée).");}
+}
+function eliAdd(w,t){const b=document.getElementById('epBody');const d=document.createElement('div');d.className='msg '+w;d.textContent=t;b.appendChild(d);b.scrollTop=b.scrollHeight;}
+function eliSay(t){eliAdd('me',t);setTimeout(()=>eliAdd('eli',"Bonne question ! Je t'explique chaque cours, je te fais des quiz, je révise avec toi et je te prépare aux examens (CEP, BEPC, BAC). Choisis ton univers ci-dessous et je t'ouvre la bonne porte."),450);}
+function eliSend(){const i=document.getElementById('epIn');const t=i.value.trim();if(!t)return;eliAdd('me',t);i.value='';setTimeout(()=>eliAdd('eli',"Je note ta question. Pour te répondre au mieux et garder ton suivi, on continue dans ton espace — dis-moi : tu es au primaire (Éli Junior) ou au collège/lycée (Les Piliers) ?"),500);}
+function eliRoute(which){eliAdd('eli',which==='junior'?"Parfait, direction Éli Junior 🎒 — leçons, audio et quiz t'attendent !":"Parfait, direction Les Piliers 🏛️ — comprendre, s'entraîner et préparer l'examen !");setTimeout(()=>{location.href=which==='junior'?'junior.html':'piliers.html';},700);}
+</script>
 <script>
 const LOGO='<svg width="40" height="40" viewBox="0 0 200 200"><defs><radialGradient id="g1" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#388E3C"/><stop offset="100%" stop-color="#1B5E20"/></radialGradient><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFE082"/><stop offset="100%" stop-color="#FFA000"/></linearGradient><linearGradient id="g3" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#FFA000"/><stop offset="60%" stop-color="#FFD54F"/><stop offset="100%" stop-color="#FFFDE7"/></linearGradient></defs><circle cx="100" cy="100" r="86" fill="url(#g1)"/><rect x="61" y="44" width="13" height="108" rx="6" fill="url(#g2)"/><rect x="61" y="44" width="78" height="13" rx="6" fill="url(#g2)"/><rect x="61" y="91" width="60" height="13" rx="6" fill="url(#g2)"/><rect x="61" y="139" width="78" height="13" rx="6" fill="url(#g2)"/><path d="M147 44C145 34,141 24,147 12C150 5,156 1,156 1C156 1,167 10,164 24C162 32,156 38,156 44Z" fill="url(#g3)"/><circle cx="82" cy="172" r="4.5" fill="url(#g2)" opacity=".9"/><circle cx="100" cy="176" r="5.5" fill="url(#g2)"/><circle cx="118" cy="172" r="4.5" fill="url(#g2)" opacity=".9"/></svg>';
 const LOGO_BIG=LOGO.replace(/width="40" height="40"/,'width="116" height="116"');
 document.body.innerHTML=document.body.innerHTML.replace(/<svg width="116" height="116" viewBox="0 0 200 200"><defs><radialGradient id="g1" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#388E3C"/><stop offset="100%" stop-color="#1B5E20"/></radialGradient><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFE082"/><stop offset="100%" stop-color="#FFA000"/></linearGradient><linearGradient id="g3" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#FFA000"/><stop offset="60%" stop-color="#FFD54F"/><stop offset="100%" stop-color="#FFFDE7"/></linearGradient></defs><circle cx="100" cy="100" r="86" fill="url(#g1)"/><rect x="61" y="44" width="13" height="108" rx="6" fill="url(#g2)"/><rect x="61" y="44" width="78" height="13" rx="6" fill="url(#g2)"/><rect x="61" y="91" width="60" height="13" rx="6" fill="url(#g2)"/><rect x="61" y="139" width="78" height="13" rx="6" fill="url(#g2)"/><path d="M147 44C145 34,141 24,147 12C150 5,156 1,156 1C156 1,167 10,164 24C162 32,156 38,156 44Z" fill="url(#g3)"/><circle cx="82" cy="172" r="4.5" fill="url(#g2)" opacity=".9"/><circle cx="100" cy="176" r="5.5" fill="url(#g2)"/><circle cx="118" cy="172" r="4.5" fill="url(#g2)" opacity=".9"/></svg>/g,LOGO_BIG).replace(/<svg width="40" height="40" viewBox="0 0 200 200"><defs><radialGradient id="g1" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#388E3C"/><stop offset="100%" stop-color="#1B5E20"/></radialGradient><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFE082"/><stop offset="100%" stop-color="#FFA000"/></linearGradient><linearGradient id="g3" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#FFA000"/><stop offset="60%" stop-color="#FFD54F"/><stop offset="100%" stop-color="#FFFDE7"/></linearGradient></defs><circle cx="100" cy="100" r="86" fill="url(#g1)"/><rect x="61" y="44" width="13" height="108" rx="6" fill="url(#g2)"/><rect x="61" y="44" width="78" height="13" rx="6" fill="url(#g2)"/><rect x="61" y="91" width="60" height="13" rx="6" fill="url(#g2)"/><rect x="61" y="139" width="78" height="13" rx="6" fill="url(#g2)"/><path d="M147 44C145 34,141 24,147 12C150 5,156 1,156 1C156 1,167 10,164 24C162 32,156 38,156 44Z" fill="url(#g3)"/><circle cx="82" cy="172" r="4.5" fill="url(#g2)" opacity=".9"/><circle cx="100" cy="176" r="5.5" fill="url(#g2)"/><circle cx="118" cy="172" r="4.5" fill="url(#g2)" opacity=".9"/></svg>/g,LOGO);
 let tt;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2200);}
+// logo É dans le chat Éli (bouton flottant + avatar)
+(function(){var fab=document.getElementById('eliFab'),av=document.getElementById('epAv');if(fab)fab.innerHTML=LOGO;if(av)av.innerHTML=LOGO.replace(/width="40" height="40"/,'width="30" height="30"');})();
 </script>
 </body>
 </html>

@@ -169,6 +169,12 @@ body{background:var(--void);color:var(--cream);font-family:var(--fb);min-height:
 .btn-p:hover{transform:translateY(-2px)}
 .btn-g{background:transparent;color:var(--mist);border:1px solid var(--line)}
 .btn-g:hover{border-color:var(--emerald);color:var(--cream)}
+.login-cta{display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:linear-gradient(120deg,rgba(0,194,113,.12),rgba(245,181,68,.05));border:1px solid var(--line2);border-radius:18px;padding:20px 22px;margin-bottom:22px}
+.login-cta .lc-tx{flex:1;min-width:240px}
+.login-cta .lc-tx b{font-family:var(--fd);font-size:17px;display:block;margin-bottom:4px}
+.login-cta .lc-tx p{font-size:13px;color:var(--mist);line-height:1.5}
+.login-cta .lc-actions{display:flex;gap:10px;flex-wrap:wrap}
+.login-cta .btn{padding:11px 18px;font-size:14px}
 
 /* ÉLI DOCK (omniprésent) */
 #eliDock{position:fixed;bottom:22px;right:22px;z-index:55;display:none;flex-direction:column;align-items:flex-end;gap:12px}
@@ -291,6 +297,13 @@ body{background:var(--void);color:var(--cream);font-family:var(--fb);min-height:
       <h1>Bonjour 👋</h1>
       <p class="sub">Voici où en est votre enfant. Éli suit chaque leçon et vous signale ce qui compte vraiment.</p>
     </div>
+    <div class="login-cta">
+      <div class="lc-tx"><b>Connectez-vous pour suivre votre enfant</b><p>Créez votre compte (ou connectez-vous) par WhatsApp : Éli vous reconnaît à chaque visite et garde vos informations.</p></div>
+      <div class="lc-actions">
+        <button class="btn btn-p" onclick="goTop('/nationale/parent')">Me connecter</button>
+        <button class="btn btn-g" onclick="goTop('/nationale/parent')">Créer mon compte</button>
+      </div>
+    </div>
 
     <div class="childbar"><div class="childchip add" onclick="toast('Relier un enfant')">+ Relier un enfant</div></div>
 
@@ -344,7 +357,14 @@ body{background:var(--void);color:var(--cream);font-family:var(--fb);min-height:
     <div class="page-head">
       <div class="crumb">📋 Espace enseignant · votre assistant pédagogique</div>
       <h1>Bonjour, professeur.</h1>
-      <p class="sub">Générez votre matériel en quelques secondes — Éli s'appuie sur le programme national officiel. Tout est prêt à imprimer.</p>
+      <p class="sub">Générez votre matériel en quelques secondes — Éli s'appuie sur le programme officiel. Tout est prêt à imprimer.</p>
+    </div>
+    <div class="login-cta">
+      <div class="lc-tx"><b>Connectez-vous pour retrouver vos ressources</b><p>Créez votre compte enseignant (ou connectez-vous) par WhatsApp : Éli vous reconnaît et conserve tout votre matériel généré.</p></div>
+      <div class="lc-actions">
+        <button class="btn btn-p" onclick="goTop('/nationale/enseignant')">Me connecter</button>
+        <button class="btn btn-g" onclick="goTop('/nationale/enseignant')">Créer mon compte</button>
+      </div>
     </div>
 
     <div class="panel" style="border-color:var(--line2)">
@@ -427,6 +447,8 @@ document.body.innerHTML=document.body.innerHTML.replace(/__LOGO_BIG__/g,LOGO_BIG
 
 const s=document.getElementById('stars');for(let i=0;i<46;i++){const e=document.createElement('div');e.className='star';e.style.left=Math.random()*100+'%';e.style.top=Math.random()*100+'%';e.style.animationDuration=(2+Math.random()*4)+'s';e.style.animationDelay=(Math.random()*5)+'s';s.appendChild(e);}
 
+// Connexion : route vers les vraies pages (auth WhatsApp + Supabase) servies par Next
+function goTop(p){try{(window.top||window).location.href=p;}catch(e){location.href=p;}}
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
   document.getElementById(id).classList.add('active');
