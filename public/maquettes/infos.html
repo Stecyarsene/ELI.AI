@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Éli — Informations, confidentialité & conditions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,400..600&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --void:#020806;--deep:#04140D;--panel:#0A1E15;
+  --emerald:#00C271;--jade:#34D399;--gold:#F5B544;--gold-bright:#FFD479;--wa:#25D366;
+  --cream:#FFF8EC;--mist:rgba(255,248,236,.78);--faint:rgba(255,248,236,.52);
+  --line:rgba(255,248,236,.10);--line2:rgba(245,181,68,.18);
+  --fd:'Fraunces',serif;--fb:'Space Grotesk',sans-serif;--fm:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--cream);font-family:var(--fb);line-height:1.7;overflow-x:hidden}
+.cosmos{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.aurora{position:absolute;top:-30%;left:-10%;width:120%;height:70%;background:radial-gradient(ellipse 60% 50% at 50% 40%,rgba(0,194,113,.10),transparent 70%);filter:blur(70px)}
+nav{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:14px;padding:13px 26px;background:linear-gradient(180deg,rgba(2,8,6,.96),rgba(2,8,6,.4));backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav .lg{display:flex;align-items:center;gap:10px;cursor:pointer}nav .lg svg{width:34px;height:34px}nav .lg b{font-family:var(--fd);font-size:20px;color:var(--gold-bright)}
+nav .sp{flex:1}
+nav .home{color:var(--cream);border:1px solid var(--line);padding:9px 16px;border-radius:11px;cursor:pointer;font-size:13.5px;background:none;font-family:inherit;text-decoration:none}
+nav .home:hover{border-color:var(--emerald)}
+.shell{position:relative;z-index:2;max-width:1080px;margin:0 auto;padding:40px 22px 80px;display:grid;grid-template-columns:230px 1fr;gap:40px;align-items:start}
+@media(max-width:820px){.shell{grid-template-columns:1fr;gap:24px}}
+.toc{position:sticky;top:80px}
+@media(max-width:820px){.toc{position:static;display:flex;flex-wrap:wrap;gap:8px}}
+.toc a{display:block;color:var(--mist);text-decoration:none;font-size:14px;padding:9px 12px;border-radius:10px;border:1px solid transparent;transition:.15s}
+.toc a:hover{color:var(--cream);background:var(--panel);border-color:var(--line)}
+.hero-h{font-family:var(--fd);font-size:clamp(30px,5vw,46px);font-weight:400;line-height:1.08;margin-bottom:10px}
+.hero-h em{font-style:italic;color:var(--jade)}
+.hero-sub{color:var(--mist);font-size:15px;margin-bottom:8px}
+.upd{font-family:var(--fm);font-size:11.5px;color:var(--faint);letter-spacing:.06em;margin-bottom:36px}
+section.doc{margin-bottom:46px;scroll-margin-top:80px}
+section.doc>.k{display:inline-block;border:1px solid var(--line2);border-radius:99px;padding:6px 16px;font-family:var(--fm);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-bright);background:rgba(245,181,68,.05);margin-bottom:14px}
+section.doc h2{font-family:var(--fd);font-size:clamp(23px,3.4vw,30px);font-weight:500;margin-bottom:16px}
+section.doc h3{font-family:var(--fd);font-size:18px;font-weight:600;color:var(--gold-bright);margin:24px 0 8px}
+section.doc p{color:var(--mist);font-size:15px;margin-bottom:14px}
+section.doc ul{margin:0 0 14px 4px;list-style:none}
+section.doc li{color:var(--mist);font-size:15px;padding-left:22px;position:relative;margin-bottom:9px}
+section.doc li::before{content:'✦';color:var(--gold);position:absolute;left:0;top:1px;font-size:12px}
+section.doc strong{color:var(--cream)}
+.faq-q{font-family:var(--fd);font-size:16.5px;font-weight:600;color:var(--cream);margin:22px 0 6px}
+.callout{background:linear-gradient(150deg,var(--panel),var(--deep));border:1px solid var(--line2);border-radius:16px;padding:18px 20px;margin:18px 0}
+.callout p{margin:0;font-size:14.5px}
+.contact{font-family:var(--fm);font-size:13px;color:var(--jade);line-height:2}
+hr.sep{border:none;border-top:1px solid var(--line);margin:40px 0}
+footer{border-top:1px solid var(--line);text-align:center;padding:26px 22px;color:var(--faint);font-family:var(--fm);font-size:11.5px}
+footer .slo{color:var(--gold-bright)}
+</style>
+</head>
+<body>
+<div class="cosmos"><div class="aurora"></div></div>
+
+<nav>
+  <a class="lg" href="eleve.html"><svg viewBox="0 0 200 200"><defs><radialGradient id="g1" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#388E3C"/><stop offset="100%" stop-color="#1B5E20"/></radialGradient><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFE082"/><stop offset="100%" stop-color="#FFA000"/></linearGradient><linearGradient id="g3" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#FFA000"/><stop offset="60%" stop-color="#FFD54F"/><stop offset="100%" stop-color="#FFFDE7"/></linearGradient></defs><circle cx="100" cy="100" r="86" fill="url(#g1)"/><rect x="61" y="44" width="13" height="108" rx="6" fill="url(#g2)"/><rect x="61" y="44" width="78" height="13" rx="6" fill="url(#g2)"/><rect x="61" y="91" width="60" height="13" rx="6" fill="url(#g2)"/><rect x="61" y="139" width="78" height="13" rx="6" fill="url(#g2)"/><path d="M147 44C145 34,141 24,147 12C150 5,156 1,156 1C156 1,167 10,164 24C162 32,156 38,156 44Z" fill="url(#g3)"/><circle cx="82" cy="172" r="4.5" fill="url(#g2)" opacity=".9"/><circle cx="100" cy="176" r="5.5" fill="url(#g2)"/><circle cx="118" cy="172" r="4.5" fill="url(#g2)" opacity=".9"/></svg><b>Éli</b></a>
+  <div class="sp"></div>
+  <a class="home" href="eleve.html">← Retour à l'accueil</a>
+</nav>
+
+<div class="shell">
+  <aside class="toc">
+    <a href="#apropos">À propos d'Éli</a>
+    <a href="#faq">FAQ</a>
+    <a href="#confidentialite">Confidentialité</a>
+    <a href="#cgu">Conditions d'utilisation</a>
+    <a href="#mineurs">Protection des mineurs</a>
+  </aside>
+
+  <main>
+    <h1 class="hero-h">Informations, <em>confidentialité</em> & conditions</h1>
+    <p class="hero-sub">Tout ce qui régit Éli, en clair : ce que nous faisons, comment nous protégeons tes données, et les règles du jeu.</p>
+    <p class="upd">Dernière mise à jour : juin 2026</p>
+
+    <!-- ABOUT -->
+    <section class="doc" id="apropos">
+      <span class="k">À propos</span>
+      <h2>Éli, le professeur personnel de chaque élève</h2>
+      <p>Éli est une plateforme éducative qui accompagne les élèves <strong>du primaire à la Terminale</strong>. Notre conviction est simple : chaque élève mérite un professeur qui le connaît, s'adapte à son rythme et reste disponible à toute heure — pas seulement une application de plus.</p>
+      <p>Là où beaucoup d'outils se contentent d'aligner des exercices, Éli cherche à <strong>comprendre</strong> : il se souvient de ton parcours, repère tes blocages, réexplique autrement quand quelque chose ne passe pas, et vérifie que tu as réellement compris avant d'avancer.</p>
+      <p>Éli est conçu et édité par <strong>ZenkaCorp</strong>, la structure qui porte la vision, la pédagogie et la technologie de la plateforme.</p>
+
+      <h3>Notre mission</h3>
+      <p>Rendre un accompagnement scolaire de qualité accessible à tous, quel que soit l'endroit où l'on vit ou les moyens dont on dispose. Éli fonctionne sur le web, sur l'application, et <strong>directement sur WhatsApp</strong> — l'outil que les familles utilisent déjà tous les jours, même avec une connexion limitée.</p>
+
+      <h3>Deux univers, une seule intelligence</h3>
+      <ul>
+        <li><strong>Éli Junior</strong> — pour le primaire : leçons illustrées, lecture à voix haute, quiz et récompenses. Apprendre en s'amusant, dans un univers doux et rassurant.</li>
+        <li><strong>Les Piliers</strong> — pour le collège et le lycée : comprendre le cours, s'entraîner, anticiper l'examen, s'exercer à l'oral, analyser sa copie. L'arsenal stratégique des classes d'examen.</li>
+      </ul>
+
+      <h3>Préparer les grands rendez-vous</h3>
+      <p>Éli prépare aux trois examens qui comptent — le <strong>CEP</strong>, le <strong>BEPC</strong> et le <strong>BAC</strong> — en composant des épreuves blanches sur mesure et en suivant la progression jour après jour.</p>
+
+      <h3>Trois espaces, trois visages</h3>
+      <ul>
+        <li><strong>L'élève</strong> apprend, révise et progresse avec Éli à ses côtés.</li>
+        <li><strong>Le parent</strong> suit la progression de son enfant en toute transparence et valide son inscription.</li>
+        <li><strong>L'enseignant</strong> génère son matériel pédagogique — fiches, contrôles corrigés, progressions — aligné au programme officiel.</li>
+      </ul>
+
+      <div class="callout"><p>Une seule intelligence, plusieurs visages : Éli s'adapte à qui tu es et à ce dont tu as besoin, sans jamais te perdre en route.</p></div>
+    </section>
+
+    <hr class="sep">
+
+    <!-- FAQ -->
+    <section class="doc" id="faq">
+      <span class="k">FAQ</span>
+      <h2>Questions fréquentes</h2>
+
+      <div class="faq-q">Éli, c'est pour quel niveau ?</div>
+      <p>Du <strong>primaire à la Terminale</strong>. Éli Junior couvre le primaire ; Les Piliers couvrent le collège et le lycée, avec une attention particulière aux classes d'examen (CEP, BEPC, BAC).</p>
+
+      <div class="faq-q">Comment Éli s'adapte-t-il à mon enfant ?</div>
+      <p>Éli mémorise chaque session, chaque réussite et chaque difficulté. Il identifie les notions mal maîtrisées, programme automatiquement des révisions espacées, et réexplique autrement ce qui bloque. Plus l'élève travaille, plus l'accompagnement devient précis.</p>
+
+      <div class="faq-q">Faut-il une bonne connexion Internet ?</div>
+      <p>Non. Éli est pensé pour fonctionner même avec peu de connexion, et reste disponible sur <strong>WhatsApp</strong>. Un mode hors connexion (« Mode Bougie ») permet de continuer à apprendre sans réseau.</p>
+
+      <div class="faq-q">Comment fonctionne l'accès sur WhatsApp ?</div>
+      <p>Tu peux poser tes questions, recevoir tes fiches, passer tes quiz et poursuivre tes révisions directement dans WhatsApp. C'est souvent là que tout commence, sans avoir à ouvrir le site.</p>
+
+      <div class="faq-q">Un parent peut-il suivre son enfant ?</div>
+      <p>Oui. Depuis l'espace parent, après vérification par code WhatsApp, le parent relie son enfant à son compte (avec son accord) et consulte ses points forts, ses difficultés, le temps passé et son historique — en toute transparence.</p>
+
+      <div class="faq-q">Je suis enseignant — qu'est-ce que ça m'apporte ?</div>
+      <p>L'espace enseignant génère en quelques secondes des fiches de cours, des contrôles corrigés, des diapositives et des progressions, alignés au programme officiel et prêts à imprimer.</p>
+
+      <div class="faq-q">Combien ça coûte ?</div>
+      <p>Éli propose un accès gratuit pour commencer, puis des formules d'abonnement. Le paiement se fait notamment par Mobile Money, sans quitter la page. Les conditions détaillées figurent dans les Conditions d'utilisation ci-dessous.</p>
+
+      <div class="faq-q">Mes données sont-elles en sécurité ?</div>
+      <p>Oui. Nous collectons le strict nécessaire, ne vendons jamais tes données, et appliquons des protections renforcées pour les mineurs. Les détails sont dans la section Confidentialité.</p>
+
+      <div class="faq-q">Comment vous contacter ?</div>
+      <p>Par e-mail à <strong>eli-ia@gmail.com</strong> ou via WhatsApp au <strong>+241 077 37 40 43</strong>.</p>
+    </section>
+
+    <hr class="sep">
+
+    <!-- PRIVACY -->
+    <section class="doc" id="confidentialite">
+      <span class="k">Confidentialité</span>
+      <h2>Politique de confidentialité</h2>
+      <p>Ta confiance est la base de tout. Cette politique explique, sans jargon inutile, quelles données nous traitons, pourquoi, et quels sont tes droits.</p>
+
+      <h3>1. Les données que nous collectons</h3>
+      <ul>
+        <li><strong>Identité et contact</strong> : prénom, numéro WhatsApp, et pour les enseignants, établissement et matière.</li>
+        <li><strong>Données d'apprentissage</strong> : leçons suivies, quiz, réussites et difficultés, temps passé, progression.</li>
+        <li><strong>Données techniques</strong> : informations minimales nécessaires au bon fonctionnement et à la sécurité du service.</li>
+      </ul>
+
+      <h3>2. Pourquoi nous les utilisons</h3>
+      <ul>
+        <li>Personnaliser l'accompagnement et adapter les explications à chaque élève.</li>
+        <li>Permettre au parent de suivre la progression de son enfant.</li>
+        <li>Assurer la sécurité du compte et prévenir les usages abusifs.</li>
+        <li>Améliorer la qualité pédagogique du service.</li>
+      </ul>
+
+      <h3>3. Ce que nous ne faisons jamais</h3>
+      <ul>
+        <li>Nous ne <strong>vendons pas</strong> tes données.</li>
+        <li>Nous n'affichons <strong>aucune publicité ciblée</strong> aux enfants.</li>
+        <li>Nous ne partageons pas tes informations à des fins commerciales avec des tiers.</li>
+      </ul>
+
+      <h3>4. Hébergement et sécurité</h3>
+      <p>Les données sont hébergées chez nos prestataires d'infrastructure, avec des règles d'accès strictes (chaque utilisateur ne voit que ce qui le concerne). Les échanges sont chiffrés, et l'accès aux données d'un enfant est limité aux parents qui l'ont relié à leur compte avec son accord.</p>
+
+      <h3>5. Durée de conservation</h3>
+      <p>Nous conservons tes données aussi longtemps que ton compte est actif, puis pour la durée nécessaire à nos obligations légales. Tu peux demander leur suppression à tout moment.</p>
+
+      <h3>6. Tes droits</h3>
+      <ul>
+        <li><strong>Accès</strong> : savoir quelles données te concernent.</li>
+        <li><strong>Rectification</strong> : corriger une information inexacte.</li>
+        <li><strong>Suppression</strong> : demander l'effacement de ton compte et de tes données (« droit à l'oubli »).</li>
+        <li><strong>Opposition</strong> : t'opposer à certains traitements.</li>
+      </ul>
+      <div class="callout"><p>Pour exercer un droit ou poser une question sur tes données, écris-nous : <span class="contact">eli-ia@gmail.com</span></p></div>
+    </section>
+
+    <hr class="sep">
+
+    <!-- TERMS -->
+    <section class="doc" id="cgu">
+      <span class="k">Conditions d'utilisation</span>
+      <h2>Conditions générales d'utilisation</h2>
+      <p>En utilisant Éli, tu acceptes les conditions ci-dessous. Elles sont là pour protéger tout le monde et garder le service sain.</p>
+
+      <h3>1. Acceptation</h3>
+      <p>L'accès et l'utilisation d'Éli impliquent l'acceptation pleine et entière des présentes conditions. Si tu n'es pas d'accord, n'utilise pas le service.</p>
+
+      <h3>2. Compte et inscription</h3>
+      <p>L'inscription se fait via un numéro WhatsApp vérifié par code. Tu es responsable de la confidentialité de ton accès. Pour un élève mineur, l'inscription et la supervision relèvent d'un parent ou responsable légal.</p>
+
+      <h3>3. Abonnements et paiements</h3>
+      <ul>
+        <li>Certaines fonctionnalités sont gratuites ; d'autres nécessitent un abonnement.</li>
+        <li>Le paiement peut s'effectuer par Mobile Money ou les moyens proposés dans l'application.</li>
+        <li>Les tarifs et formules sont indiqués au moment de la souscription.</li>
+      </ul>
+
+      <h3>4. Usage acceptable</h3>
+      <p>Tu t'engages à utiliser Éli de bonne foi, à des fins éducatives. Sont notamment interdits : la fraude, le détournement du service, les tentatives d'atteinte à la sécurité, et tout contenu illégal, haineux ou inapproprié.</p>
+
+      <h3>5. Propriété intellectuelle</h3>
+      <p>Les contenus, la marque Éli, le logo et la technologie sont la propriété de <strong>ZenkaCorp</strong> et sont protégés. Le matériel que tu génères pour ton usage pédagogique reste utilisable librement dans ce cadre.</p>
+
+      <h3>6. Disponibilité et responsabilité</h3>
+      <p>Nous faisons notre maximum pour offrir un service fiable, mais nous ne pouvons garantir une disponibilité ininterrompue. Éli est un outil d'accompagnement : il ne remplace pas l'encadrement scolaire et familial.</p>
+
+      <h3>7. Évolution des conditions</h3>
+      <p>Ces conditions peuvent évoluer. En cas de changement important, nous t'en informerons. La poursuite de l'utilisation vaut acceptation de la version à jour.</p>
+    </section>
+
+    <hr class="sep">
+
+    <!-- MINORS -->
+    <section class="doc" id="mineurs">
+      <span class="k">Protection des mineurs</span>
+      <h2>La protection des enfants, notre priorité absolue</h2>
+      <p>Éli s'adresse en grande partie à des enfants et des adolescents. Nous appliquons donc des règles renforcées, au-delà du strict minimum légal.</p>
+
+      <h3>1. Accord parental</h3>
+      <p>Pour un élève mineur, un parent ou responsable légal valide l'inscription et garde la main sur le suivi. Le parent ne voit que les enfants qu'il a explicitement reliés à son compte, avec leur accord.</p>
+
+      <h3>2. Minimisation des données</h3>
+      <p>Nous ne demandons que ce qui est nécessaire à l'apprentissage. Aucune donnée sensible inutile n'est collectée auprès des enfants.</p>
+
+      <h3>3. Aucune publicité, aucun pistage commercial</h3>
+      <p>Les enfants ne sont jamais exposés à de la publicité ciblée ni à du pistage à des fins commerciales. L'espace d'Éli reste un espace d'apprentissage, pas un espace publicitaire.</p>
+
+      <h3>4. Un environnement adapté à l'âge</h3>
+      <p>L'enveloppe reste sérieuse, mais l'intérieur s'adapte à l'âge : Éli Junior est conçu pour être doux, rassurant et bienveillant ; les réponses d'Éli sont pensées pour rester appropriées.</p>
+
+      <h3>5. Signalement</h3>
+      <p>Un parent qui constate un problème peut nous contacter immédiatement. Nous traitons en priorité tout signalement concernant la sécurité d'un enfant.</p>
+
+      <div class="callout"><p>Un doute, une inquiétude concernant un enfant ? Écris-nous sans attendre :<br><span class="contact">eli-ia@gmail.com&nbsp;·&nbsp;+241 077 37 40 43&nbsp;·&nbsp;Libreville</span></p></div>
+    </section>
+  </main>
+</div>
+
+<footer>
+  <div>© 2026 Éli — une plateforme <strong style="color:var(--cream)">ZenkaCorp</strong>. Tous droits réservés. — <span class="slo">L'intelligence au service de ta réussite</span></div>
+</footer>
+</body>
+</html>
