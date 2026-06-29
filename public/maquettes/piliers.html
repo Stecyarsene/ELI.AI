@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Éli — Maquette des piliers (Menu Magique + accès par classe)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#091310; --bg2:#0C1A15; --panel:#10201A; --panel2:#152A22; --raise:#19362A;
+  --line:rgba(216,182,110,.14); --line2:rgba(255,255,255,.065);
+  --ink:#EAF2EC; --ink2:#C7D6CC; --muted:#8FA89B;
+  --accent:#27A269; --accent2:#46D592; --accentSoft:rgba(39,162,105,.16);
+  --gold:#D8B66E; --gold2:#EFD392;
+  --red:#E0695A; --amber:#E0A23C; --green:#46D592;
+  --shadow:0 24px 60px -30px rgba(0,0,0,.8);
+}
+[data-prog="aefe"]{ --accent:#3E7BD6; --accent2:#6AA6F4; --accentSoft:rgba(62,123,214,.16); }
+*{box-sizing:border-box} html,body{margin:0}
+body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);
+  background:radial-gradient(1200px 600px at 88% -8%, color-mix(in srgb,var(--accent) 16%,transparent), transparent 60%),
+  radial-gradient(1000px 560px at -6% 108%, rgba(216,182,110,.10), transparent 58%),var(--bg);min-height:100vh;-webkit-font-smoothing:antialiased}
+h1,h2,h3,.disp{font-family:'Fraunces',Georgia,serif;letter-spacing:-.015em;font-weight:600}
+.shell{display:grid;grid-template-columns:264px 1fr;min-height:100vh}
+.rail{border-right:1px solid var(--line);background:linear-gradient(180deg,var(--bg2),var(--bg));padding:20px 16px;display:flex;flex-direction:column;gap:4px}
+.brand{display:flex;align-items:center;gap:11px;padding:6px 8px 14px}
+.logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(140deg,var(--accent),var(--accent2));display:grid;place-items:center;color:#04140d;font-family:'Fraunces';font-weight:700;font-size:20px;box-shadow:0 8px 22px -8px var(--accent)}
+.brand .nm{font-family:'Fraunces';font-weight:700;font-size:18px;line-height:1;color:#FFD54F}
+.brand .sub{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.railcat{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:14px 10px 6px;opacity:.8}
+.navitem{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:12px;cursor:pointer;color:var(--ink2);border:1px solid transparent;transition:.16s;font-weight:500;font-size:14px}
+.navitem .ic{width:20px;text-align:center;font-size:15px}
+.navitem .tag{margin-left:auto;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line2);padding:2px 6px;border-radius:6px}
+.navitem .tag.lock{color:var(--red);border-color:color-mix(in srgb,var(--red) 30%,transparent)}
+.navitem .tag.ok{color:var(--green);border-color:color-mix(in srgb,var(--green) 28%,transparent)}
+.navitem:hover{background:var(--panel);color:var(--ink)}
+.navitem.active{background:linear-gradient(120deg,var(--accentSoft),transparent);border-color:var(--line);color:#fff}
+.navitem.locked{opacity:.55}
+.railfoot{margin-top:auto;padding-top:14px;border-top:1px solid var(--line2);font-size:11px;color:var(--muted);line-height:1.5}
+.main{display:flex;flex-direction:column;min-height:100vh}
+.top{display:flex;align-items:center;gap:12px;padding:14px 28px;border-bottom:1px solid var(--line);background:rgba(9,19,16,.6);backdrop-filter:blur(8px);position:sticky;top:0;z-index:20;flex-wrap:wrap}
+.crumbs{font-size:12.5px;color:var(--muted)} .crumbs b{color:var(--ink2);font-weight:600}
+.spacer{flex:1}
+.seg{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:4px;gap:3px}
+.seg button{border:none;background:none;color:var(--muted);font-family:inherit;font-weight:600;font-size:12.5px;padding:7px 13px;border-radius:8px;cursor:pointer;transition:.15s}
+.seg button.on{background:linear-gradient(120deg,var(--accent),var(--accent2));color:#06150e}
+.who{display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:5px 7px 5px 12px}
+.who .av{width:30px;height:30px;border-radius:8px;background:linear-gradient(140deg,var(--gold),var(--gold2));color:#231a06;display:grid;place-items:center;font-weight:700;font-family:'Fraunces';font-size:14px}
+.who .nm{font-size:13px;font-weight:600;line-height:1.05} .who .cl{font-size:11px;color:var(--muted)}
+.csel{background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:10px;font-family:inherit;font-size:12.5px;font-weight:600;padding:8px 10px;cursor:pointer}
+.csel:focus{outline:none;border-color:var(--accent)}
+.stage{padding:30px 34px 60px;max-width:1180px;width:100%;margin:0 auto;animation:rise .4s cubic-bezier(.2,.7,.2,1)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.phead{display:flex;align-items:flex-start;gap:16px;margin-bottom:8px}
+.phead .pico{width:54px;height:54px;border-radius:15px;background:var(--panel2);border:1px solid var(--line);display:grid;place-items:center;font-size:26px;flex:none}
+.phead h1{font-size:30px;margin:0;line-height:1.05}
+.phead .role{color:var(--accent2);font-weight:600;font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;margin-top:6px}
+.phead .desc{color:var(--muted);font-size:14px;margin-top:8px;max-width:560px;line-height:1.5}
+.dl{margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:13.5px;color:#06150e;background:linear-gradient(135deg,var(--gold),var(--gold2));padding:12px 17px;border-radius:12px;box-shadow:0 12px 26px -12px var(--gold);transition:.15s}
+.dl:hover{transform:translateY(-1px)}
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent2);font-weight:700;margin:26px 0 12px}
+.card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+.pad{padding:22px}
+.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;align-items:start}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:1080px){.grid2{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}.shell{grid-template-columns:1fr}.rail{display:none}}
+.steps{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.step{display:flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);cursor:pointer;font-weight:600;font-size:13px;color:var(--ink2)}
+.step .n{width:21px;height:21px;border-radius:50%;background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;font-size:11px;color:var(--muted)}
+.step.on{border-color:var(--accent);background:linear-gradient(120deg,var(--accentSoft),transparent);color:#fff}
+.step.on .n{background:var(--accent);color:#06150e;border-color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:9px}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--ink2);padding:9px 14px;border-radius:11px;font-weight:600;font-size:13px;cursor:pointer;transition:.14s}
+.chip:hover{border-color:var(--accent)} .chip.sel{background:var(--accent);color:#06150e;border-color:var(--accent)} .chip.ghost{cursor:default;opacity:.85}
+.lab{font-size:12px;color:var(--muted);font-weight:600;margin:2px 0 10px;letter-spacing:.02em}
+.school{display:flex;gap:13px;align-items:flex-start;padding:14px 15px;border:1px solid var(--line);border-radius:14px;background:var(--panel);margin-bottom:10px}
+.school .em{width:38px;height:38px;border-radius:10px;background:var(--raise);display:grid;place-items:center;font-size:18px;flex:none}
+.school .t{font-weight:600;font-size:14.5px} .school .m{font-size:12px;color:var(--muted);margin-top:3px}
+.school .src{font-size:10.5px;color:var(--muted);margin-top:7px;opacity:.8}
+.school .ok{margin-left:auto;font-size:11px;font-weight:700;color:var(--green);border:1px solid color-mix(in srgb,var(--green) 30%,transparent);border-radius:999px;padding:4px 9px;white-space:nowrap}
+.gauge{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;margin:4px auto 0;background:conic-gradient(var(--accent2) calc(var(--p)*1%), rgba(255,255,255,.07) 0);position:relative}
+.gauge::before{content:"";position:absolute;inset:13px;border-radius:50%;background:var(--panel)}
+.gauge .v{position:relative;text-align:center}
+.gauge .v b{font-family:'Fraunces';font-size:34px;font-weight:700;display:block;line-height:1}
+.gauge .v span{font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.verdict{font-size:14px;line-height:1.55;color:var(--ink2)}
+.mast{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line2)} .mast:last-child{border:none}
+.dot{width:9px;height:9px;border-radius:50%;flex:none} .mast .s{margin-left:auto;font-size:12px;font-weight:700}
+.check{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--line2);font-size:13.5px} .check:last-child{border:none}
+.ck{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+.ck.y{background:color-mix(in srgb,var(--green) 22%,transparent);color:var(--green)} .ck.n{background:color-mix(in srgb,var(--red) 20%,transparent);color:var(--red)}
+.passerelle{display:flex;align-items:center;gap:14px;margin-top:18px;padding:16px 18px;border-radius:15px;border:1px solid color-mix(in srgb,var(--red) 26%,transparent);background:linear-gradient(120deg,color-mix(in srgb,var(--red) 12%,transparent),transparent)}
+.btnp{border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:13px;color:#fff;background:linear-gradient(135deg,#C9503F,#E0695A);padding:11px 16px;border-radius:11px;white-space:nowrap}
+.slot{display:grid;grid-template-columns:64px 1fr;gap:14px;padding:10px 0;border-bottom:1px solid var(--line2)}
+.slot .h{font-family:'Fraunces';font-size:15px;color:var(--muted)}
+.slot .b{border-radius:11px;padding:11px 14px;font-size:13px;font-weight:600;border:1px solid var(--line)}
+.b.red{background:color-mix(in srgb,var(--red) 13%,transparent);border-color:color-mix(in srgb,var(--red) 28%,transparent)}
+.b.amber{background:color-mix(in srgb,var(--amber) 12%,transparent);border-color:color-mix(in srgb,var(--amber) 26%,transparent)}
+.b.green{background:var(--accentSoft);border-color:color-mix(in srgb,var(--accent) 30%,transparent)}
+.b small{display:block;font-weight:500;color:var(--muted);margin-top:3px;font-size:11.5px}
+.countdown{display:flex;gap:10px;margin-top:4px}
+.cd{flex:1;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:14px 8px}
+.cd b{font-family:'Fraunces';font-size:30px;display:block;line-height:1;color:var(--gold2)} .cd span{font-size:10.5px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.heat{display:grid;grid-template-columns:120px repeat(6,1fr);gap:6px;font-size:12px}
+.heat .hh{color:var(--muted);font-size:10.5px;text-align:center;padding-bottom:4px}
+.heat .rk{color:var(--ink2);font-weight:600;display:flex;align-items:center}
+.cell{height:42px;border-radius:9px;display:grid;place-items:center;font-weight:700;color:#06150e;font-size:13px;border:1px solid rgba(0,0,0,.2)}
+.qcard{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:22px}
+.chrono{font-family:'Fraunces';font-size:40px;color:var(--gold2);font-weight:700}
+.grade{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:6px}
+.gcell{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:14px;text-align:center}
+.gcell b{font-family:'Fraunces';font-size:26px;display:block} .gcell span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.btn{border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:14px;color:#06150e;background:linear-gradient(135deg,var(--accent),var(--accent2));padding:13px 20px;border-radius:12px}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--ink)}
+.note{font-size:12.5px;color:var(--muted);background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:13px 15px;line-height:1.55}
+.sas{max-width:600px;margin:7vh auto 0;text-align:center;animation:rise .4s}
+.sas .pico{width:64px;height:64px;border-radius:18px;background:linear-gradient(140deg,var(--accent),var(--accent2));display:grid;place-items:center;font-size:30px;margin:0 auto 18px;box-shadow:0 16px 40px -16px var(--accent)}
+.sas h2{font-size:26px;margin:0 0 10px} .sas p{color:var(--ink2);font-size:15px;line-height:1.6;margin:0 auto 22px;max-width:480px}
+.access{border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:15px;color:#06150e;background:linear-gradient(135deg,var(--accent),var(--accent2));padding:15px 30px;border-radius:14px;box-shadow:0 16px 34px -14px var(--accent)}
+/* zéro accès */
+.lockwrap{max-width:560px;margin:8vh auto 0;text-align:center;animation:rise .4s}
+.lockwrap .seal{width:78px;height:78px;border-radius:50%;border:2px solid color-mix(in srgb,var(--red) 45%,transparent);display:grid;place-items:center;font-size:34px;margin:0 auto 20px;background:color-mix(in srgb,var(--red) 10%,transparent)}
+.lockwrap h2{font-size:25px;margin:0 0 10px}
+.lockwrap p{color:var(--ink2);font-size:14.5px;line-height:1.6;margin:0 auto 18px;max-width:440px}
+.lockwrap .why{display:inline-block;font-size:12px;color:var(--red);border:1px solid color-mix(in srgb,var(--red) 30%,transparent);background:color-mix(in srgb,var(--red) 9%,transparent);border-radius:999px;padding:7px 15px;font-weight:700}
+.alt{margin-top:22px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+/* accueil externe */
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:1080px){.pgrid{grid-template-columns:1fr}.heat{grid-template-columns:90px repeat(6,1fr)}}
+.pcard{position:relative;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,var(--panel),var(--bg2));padding:18px;cursor:pointer;transition:.16s}
+.pcard:hover{transform:translateY(-2px);border-color:var(--accent)}
+.pcard .pe{font-size:26px} .pcard h3{margin:10px 0 4px;font-size:16px}
+.pcard .pd{font-size:12px;color:var(--muted);line-height:1.45}
+.pcard .badge{position:absolute;top:14px;right:14px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:999px}
+.badge.ok{color:var(--green);border:1px solid color-mix(in srgb,var(--green) 30%,transparent)}
+.badge.lk{color:var(--red);border:1px solid color-mix(in srgb,var(--red) 30%,transparent)}
+.pcard.locked{opacity:.6}
+.tagline{text-align:center;color:var(--muted);font-size:12px;margin-top:40px;letter-spacing:.04em}
+/* logo animé */
+.elilogo{display:block}
+.elilogo .flame{transform-origin:155px 20px;animation:flick 1.9s ease-in-out infinite}
+@keyframes flick{0%,100%{opacity:.82;transform:scaleY(1) rotate(0)}45%{opacity:1;transform:scaleY(1.1) rotate(-4deg)}70%{opacity:.9;transform:scaleY(.97) rotate(2deg)}}
+.elilogo .ring{animation:halo 4s ease-in-out infinite}
+@keyframes halo{0%,100%{filter:drop-shadow(0 0 0 transparent)}50%{filter:drop-shadow(0 0 7px color-mix(in srgb,var(--accent) 55%,transparent))}}
+.brandtop{display:flex;align-items:center;gap:10px}
+.brandtop .bt{font-family:'Fraunces';font-weight:700;font-size:19px;letter-spacing:-.01em;color:#FFD54F}
+/* ENTRÉE — chat d'accueil plein écran */
+.entry{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(1100px 560px at 50% -10%, color-mix(in srgb,var(--accent) 18%,transparent), transparent 60%),var(--bg);padding:24px}
+.echat{width:100%;max-width:560px;background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden;animation:rise .5s}
+.echead{display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line)}
+.echead .bt{font-family:'Fraunces';font-weight:700;font-size:20px;color:#FFD54F;line-height:1}
+.echead .st{font-size:11px;color:var(--muted);letter-spacing:.04em}
+.ebody{padding:20px;display:flex;flex-direction:column;gap:12px;min-height:230px}
+.cbub{max-width:84%;padding:12px 15px;border-radius:15px;font-size:14px;line-height:1.55;animation:rise .35s}
+.cbub.eli{align-self:flex-start;background:var(--panel2);border:1px solid var(--line);border-bottom-left-radius:5px;color:var(--ink)}
+.cbub.usr{align-self:flex-end;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06150e;font-weight:600;border-bottom-right-radius:5px}
+.cbub b{color:#FFD54F}
+.efoot{border-top:1px solid var(--line);padding:14px 16px;display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.einput{flex:1;min-width:120px;background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:11px;font-family:inherit;font-size:14px;padding:11px 13px}
+.einput:focus{outline:none;border-color:var(--accent)}
+.eselect{background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:11px;font-family:inherit;font-size:13.5px;font-weight:600;padding:11px 10px;cursor:pointer}
+.esend{border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:14px;color:#06150e;background:linear-gradient(135deg,var(--gold),var(--gold2));padding:11px 17px;border-radius:11px}
+.eaccess{display:block;width:100%;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:15px;color:#06150e;background:linear-gradient(135deg,var(--accent),var(--accent2));padding:14px;border-radius:13px;box-shadow:0 14px 30px -14px var(--accent);animation:rise .4s}
+/* barre maquette (super-admin seulement) */
+.maqwrap{display:flex;align-items:center;gap:10px}
+.maqbar{display:flex;align-items:center;gap:9px;background:rgba(216,182,110,.07);border:1px dashed color-mix(in srgb,var(--gold) 40%,transparent);border-radius:12px;padding:6px 6px 6px 11px}
+.maqbar .ml{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold2);font-weight:700;white-space:nowrap}
+.maqbtn{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:10px;font-family:inherit;font-size:12px;font-weight:600;padding:8px 11px;cursor:pointer;white-space:nowrap}
+.maqbtn:hover{color:var(--ink);border-color:var(--gold)}
+/* pied de page */
+.foot{margin-top:auto;border-top:1px solid var(--line);background:rgba(9,19,16,.5);padding:16px 34px;display:flex;align-items:center;gap:12px}
+.foot .fl{display:flex;align-items:center;gap:9px;font-family:'Fraunces';font-weight:600;font-size:15px;color:var(--ink2)}
+.foot .fr{margin-left:auto;font-family:'Fraunces';font-style:italic;font-weight:500;font-size:14px;color:var(--gold2);text-align:right}
+/* Oral — Live Exam */
+.modecard{flex:1;min-width:200px;border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:18px;cursor:pointer;transition:.16s}
+.modecard:hover{border-color:var(--accent);transform:translateY(-2px)}
+.modecard.sel{border-color:var(--accent);background:linear-gradient(120deg,var(--accentSoft),transparent)}
+.modecard .mi{font-size:24px}.modecard h4{margin:8px 0 4px;font-family:'Fraunces';font-size:16px}.modecard p{margin:0;font-size:12.5px;color:var(--muted);line-height:1.45}
+.console{background:#0a1812;border:1px solid var(--line);border-radius:16px;padding:18px;min-height:320px;display:flex;flex-direction:column}
+.console.rec{box-shadow:0 0 0 2px var(--red) inset}
+.jq{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--accent2);border-radius:10px;padding:13px 15px;font-size:15px;font-weight:600;line-height:1.45}
+.jflow{flex:1;display:flex;flex-direction:column;gap:9px;margin:14px 0;overflow:auto;max-height:170px}
+.jbub{max-width:88%;padding:9px 13px;border-radius:12px;font-size:13px;line-height:1.5}
+.jbub.j{align-self:flex-start;background:var(--panel);border:1px solid var(--line);color:var(--ink2)}
+.jbub.u{align-self:flex-end;background:var(--accentSoft);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent)}
+.micbtn{display:flex;align-items:center;justify-content:center;gap:10px;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:15px;color:#06150e;background:linear-gradient(135deg,var(--accent),var(--accent2));padding:15px;border-radius:13px;width:100%}
+.micbtn.rec{background:linear-gradient(135deg,#C9503F,#E0695A);color:#fff;animation:recp 1s infinite}
+@keyframes recp{50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--red) 40%,transparent)}}
+.badge-mode{font-size:11px;font-weight:700;border-radius:999px;padding:5px 11px;border:1px solid var(--line);color:var(--gold2)}
+.dlpulse{animation:dlp 1.4s ease-in-out infinite}@keyframes dlp{50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--gold) 32%,transparent)}}
+.tic{height:8px;border-radius:999px;background:rgba(255,255,255,.1);position:relative;margin-top:8px}
+.tic i{position:absolute;top:-2px;width:3px;height:12px;background:var(--red);border-radius:2px}
+.warroom{border-radius:16px;padding:18px 20px;background:linear-gradient(120deg,color-mix(in srgb,var(--red) 20%,transparent),color-mix(in srgb,var(--gold) 12%,transparent));border:1px solid color-mix(in srgb,var(--red) 30%,transparent);margin-bottom:18px}
+.warroom .wt{font-family:'Fraunces';font-weight:700;font-size:18px;color:#fff}
+.warroom .wbar{height:10px;border-radius:999px;background:rgba(255,255,255,.12);margin-top:10px;overflow:hidden}
+.warroom .wbar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.matrow{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:13px;background:var(--panel);margin-bottom:9px}
+.matrow.cruciale{border-color:color-mix(in srgb,var(--red) 38%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--red) 18%,transparent) inset}
+.matrow .pr{margin-left:auto;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:4px 9px;border-radius:999px}
+.pr.Cruciale{color:var(--red);border:1px solid color-mix(in srgb,var(--red) 40%,transparent)}
+.pr.Stratégique{color:var(--gold2);border:1px solid color-mix(in srgb,var(--gold) 40%,transparent)}
+.pr.Secondaire{color:var(--muted);border:1px solid var(--line2)}
+.annale{font-size:10px;color:var(--accent2);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:6px;padding:2px 7px;margin-right:5px}
+.autres{margin-top:8px;border:1px dashed var(--line);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.02)}
+.autres summary{cursor:pointer;color:var(--muted);font-weight:600;font-size:13px}
+.eliconseil{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px;padding:16px 18px;border-radius:15px;border:1px solid color-mix(in srgb,var(--gold) 30%,transparent);background:linear-gradient(120deg,color-mix(in srgb,var(--gold) 12%,transparent),transparent)}
+.hidden{display:none!important}
+.cmp-item:hover{border-color:var(--accent)!important}
+</style>
+</head>
+<body data-prog="national">
+<div class="entry" id="entry">
+  <div class="echat">
+    <div class="echead"><span id="entryLogo"></span><div><div class="bt">Éli</div><div class="st">Espace élève · ton professeur</div></div></div>
+    <div class="ebody" id="ebody"></div>
+    <div class="efoot" id="efoot"></div>
+  </div>
+</div>
+<div class="shell" id="shell" style="display:none">
+  <aside class="rail">
+    <div class="brand"><span id="railLogo"></span><div><div class="nm">Éli</div><div class="sub">Espace élève</div></div></div>
+    <div class="navitem" data-p="accueil"><span class="ic">🏠</span> Accueil — piliers</div>
+    <div class="navitem" data-p="comprendre"><span class="ic">📖</span> Comprendre le cours <span class="tag ok">tous</span></div>
+    <div class="railcat">Piliers connectés</div>
+    <div class="navitem" data-p="avenir"><span class="ic" id="p1ic">🎓</span> <span id="p1label">Mon Avenir</span> <span class="tag" data-tag="avenir"></span></div>
+    <div class="navitem" data-p="j7"><span class="ic">🔴</span> Protocole J‑7 <span class="tag" data-tag="j7"></span></div>
+    <div class="navitem" data-p="predicteur"><span class="ic">📊</span> Le Prédicteur <span class="tag" data-tag="predicteur"></span></div>
+    <div class="navitem" data-p="oral"><span class="ic">🎤</span> Simulateur Oral <span class="tag" data-tag="oral"></span></div>
+    <div class="railcat">Outils autonomes</div>
+    <div class="navitem" data-p="fiches"><span class="ic">🗂️</span> Fiches &amp; QCM <span class="tag" data-tag="fiches"></span></div>
+    <div class="navitem" data-p="copie"><span class="ic">📸</span> Analyser ma copie <span class="tag ok">tous</span></div>
+    <div class="navitem" data-p="tableau"><span class="ic">📷</span> Scanner un tableau <span class="tag ok">tous</span></div>
+    <div class="railcat">État</div>
+    <div class="navitem" data-p="bougie"><span class="ic">🕯️</span> Mode Bougie <span class="tag ok">tous</span></div>
+    <div class="railfoot">Les piliers s’activent depuis l’accueil. Éli lit ta classe en base : <b>classe non prérequise → zéro accès</b>.</div>
+  </aside>
+  <div class="main">
+    <div class="top">
+      <div class="brandtop"><span id="topLogo"></span><span class="bt">Éli</span></div>
+      <div class="crumbs">· <b id="crumb">Accueil</b></div>
+      <div class="spacer"></div>
+      <div class="maqwrap">
+        <div class="maqbar" id="maqbar">
+          <span class="ml">Maquette · super‑admin</span>
+          <div class="seg" id="progSeg"><button class="on" data-prog="national">National</button><button data-prog="aefe">AEFE</button></div>
+          <select class="csel" id="classSel" title="Classe (simulée — visible en maquette uniquement)"></select>
+        </div>
+        <button class="maqbtn" id="maqToggle">👁 Vue élève</button>
+      </div>
+      <div class="who"><div class="av" id="avatar">J</div><div><div class="nm" id="whoName">Jean</div><div class="cl" id="whoClass"></div></div></div>
+    </div>
+    <div class="stage" id="stage"></div>
+    <footer class="foot"><div class="fr">L'intelligence au service de ta réussite</div></footer>
+  </div>
+</div>
+<script>
+const ELI_SB_URL='https://szhdlixejgaqzafpirwv.supabase.co';
+const ELI_SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6aGRsaXhlamdhcXphZnBpcnd2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzODI3MDQsImV4cCI6MjA5NTk1ODcwNH0.oe_nwB51o2ZoNlyDZPzukXQimK18gFN_DieoMBupZiM';
+
+/* ---------- Classes (National) ---------- */
+const CLASSES = [
+  // ===== NATIONAL · GÉNÉRAL =====
+  {key:'6e',prog:'national',sess:'general',label:'6e',exam:false,ex:'',serie:'—'},
+  {key:'5e',prog:'national',sess:'general',label:'5e',exam:false,ex:'',serie:'—'},
+  {key:'4e',prog:'national',sess:'general',label:'4e',exam:false,ex:'',serie:'—'},
+  {key:'3e',prog:'national',sess:'general',label:'3e',exam:true,ex:'BEPC',serie:'—'},
+  {key:'2nde',prog:'national',sess:'general',label:'2nde',exam:false,ex:'',serie:'—'},
+  {key:'1ere',prog:'national',sess:'general',label:'1ère',exam:false,ex:'',serie:'C'},
+  {key:'tleA',prog:'national',sess:'general',label:'Terminale A',exam:true,ex:'BAC',serie:'A1',term:true},
+  {key:'tleB',prog:'national',sess:'general',label:'Terminale B',exam:true,ex:'BAC',serie:'B',term:true},
+  {key:'tleC',prog:'national',sess:'general',label:'Terminale C',exam:true,ex:'BAC',serie:'C',term:true},
+  {key:'tleD',prog:'national',sess:'general',label:'Terminale D',exam:true,ex:'BAC',serie:'D',term:true},
+  // ===== NATIONAL · TECHNIQUE =====
+  {key:'2ndeT',prog:'national',sess:'technique',label:'2nde Technique',exam:false,ex:'',serie:'—'},
+  {key:'1F4',prog:'national',sess:'technique',label:'1ère F4',exam:false,ex:'',serie:'F4'},
+  {key:'1G2',prog:'national',sess:'technique',label:'1ère G2',exam:false,ex:'',serie:'G2'},
+  {key:'tF1',prog:'national',sess:'technique',label:'Terminale F1 (construction méca.)',exam:true,ex:'BAC technique',serie:'F1',term:true},
+  {key:'tF2',prog:'national',sess:'technique',label:'Terminale F2 (électronique)',exam:true,ex:'BAC technique',serie:'F2',term:true},
+  {key:'tF3',prog:'national',sess:'technique',label:'Terminale F3 (électrotechnique)',exam:true,ex:'BAC technique',serie:'F3',term:true},
+  {key:'tF4',prog:'national',sess:'technique',label:'Terminale F4 (génie civil)',exam:true,ex:'BAC technique',serie:'F4',term:true},
+  {key:'tG1',prog:'national',sess:'technique',label:'Terminale G1 (administratif)',exam:true,ex:'BAC technique',serie:'G1',term:true},
+  {key:'tG2',prog:'national',sess:'technique',label:'Terminale G2 (gestion)',exam:true,ex:'BAC technique',serie:'G2',term:true},
+  {key:'tG3',prog:'national',sess:'technique',label:'Terminale G3 (commerce)',exam:true,ex:'BAC technique',serie:'G3',term:true},
+  // ===== AEFE · GÉNÉRAL =====
+  {key:'a6e',prog:'aefe',sess:'general',label:'6e',exam:false,ex:'',serie:'—'},
+  {key:'a5e',prog:'aefe',sess:'general',label:'5e',exam:false,ex:'',serie:'—'},
+  {key:'a4e',prog:'aefe',sess:'general',label:'4e',exam:false,ex:'',serie:'—'},
+  {key:'a3e',prog:'aefe',sess:'general',label:'3e',exam:true,ex:'Brevet',serie:'—'},
+  {key:'a2nde',prog:'aefe',sess:'general',label:'2nde',exam:false,ex:'',serie:'—'},
+  {key:'a1ere',prog:'aefe',sess:'general',label:'1ère',exam:false,ex:'',serie:'C'},
+  {key:'aTle',prog:'aefe',sess:'general',label:'Terminale',exam:true,ex:'Bac',serie:'C',term:true},
+];
+const SESS_LABEL={general:'Générale',technique:'Technique'};
+function sessionsFor(prog){return prog==='aefe'?['general']:['general','technique'];}
+function classesFor(prog,sess){return CLASSES.filter(c=>c.prog===prog&&c.sess===sess);}
+function clLabel(c){c=c||CLS();return c.label+' · '+(c.exam?'examen '+c.ex:'classe de passage');}
+function isTerm(){return !!CLS().term;}
+/* règle d'accès : le pilier 1 (slot Caméléon) est TOUJOURS accessible — il mute selon la classe
+   (Mon Avenir / Cap sur la Seconde / Mon Entrée en 6ème / Booster ma Moyenne).
+   J-7, Prédicteur, Oral : classes d'examen (le J-7 aura aussi un mode Marathon/Défi — étape suivante).
+   Fiches&QCM : accès à tous (Menu Magique si examen, sinon menu simple/Marathon). */
+const PREREQ = {
+  comprendre:()=>true, avenir:()=>true, j7:c=>c.exam, predicteur:c=>c.exam, oral:c=>c.exam,
+  fiches:()=>true, copie:()=>true, tableau:()=>true, bougie:()=>true, accueil:()=>true
+};
+const CONNECTED = {avenir:1,j7:1,predicteur:1,oral:1};
+const TITLES={accueil:"Accueil",comprendre:"Comprendre le cours",avenir:"Mon Avenir",j7:"Protocole J‑7",predicteur:"Le Prédicteur",oral:"Simulateur Oral",fiches:"Fiches & QCM",copie:"Analyser ma copie",tableau:"Scanner un tableau",bougie:"Mode Bougie"};
+const META={ comprendre:{ic:"📖",d:"Comprendre chaque notion : Éli explique, réexplique et vérifie."},
+  avenir:{ic:"🎓",d:"Orientation, écoles, concours et bourse ANBG."},
+  j7:{ic:"🔴",d:"Préparation intensive aux examens et concours."},
+  predicteur:{ic:"📊",d:"Les chapitres qui tombent, sur 10 ans d’archives."},
+  oral:{ic:"🎤",d:"Jury impitoyable puis mentor, noté /20."},
+  fiches:{ic:"🗂️",d:"Fiches et quiz adaptatifs."},
+  copie:{ic:"📸",d:"Ta copie corrigée, surlignée."},
+  tableau:{ic:"📷",d:"Le tableau transformé en fiche."},
+  bougie:{ic:"🕯️",d:"Hors‑ligne, économe en données."},
+};
+
+let STATE={prog:'national',clsKey:'tleC',pilier:'accueil',filiere:'Général',metier:'Santé / Médecine',gate:{}};
+let eliOral={profile:'severe',mode:'oral',q:0,sec:0,timer:null};
+const ORAL_Q=["Présente ton sujet en une phrase, puis annonce clairement ton plan.","Développe ton premier argument avec un exemple précis.","Quelles sont les limites de ton raisonnement ? Nuance.","On te contredit : défends ta position sans te braquer.","Conclus en une phrase : que doit-on retenir d'essentiel ?"];
+function speak(t){try{if(window.speechSynthesis){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='fr-FR';u.rate=1;window.speechSynthesis.speak(u);}}catch(e){}}
+function radar(vals,labels){var cx=110,cy=110,R=78,n=vals.length;function pt(i,r){var a=-Math.PI/2+i*2*Math.PI/n;return [cx+Math.cos(a)*r,cy+Math.sin(a)*r];}
+  var grid=[0.25,.5,.75,1].map(function(f){return '<polygon points="'+vals.map(function(_,i){return pt(i,R*f).join(',');}).join(' ')+'" fill="none" stroke="rgba(255,255,255,.08)"/>';}).join('');
+  var axes=vals.map(function(_,i){var p=pt(i,R);return '<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0]+'" y2="'+p[1]+'" stroke="rgba(255,255,255,.08)"/>';}).join('');
+  var poly='<polygon points="'+vals.map(function(v,i){return pt(i,R*v/10).join(',');}).join(' ')+'" fill="color-mix(in srgb,var(--accent2) 28%,transparent)" stroke="var(--accent2)" stroke-width="2"/>';
+  var labs=labels.map(function(l,i){var p=pt(i,R+15);return '<text x="'+p[0]+'" y="'+p[1]+'" fill="var(--muted)" font-size="10" text-anchor="middle">'+l+'</text>';}).join('');
+  return '<svg viewBox="0 0 220 220" width="100%" style="max-width:240px;margin-top:6px">'+grid+axes+poly+labs+'</svg>';}
+const CLS=()=>CLASSES.find(c=>c.key===STATE.clsKey);
+const can=p=>PREREQ[p](CLS());
+const isExam=()=>CLS().exam;
+/* ===== COMPOSANT CAMÉLÉON : le pilier 1 mute selon la classe (même tuyauterie, habillage différent) ===== */
+function pilier1(){
+  const c=CLS();
+  if(c.term)                       return {kind:'avenir',    title:'Mon Avenir',         ic:'🎓', d:'Orientation, écoles, concours et bourse ANBG.'};
+  if(c.key==='cm2')                return {kind:'entree6',   title:'Mon Entrée en 6ème', ic:'🎒', d:'Objectif CEP & concours d’entrée en 6ème.'};
+  if(c.key==='3e'||c.key==='a3e')  return {kind:'capseconde',title:'Cap sur la Seconde', ic:'🧭', d:'Le carrefour : Général ou Technique.'};
+  return                                  {kind:'booster',   title:'Booster ma Moyenne', ic:'📈', d:'Garder une longueur d’avance toute l’année.'};
+}
+function updatePilier1(){
+  const v=pilier1();
+  const ic=document.getElementById('p1ic'), lb=document.getElementById('p1label');
+  if(ic)ic.textContent=v.ic; if(lb)lb.textContent=v.title;
+  TITLES.avenir=v.title; META.avenir={ic:v.ic,d:v.d};
+  if(STATE.pilier==='avenir'){const cr=document.getElementById('crumb');if(cr)cr.textContent=v.title;}
+}
+const SAS_P1={
+ avenir:["🎓","Construire mon avenir","Je suis ton conseiller d’orientation. On transforme tes résultats réels en plan de bataille : filière, écoles, bourse ANBG. Prêt à entamer ton bilan ?"],
+ entree6:["🎒","Préparer ton entrée en 6ème","On vise les points du CEP et du concours d’entrée en 6ème pour décrocher le meilleur collège. Prêt à voir où tu en es ?"],
+ capseconde:["🧭","Choisir ta Seconde","Le grand carrefour : Général ou Technique. Je t’aide à viser la bonne Seconde selon tes forces. On regarde ensemble ?"],
+ booster:["📈","Booster ta moyenne","Pas d’examen cette année, mais on garde une longueur d’avance. Je veille sur tes moyennes et tes devoirs. On s’y met ?"],
+};
+function trimestreNow(){const m=new Date().getMonth()+1; if(m>=10)return 1; if(m<=3)return 2; if(m<=6)return 3; return 1;}
+
+/* ---------- Données seedées (sourcées web · vérifié 2026‑06‑20) ---------- */
+const SCHOOLS=[
+ {id:'usts',n:"Université des Sciences et Techniques de la Santé (USTS)",k:"santé · Okala, Libreville",em:"🩺",series:["C","D"],src:"L'Union / GabonMediaTime · 2026‑06‑20"},
+ {id:'uss',n:"Université des Sciences de la Santé (USS)",k:"santé · Owendo · (relation USTS à clarifier)",em:"🩺",series:["C","D"],src:"à vérifier"},
+ {id:'epm',n:"École Polytechnique de Masuku (EPM)",k:"ingénieur · Franceville",em:"⚙️",series:["C","D","E","F4"],src:"univ-masuku.org · 2026‑06‑20"},
+ {id:'esmvm',n:"École des Sciences et Médecine Vétérinaires de Masuku (ESMVM)",k:"vétérinaire · Franceville",em:"🐎",series:["C","D"],src:"Ogooué Éducation · 2026‑06‑20"},
+ {id:'insab',n:"INSAB — Agronomie & Biotechnologies",k:"institut · Franceville (USTM)",em:"🌿",series:["C","D","A1","B"],src:"Gabon Opportunités · 2026‑06‑20"},
+ {id:'enset',n:"ENSET — Normale Sup. Enseignement Technique",k:"normale technique · Franceville",em:"🛠️",series:["C","E","F4"],src:"USTM · 2026‑06‑20"},
+ {id:'uob',n:"Université Omar Bongo (UOB)",k:"université pluridisciplinaire · Libreville",em:"📚",series:["A1","A2","B"],src:"Ministère · 2026‑06‑20"},
+];
+const CONCOURS=[
+ {id:'usts',n:"Concours USTS — Médecine & Paramédical",info:"Bac C/D/S · ≤19 ans (méd), ≤21 (para) · 31/05/2026 au Prytanée",series:["C","D"]},
+ {id:'esmvm',n:"Concours ESMVM — Vétérinaire",info:"Bac C/D · ≤22 ans (médecine vétérinaire)",series:["C","D"]},
+ {id:'insab',n:"Concours INSAB",info:"Agronomie : Bac C,D,STL,STA · Entrepreneuriat : A1,B,ACC,CC · ~25/07",series:["C","D","A1","B"]},
+ {id:'epm',n:"Concours EPM (ingénieur)",info:"Bac C/D/E · sur concours · USTM",series:["C","D","E","F4"]},
+];
+/* matières stratégiques par concours (matières sourcées ; coefficients précis par épreuve : à confirmer) */
+const CONCOURS_MAT={
+ usts:{niveau:'14/20 visé',mat:[{m:'SVT',p:'Cruciale'},{m:'Physique-Chimie',p:'Stratégique'},{m:'Maths',p:'Stratégique'},{m:'Français',p:'Secondaire'},{m:'Anglais',p:'Secondaire'}]},
+ uss:{niveau:'14/20 visé',mat:[{m:'SVT',p:'Cruciale'},{m:'Physique-Chimie',p:'Stratégique'},{m:'Maths',p:'Stratégique'}]},
+ esmvm:{niveau:'13/20 visé',mat:[{m:'SVT',p:'Cruciale'},{m:'Physique-Chimie',p:'Stratégique'},{m:'Maths',p:'Stratégique'}]},
+ insab:{niveau:'12/20 visé',mat:[{m:'SVT',p:'Cruciale'},{m:'Chimie',p:'Stratégique'},{m:'Maths',p:'Stratégique'}]},
+ epm:{niveau:'14/20 visé',mat:[{m:'Maths',p:'Cruciale'},{m:'Sciences Physiques',p:'Cruciale'},{m:'SVT',p:'Secondaire'}]},
+};
+const METIERS=["Santé / Médecine","Ingénierie","Sciences & Recherche","Droit / Justice","Gestion / Commerce","Agronomie"];
+
+const stage=document.getElementById('stage');
+let PRENOM='élève';
+function eliLogo(sfx,sz){return `<svg class="elilogo" width="${sz}" height="${sz}" viewBox="0 0 200 200" aria-label="Éli">
+<defs>
+<radialGradient id="L1${sfx}" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#388E3C"/><stop offset="100%" stop-color="#1B5E20"/></radialGradient>
+<linearGradient id="L2${sfx}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFE082"/><stop offset="100%" stop-color="#FFA000"/></linearGradient>
+<linearGradient id="L3${sfx}" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#FFA000"/><stop offset="60%" stop-color="#FFD54F"/><stop offset="100%" stop-color="#FFFDE7"/></linearGradient>
+</defs>
+<circle class="ring" cx="100" cy="100" r="86" fill="url(#L1${sfx})"/>
+<rect x="61" y="44" width="13" height="108" rx="6" fill="url(#L2${sfx})"/>
+<rect x="61" y="44" width="78" height="13" rx="6" fill="url(#L2${sfx})"/>
+<rect x="61" y="91" width="60" height="13" rx="6" fill="url(#L2${sfx})"/>
+<rect x="61" y="139" width="78" height="13" rx="6" fill="url(#L2${sfx})"/>
+<path class="flame" d="M147 44C145 34,141 24,147 12C150 5,156 1,156 1C156 1,167 10,164 24C162 32,156 38,156 44Z" fill="url(#L3${sfx})"/>
+<circle cx="82" cy="172" r="4.5" fill="url(#L2${sfx})" opacity=".9"/>
+<circle cx="100" cy="176" r="5.5" fill="url(#L2${sfx})"/>
+<circle cx="118" cy="172" r="4.5" fill="url(#L2${sfx})" opacity=".9"/>
+</svg>`;}
+const DL=l=>`<button class="dl" onclick="alert('PDF brandé « ${l} » généré au clic, sur tes vraies données. (maquette)')">⬇ Télécharger le PDF</button>`;
+function head(ic,t,role,desc,dl){return `<div class="phead"><div class="pico">${ic}</div><div><h1>${t}</h1><div class="role">${role}</div><div class="desc">${desc}</div></div>${dl?DL(dl):''}</div>`;}
+
+/* ---------- ACCUEIL externe : grille activable + cadenas ---------- */
+function renderComprendre(){
+  stage.innerHTML = head("📖","Comprendre le cours","Apprendre avec Éli · "+clLabel(),
+    "Le pilier fondateur : Éli t'explique chaque notion, te la réexplique autrement si tu bloques, te la lit, et vérifie que tu as compris.",null)
+  + `<div id="cmpHost"><div class="card pad" style="text-align:center;color:var(--muted)">Chargement des notions depuis Supabase…</div></div>`;
+  loadComprendre();
+}
+async function loadComprendre(){
+  const host=document.getElementById('cmpHost'); if(!host)return;
+  try{
+    const cls=(CLS().label||'').toLowerCase();
+    const map={'6e':'6e','5e':'5e','4e':'4e','3e':'3e'};
+    const ck=map[cls]||null;
+    const url=`${ELI_SB_URL}/rest/v1/cours?program=eq.national&status=eq.publie&select=notion,subject,objectif,cours,exemple,erreurs&order=id&limit=8`+(ck?`&class_key=eq.${ck}`:'');
+    const r=await fetch(url,{headers:{apikey:ELI_SB_KEY,Authorization:'Bearer '+ELI_SB_KEY}});
+    const rows=await r.json();
+    if(!rows||!rows.length){host.innerHTML='<div class="card pad">Aucune notion pour cette classe pour le moment. Le pilier est prêt à recevoir le contenu.</div>';return;}
+    host.innerHTML=`<div class="eyebrow" style="margin:6px 0 10px">Choisis une notion (données réelles)</div>`
+      + rows.map((x,i)=>`<div class="card pad cmp-item" style="cursor:pointer;margin-bottom:10px" onclick="cmpOpen(${i})"><strong>${x.notion}</strong><div style="color:var(--muted);font-size:13px;margin-top:4px">${x.subject||''} — ${(x.objectif||'').slice(0,90)}</div></div>`).join('');
+    window.__CMP=rows;
+  }catch(e){host.innerHTML='<div class="card pad">Connexion impossible — le pilier est prêt, données à rebrancher en ligne.</div>';}
+}
+function cmpOpen(i){const x=(window.__CMP||[])[i];if(!x)return;stage.innerHTML=head("📖",x.notion,"Comprendre · "+clLabel(),x.objectif||'',null)
+  +`<div class="card pad"><div style="line-height:1.7;font-size:15px">${(x.cours||'').replace(/\n/g,'<br>')}</div>`
+  +(x.exemple?`<div style="margin-top:14px;background:var(--accentSoft);border-left:3px solid var(--accent);border-radius:0 12px 12px 0;padding:12px 14px">💡 ${x.exemple}</div>`:'')
+  +(x.erreurs?`<div style="margin-top:10px;background:rgba(224,105,90,.08);border-left:3px solid var(--red);border-radius:0 12px 12px 0;padding:12px 14px">⚠️ ${x.erreurs}</div>`:'')
+  +`<button class="btn-back" style="margin-top:16px;width:auto;padding:10px 18px;border-radius:12px" onclick="go('comprendre')">← Autres notions</button></div>`;}
+
+function renderAccueil(){
+  const order=['comprendre','avenir','j7','predicteur','oral','fiches','copie','tableau','bougie'];
+  stage.innerHTML = head("🏠","Bienvenue, "+PRENOM,"Accueil · "+clLabel(),
+    "Les piliers s’activent d’ici. Éli connaît déjà ta classe : ce qui t’est ouvert est marqué, le reste est verrouillé.",null)
+   + `<div class="eyebrow" style="margin-top:8px">Tes piliers</div><div class="pgrid">`
+   + order.map(p=>{const ok=can(p);const mm=(p==='fiches'&&!isExam());
+       return `<div class="pcard ${ok?'':'locked'}" onclick="go('${p}')">
+         <span class="badge ${ok?'ok':'lk'}">${ok?(mm?'menu simple':'ouvert'):'🔒 verrouillé'}</span>
+         <div class="pe">${META[p].ic}</div><h3>${TITLES[p]}</h3><div class="pd">${META[p].d}</div></div>`;}).join('')
+   + `</div><div class="note" style="margin-top:18px">Classe actuelle : <b>${clLabel()}</b>. ${isExam()?'Classe d’examen → piliers stratégiques ouverts.':'Classe sans examen → les piliers d’examen sont verrouillés (zéro accès), c’est voulu.'}</div>`;
+}
+
+/* ---------- ZÉRO ACCÈS ---------- */
+function renderLocked(p){
+  const c=CLS();
+  stage.innerHTML = `<div class="lockwrap">
+    <div class="seal">🔒</div>
+    <h2>${TITLES[p]} — accès refusé</h2>
+    <p>Ce pilier est réservé aux <b>classes d’examen</b> (CM2·CEP, 3e·BEPC, Terminale·BAC). Éli a lu ta classe en base et ne t’ouvre pas une machine calibrée pour un diplôme que tu ne passes pas cette année.</p>
+    <div class="why">Tu es en ${clLabel(c)} — pas de ${p==='oral'?'simulation d’examen':p==='predicteur'?'archives d’examen':'parcours examen/concours'} pour cette classe</div>
+    <div class="alt">
+      <button class="btn ghost" onclick="go('fiches')">🗂️ Mes fiches &amp; quiz</button>
+      <button class="btn ghost" onclick="go('copie')">📸 Analyser ma copie</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- basculement chat → Accéder ---------- */
+const SAS={
+ avenir:["🎓","Construire mon avenir","Je suis ton conseiller d’orientation. Je t’ai reconnu — on transforme tes résultats réels en plan de bataille : filière, écoles, bourse ANBG. Prêt à entamer ton bilan ?"],
+ j7:["🔴","Activer le Protocole J‑7","Sept jours, c’est court — et suffisant si chaque heure compte. Je bâtis ton planning autour de tes zones rouges et des gros coefficients. On y va ?"],
+ predicteur:["📊","Voir les sujets probables","Dix ans d’épreuves analysées. Je ne te donne pas les sujets — je te montre où concentrer ton énergie. Prêt à voir la carte ?"],
+ oral:["🎤","Lancer la simulation","Conditions réelles : je serai ton jury, cinq questions sans complaisance, puis je t’aide à progresser. Prêt à affronter le jury ?"],
+};
+function sas(p){const s=(p==='avenir')?SAS_P1[pilier1().kind]:SAS[p];const msg=`Bienvenue ${PRENOM}. `+s[2];stage.innerHTML=`<div class="sas"><div class="pico">${s[0]}</div><h2>${s[1]}</h2><p>${msg}</p>
+  <div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px;flex-wrap:wrap">
+    <span class="chip ghost">👤 ${PRENOM}</span>
+    <span class="chip ghost">🎓 ${CLS().label}${isExam()?' · examen '+CLS().ex:''}</span>
+  </div>
+  <button class="access" id="ab">Accéder →</button></div>`;document.getElementById('ab').onclick=()=>{STATE.gate[p]=true;renderPilier(p);};}
+
+/* ================= PILIER 1 — CAMÉLÉON (dispatcher) ================= */
+function renderPilier1(){({avenir:renderMonAvenir,entree6:renderEntree6,capseconde:renderCapSeconde,booster:renderBooster}[pilier1().kind])();}
+
+/* ----- Visage A : MON AVENIR (Terminale) ----- */
+function renderMonAvenir(){
+  const serie=CLS().serie;
+  const esc=SCHOOLS.filter(s=>s.series.includes(serie)), ecc=CONCOURS.filter(c=>c.series.includes(serie));
+  const filieres=STATE.filiere==="Technique"?["F4 Génie civil","F3 Électrotech.","G2 Gestion","MEI"]:["A1","A2","B","C","D","E"];
+  const vp=serie==="C"?72:serie==="F4"?64:54;
+  stage.innerHTML=head("🎓","Mon Avenir","Officier d’admission · expert ANBG","Croise ton niveau réel avec les exigences des filières, écoles et bourses du Gabon. Verdict sans complaisance.","Récapitulatif de Chances Réelles")
+   +`<div class="steps"><div class="step on" data-s="0"><span class="n">1</span> Série &amp; Filière</div><div class="step" data-s="1"><span class="n">2</span> Métiers &amp; Branches</div><div class="step" data-s="2"><span class="n">3</span> Écoles &amp; Concours</div></div><div id="avBody"></div>`;
+  const body=stage.querySelector('#avBody'),tabs=stage.querySelectorAll('.step');
+  function paint(s){tabs.forEach(t=>t.classList.toggle('on',+t.dataset.s===s));
+   if(s===0){body.innerHTML=`<div class="card pad"><div class="lab">Cursus</div><div class="chips" style="margin-bottom:18px">${["Général","Technique"].map(f=>`<div class="chip ${STATE.filiere===f?'sel':''}" data-f="${f}">${f}</div>`).join('')}</div><div class="lab">Filières liées (auto)</div><div class="chips">${filieres.map(f=>`<div class="chip ghost ${f===serie?'sel':''}">${f}</div>`).join('')}</div><div class="note" style="margin-top:18px">Éli te lit en base : <b>${clLabel()}</b>. Aucune question posée.</div></div>`;
+     body.querySelectorAll('[data-f]').forEach(c=>c.onclick=()=>{STATE.filiere=c.dataset.f;paint(0);});}
+   if(s===1){body.innerHTML=`<div class="card pad"><div class="lab">Ton projet de vie — il filtre les écoles</div><div class="chips">${METIERS.map(m=>`<div class="chip ${STATE.metier===m?'sel':''}" data-m="${m}">${m}</div>`).join('')}</div><div class="note" style="margin-top:18px">Projet : <b>${STATE.metier}</b> → les écoles se rechargent dynamiquement.</div></div>`;
+     body.querySelectorAll('[data-m]').forEach(c=>c.onclick=()=>{STATE.metier=c.dataset.m;paint(1);});}
+   if(s===2){body.innerHTML=`<div class="grid2"><div><div class="eyebrow" style="margin-top:0">Écoles — série ${serie} (${esc.length})</div>${esc.map(s=>`<div class="school" style="cursor:pointer" onclick="openConcoursTunnel('${s.id||''}','${(s.n).replace(/'/g,"\\'")}')"><div class="em">${s.em}</div><div><div class="t">${s.n}</div><div class="m">${s.k}</div><div class="src">📌 ${s.src}</div></div><div class="ok">Se préparer →</div></div>`).join('')||'<div class="note">Aucune école pour cette série.</div>'}<div class="eyebrow">Concours (${ecc.length})</div>${ecc.map(c=>`<div class="school" style="cursor:pointer" onclick="openConcoursTunnel('${c.id}','${(c.n).replace(/'/g,"\\'")}')"><div class="em">🏛️</div><div><div class="t">${c.n}</div><div class="m">${c.info}</div></div><div class="ok">Se préparer →</div></div>`).join('')||'<div class="note">Aucun concours.</div>'}</div>
+     <div><div class="card pad"><div class="eyebrow" style="margin-top:0">Verdict — Radar</div><div class="gauge" style="--p:${vp}"><div class="v"><b>${vp}%</b><span>compatibilité</span></div></div><div class="verdict" style="margin-top:16px">${vp>=70?"Profil <b>solide</b>. Vigilance Physique‑Chimie avant l’EPM.":"Profil <b>à consolider</b> : zone de fragilité sur les filières visées."}</div><div class="eyebrow">Tes acquis (aperçu)</div><div class="mast"><span class="dot" style="background:var(--green)"></span> Mathématiques <span class="s" style="color:var(--green)">Acquis</span></div><div class="mast"><span class="dot" style="background:var(--amber)"></span> Physique‑Chimie <span class="s" style="color:var(--amber)">À renforcer</span></div></div>
+     <div class="card pad" style="margin-top:16px"><div class="eyebrow" style="margin-top:0">Bourse ANBG</div><div class="check"><span class="ck y">✓</span> Moyenne terminale ≥ 10/20</div><div class="check"><span class="ck n">!</span> Pièces manquantes : relevé S1</div><div class="note" style="margin-top:10px;font-size:11.5px">ℹ️ Admis à un concours de Grande École = dispense d’âge et de moyenne (décret 0115/2025).</div>${vp<70?`<div class="passerelle"><div style="font-size:13px"><b>Écart de niveau</b> à combler avant le concours.</div><button class="btnp" onclick="go('j7')">Accéder au J‑7 →</button></div>`:''}</div></div></div>`;}
+  }
+  tabs.forEach(t=>t.onclick=()=>paint(+t.dataset.s));paint(0);
+}
+
+/* ----- Visage B : MON ENTRÉE EN 6ème (CM2) ----- */
+function renderEntree6(){
+  const pts=85,total=140;
+  stage.innerHTML=head("🎒","Mon Entrée en 6ème","Objectif CEP & concours d’entrée en 6ème","On vise les points pour décrocher le meilleur collège. Pas de pression — on avance étape par étape.","Mon dossier d’entrée")
+   +`<div class="grid2">
+      <div class="card pad" style="text-align:center"><div class="eyebrow" style="margin-top:0">Indicateur de force</div>
+        <div class="gauge" style="--p:${Math.round(pts/total*100)}"><div class="v"><b>${pts}</b><span>/ ${total} pts</span></div></div>
+        <div class="verdict" style="margin-top:14px">Il te manque <b>15 points</b> pour sécuriser ton entrée au <b>Lycée Léon Mba</b>. Tu vas y arriver 💪</div></div>
+      <div class="card pad"><div class="eyebrow" style="margin-top:0">Tes épreuves</div>
+        <div class="mast"><span class="dot" style="background:var(--red)"></span> Calcul <span class="s" style="color:var(--red)">22 / 40</span></div>
+        <div class="mast"><span class="dot" style="background:var(--green)"></span> Dictée & Questions <span class="s" style="color:var(--green)">28 / 35</span></div>
+        <div class="mast"><span class="dot" style="background:var(--amber)"></span> Rédaction <span class="s" style="color:var(--amber)">20 / 35</span></div>
+        <div class="mast"><span class="dot" style="background:var(--green)"></span> Éveil <span class="s" style="color:var(--green)">15 / 30</span></div>
+        <div class="note" style="margin-top:14px">🎯 Ton point faible : le <b>Calcul</b>. C’est là qu’on va gagner le plus de points.</div></div>
+    </div>
+    <div class="eyebrow">Le collège que tu vises</div>
+    <div class="chips"><div class="chip sel">Lycée National Léon Mba</div><div class="chip">Lycée Nelson Mandela</div></div>
+    <div class="passerelle" style="margin-top:18px;flex-wrap:wrap"><div style="font-size:13px;flex:1;min-width:200px"><b>Gagner mes points en Calcul</b><div style="color:var(--muted);margin-top:3px">Éli a préparé des mini-quiz de 20 minutes pour faire monter ton score.</div></div><button class="btnp" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06150e" onclick="go('fiches')">Se préparer 🎒 →</button></div>
+    <div class="note" style="margin-top:14px">⏱ Tes sessions sont courtes (30 min max), adaptées à ton âge. Priorité envoyée au planning : <b>Calcul</b>.</div>`;
+}
+
+/* ----- Visage C : CAP SUR LA SECONDE (3e) ----- */
+function renderCapSeconde(){
+  const voies=[
+   {k:'S',t:'Seconde Scientifique',sub:'→ vers Terminale C / D',mat:'Maths · Sciences Physiques · SVT',role:'Éli booste tes plages de sciences et durcit tes quiz.'},
+   {k:'LE',t:'Seconde Littéraire',sub:'→ vers Terminale A',mat:'Français · Histoire-Géo · Anglais',role:'Éli muscle ta rédaction et ta culture générale.'},
+   {k:'TECH',t:'Seconde Technique',sub:'→ vers G1/G2 · F3/F4 · TI',mat:'Maths · Français · Anglais · Logique',role:'Éli te prépare aux exigences du technique (LTNOB).'},
+  ];
+  const sel=STATE.capVoie||'S'; const v=voies.find(x=>x.k===sel);
+  stage.innerHTML=head("🧭","Cap sur la Seconde","Le grand carrefour : Général ou Technique","Choisis la voie que tu vises après le BEPC — Éli configure tout le reste (J-7, quiz, oral) autour d’elle.","Mon orientation 3e")
+   +`<div class="lab">Quelle Seconde vises-tu ?</div><div class="chips" style="margin-bottom:18px">${voies.map(x=>`<div class="chip ${x.k===sel?'sel':''}" data-v="${x.k}">${x.t}</div>`).join('')}</div>
+    <div class="grid2"><div class="card pad"><div class="eyebrow" style="margin-top:0">${v.t} <span style="color:var(--muted);font-weight:500;font-size:12px">${v.sub}</span></div>
+      <div class="lab">Matières clés à surveiller</div><div class="chips">${v.mat.split(' · ').map(m=>`<div class="chip ghost">${m}</div>`).join('')}</div>
+      <div class="note" style="margin-top:16px">🧭 <b>Le rôle d’Éli :</b> ${v.role}</div>
+      <div class="note" style="margin-top:10px">🎤 <b>Oral du BEPC (Anglais)</b> — à 14h, le J-7 te basculera vers le Simulateur Oral pour t’entraîner à tenir une conversation.</div></div>
+      <div class="card pad"><div class="eyebrow" style="margin-top:0">Ta progression vers cette voie</div>
+        <div class="gauge" style="--p:${sel==='S'?58:sel==='LE'?71:64}"><div class="v"><b>${sel==='S'?58:sel==='LE'?71:64}%</b><span>compatibilité</span></div></div>
+        <div class="verdict" style="margin-top:14px;text-align:center">${sel==='S'?'Renforce les <b>Maths</b> pour sécuriser la voie scientifique.':'Bonne compatibilité — continue sur cette lancée.'}</div></div></div>
+    <div class="passerelle" style="margin-top:18px;flex-wrap:wrap"><div style="font-size:13px;flex:1;min-width:200px"><b>Préparer cette voie</b><div style="color:var(--muted);margin-top:3px">Éli envoie ${v.mat.split(' · ')[0]} & co en priorité dans tes quiz.</div></div><button class="btnp" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06150e" onclick="go('fiches')">Se préparer pour cette voie →</button></div>`;
+  stage.querySelectorAll('[data-v]').forEach(c=>c.onclick=()=>{STATE.capVoie=c.dataset.v;renderCapSeconde();});
+}
+
+/* ----- Visage D : BOOSTER MA MOYENNE (classes sans examen) ----- */
+function renderBooster(){
+  const t=trimestreNow();
+  const theme={1:{m:'les nombres relatifs & fractions',s:'la cellule / la Terre'},2:{m:'les équations & Thalès–Pythagore',s:'la digestion'},3:{m:'statistiques & géométrie dans l’espace',s:'révisions des compositions'}}[t];
+  stage.innerHTML=head("📈","Booster ma Moyenne","Mode Marathon · fondations","Pas d’examen cette année : on évite d’accumuler des lacunes et on vise une excellente moyenne, toute l’année.",null)
+   +`<div class="grid2"><div class="card pad"><div class="eyebrow" style="margin-top:0">Rythme national — Trimestre ${t}</div>
+       <div class="note">📅 Éli se cale sur le calendrier officiel gabonais. Cette semaine, ta classe (${CLS().label}) travaille en principe : <b>Maths — ${theme.m}</b> ; <b>SVT — ${theme.s}</b>. Aucune saisie nécessaire.</div>
+       <div class="lab" style="margin-top:16px">Prochain rendez-vous</div>
+       <div class="countdown"><div class="cd"><b>03</b><span>jours</span></div><div class="cd"><b>08</b><span>heures</span></div></div>
+       <div style="font-size:11.5px;color:var(--muted);margin-top:8px">avant ton prochain devoir surveillé estimé (ou compositions du trimestre).</div></div>
+      <div class="card pad"><div class="eyebrow" style="margin-top:0">Index de maîtrise (estimé par Éli)</div>
+       <div class="note" style="margin-bottom:12px">Calculé sur ton activité dans l’app — pas besoin de saisir tes notes.</div>
+       <div class="mast"><span class="dot" style="background:var(--green)"></span> Mathématiques <span class="s" style="color:var(--green)">14 / 20</span></div>
+       <div class="mast"><span class="dot" style="background:var(--red)"></span> Anglais <span class="s" style="color:var(--red)">08 / 20</span></div>
+       <div class="mast"><span class="dot" style="background:var(--amber)"></span> Sciences Physiques <span class="s" style="color:var(--amber)">11 / 20</span></div>
+       <div class="note" style="margin-top:12px">⚠️ Zone rouge : <b>Anglais</b> — Éli la passe en priorité.</div></div></div>
+    <div class="passerelle" style="margin-top:18px;flex-wrap:wrap;border-color:color-mix(in srgb,var(--gold) 30%,transparent);background:linear-gradient(120deg,color-mix(in srgb,var(--gold) 10%,transparent),transparent)">
+      <div style="font-size:13px;flex:1;min-width:220px"><b>Le défi d’Éli</b><div style="color:var(--muted);margin-top:3px">« Lance le Sprint Défi : 15 min de QCM par jour pendant une semaine pour débloquer ton badge Major de promo. »</div></div>
+      <button class="btnp" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06150e" onclick="go('fiches')">Préparer mon prochain DS →</button></div>`;
+}
+
+/* ================= J-7 ================= */
+function renderJ7(){
+  if(STATE.j7ctx){ if(STATE.j7ctx.from==='concours') return renderJ7Concours(STATE.j7ctx); return renderJ7FromOral(STATE.j7ctx); }
+  const terminale=isTerm();
+  stage.innerHTML=head("🔴","Protocole J‑7 — Command Center","Stratège de guerre · compte à rebours","Priorité absolue à tes zones rouges et aux gros coefficients (vue d'ensemble de ton profil).","Audit + Planning J‑7")
+   +`<div class="note" style="margin-bottom:16px">📍 <b>Accès direct</b> — programme bâti sur <b>l'ensemble de ton profil</b>. (Si tu arrives ici depuis un oral, le programme est au contraire taillé sur ce thème précis.)</div>
+   <div class="chips" style="margin-bottom:20px">${terminale?`<div class="chip sel">🎯 Mode Concours</div>`:`<div class="chip ghost" style="opacity:.4">🎯 Mode Concours · réservé Terminale</div>`}<div class="chip ${terminale?'':'sel'}">📘 Mode Examen · ${CLS().ex}</div></div>
+   <div class="grid2"><div class="card pad"><div class="eyebrow" style="margin-top:0">Planning du jour — heure par heure</div>
+   <div class="slot"><div class="h">08:00</div><div class="b red">Physique‑Chimie — Ondes <small>Zone rouge · coef 5 · priorité</small></div></div>
+   <div class="slot"><div class="h">10:00</div><div class="b amber">Maths — Probabilités <small>À renforcer · coef 5</small></div></div>
+   <div class="slot"><div class="h">14:00</div><div class="b green">Oral blanc — 1 passage <small>Bascule vers le Simulateur Oral</small></div></div>
+   <div class="slot"><div class="h">21:00</div><div class="b" style="border-color:var(--line)">Sommeil — 8h <small>Pas d’écran après 22h</small></div></div></div>
+   <div><div class="card pad"><div class="eyebrow" style="margin-top:0">Compte à rebours — ${CLS().ex}</div><div class="countdown"><div class="cd"><b>07</b><span>jours</span></div><div class="cd"><b>14</b><span>heures</span></div><div class="cd"><b>22</b><span>min</span></div></div><div class="note" style="margin-top:16px">🔔 Notifications — matin : objectif · soir : bilan + score.</div></div>
+   <div class="card pad" style="margin-top:16px"><div class="eyebrow" style="margin-top:0">Audit de chances</div><div class="note">⚖️ <b>Même audit que « Mon Avenir »</b> — un seul calcul, une seule interface.</div></div></div></div>`;
+}
+function renderJ7FromOral(ctx){
+  stage.innerHTML=head("🔴","Protocole J‑7 — taillé sur ton oral","Programme contextuel · issu du Simulateur Oral","Pas un programme générique : Éli a transformé ton oral en plan de bataille ciblé.","Programme ciblé J‑7")
+   +`<div class="note" style="margin-bottom:16px;border-color:color-mix(in srgb,var(--gold) 30%,transparent)">🎯 <b>Source : Simulateur Oral</b> — thème « <b>${ctx.theme}</b> ». 80 % de ton programme est axé sur tes faiblesses du jour : ${ctx.weak.map(w=>'<b>'+w+'</b>').join(', ')}.</div>
+   <div class="grid2"><div class="card pad"><div class="eyebrow" style="margin-top:0">Programme ciblé — 3 prochains jours</div>
+   <div class="slot"><div class="h">J‑1</div><div class="b red">${ctx.theme} — structure du propos <small>80 % · ta faiblesse n°1 à l'oral</small></div></div>
+   <div class="slot"><div class="h">J‑1</div><div class="b amber">Entraînement débit & respiration <small>réduire le stress détecté</small></div></div>
+   <div class="slot"><div class="h">J‑2</div><div class="b green">Oral blanc sur le même thème <small>retour direct au Simulateur</small></div></div>
+   <div class="slot"><div class="h">J‑3</div><div class="b" style="border-color:var(--line)">Fiche + QCM « ${ctx.theme} » <small>consolidation du fond</small></div></div></div>
+   <div><div class="card pad"><div class="eyebrow" style="margin-top:0">Boucle de progression</div><div class="note">🔁 <b>Oral → Diagnostic → J‑7 → Oral.</b> Tu reviens passer l'oral sur ce thème jusqu'à viser 16/20.</div><div style="margin-top:14px"><button class="btn ghost" onclick="go('oral')">↩ Retour au Simulateur</button></div></div>
+   <div class="card pad" style="margin-top:16px"><div class="eyebrow" style="margin-top:0">Changer de vue</div><div class="note">Besoin du programme complet (toutes matières) au lieu de ce thème ?</div><div style="margin-top:12px"><button class="btn" onclick="go('j7')">Programme complet →</button></div></div></div></div>`;
+}
+function renderJ7Concours(ctx){
+  const c=ctx.concours||'concours';
+  stage.innerHTML=head("🔴","Protocole J‑7 — Mode Commando","Concours "+c+" · stratégie offensive","Le calendrier classique passe en pause : on se focalise de façon agressive sur les matières du concours.","Programme Commando J‑7")
+   +`<div class="warroom"><div class="wt">⚔️ Mode Commando — Objectif ${c}</div><div style="font-size:12.5px;color:var(--ink2);margin-top:6px">Compte à rebours verrouillé jusqu'au concours. Double notification activée (H‑15 / H‑0).</div></div>
+   <div class="grid2"><div class="card pad"><div class="eyebrow" style="margin-top:0">Planning offensif — focus concours</div>
+     <div class="slot"><div class="h">08:00</div><div class="b red">Sprint SVT — Génétique <small>annales ${c} · conditions réelles, chrono</small></div></div>
+     <div class="slot"><div class="h">10:30</div><div class="b amber">Physique‑Chimie — solutions aqueuses <small>niveau concours</small></div></div>
+     <div class="slot"><div class="h">14:00</div><div class="b green">Oral blanc — bascule Simulateur <small>entraînement jury</small></div></div>
+     <div class="slot"><div class="h">21:00</div><div class="b" style="border-color:var(--line)">Sommeil — 8h <small>protégé</small></div></div>
+     <div class="note" style="margin-top:8px">⏸ Histoire/Philo réduites au minimum tant que dure le sprint concours.</div></div>
+     <div><div class="card pad"><div class="eyebrow" style="margin-top:0">Compte à rebours — concours</div><div class="countdown"><div class="cd"><b>21</b><span>jours</span></div><div class="cd"><b>06</b><span>heures</span></div></div><div class="note" style="margin-top:14px">🔔 <b>Double alerte</b> avant chaque épreuve : H‑15 min (mise en condition : coupe les réseaux, isole‑toi) puis H‑0 (« C'est l'heure, connecte‑toi »).</div></div>
+     <div class="card pad" style="margin-top:16px"><div class="eyebrow" style="margin-top:0">Audit de chances</div><div class="gauge" style="--p:58"><div class="v"><b>58%</b><span>prêt concours</span></div></div><div class="note" style="margin-top:10px">Rate une session → la jauge baisse et la séance est réinjectée en priorité le lendemain (dette d'apprentissage).</div></div>
+     <div style="margin-top:14px"><button class="btn ghost" onclick="go('j7')">Programme complet (Bac) →</button></div></div></div>`;
+}
+
+/* ================= PRÉDICTEUR ================= */
+function renderPredicteur(){const chaps=["Suites","Probas","Géom.","Complexes","Intégr.","Log."],subj=["Maths","Physique","SVT"],freq={Maths:[9,8,5,7,6,8],Physique:[6,9,4,3,7,5],SVT:[4,3,8,2,5,6]};
+  const col=v=>v>=8?'#46D592':v>=6?'#D8B66E':v>=4?'#E0A23C':'#E0695A';
+  stage.innerHTML=head("📊","Le Prédicteur","Atout stratégique · 10 ans d’archives","Je ne te donne pas les sujets — je te montre les tendances lourdes. La maîtrise des priorités est la marque des candidats d’élite.","Carte des priorités")
+   +`<div class="card pad"><div class="eyebrow" style="margin-top:0">Score de fréquence — ${CLS().ex} (10 ans d’annales)</div><div class="heat"><div></div>${chaps.map(c=>`<div class="hh">${c}</div>`).join('')}${subj.map(s=>`<div class="rk">${s}</div>`+freq[s].map(v=>`<div class="cell" style="background:${col(v)}">${v}</div>`).join('')).join('')}</div><div style="display:flex;gap:18px;margin-top:16px;font-size:11.5px;color:var(--muted);align-items:center"><span>Comprends en 3 secondes ce qui tombe.</span><button class="btn" style="margin-left:auto;padding:10px 16px;font-size:13px" onclick="go('j7')">⚡ Injecter dans mon J‑7 →</button></div></div>`;
+}
+
+/* ================= ORAL ================= */
+function renderOral(){
+  if(eliOral.timer){clearInterval(eliOral.timer);eliOral.timer=null;}
+  const title=STATE.prog==='aefe'?"Grand Oral":"Simulateur Oral";
+  stage.innerHTML=head("🎤",title,"Choisis ton jury, puis affronte‑le",
+    "Conditions réelles d'un jury d'examen. Choisis ton examinateur, enchaîne 5 questions chronométrées — le verdict tombe à froid, sans complaisance.",null)
+   +`<div class="eyebrow" style="margin-top:6px">Choisis ton jury</div>
+     <div style="display:flex;gap:14px;flex-wrap:wrap">
+       <div class="modecard ${eliOral.profile==='bienveillant'?'sel':''}" data-j="bienveillant"><div class="mi">🤝</div><h4>Mode Mentor — Bienveillant</h4><p>Il te guide, reformule et te glisse un indice si tu bloques plus de 30 s. Pour apprendre en confiance.</p></div>
+       <div class="modecard ${eliOral.profile==='severe'?'sel':''}" data-j="severe"><div class="mi">🧊</div><h4>Mode Examen — Sévère</h4><p>Aucune aide, rigueur totale, chrono implacable qui vire au rouge en fin d'épreuve. Comme le vrai jury.</p></div>
+     </div>
+     <div class="chips" style="margin:18px 0 0"><div class="chip ${eliOral.mode==='oral'?'sel':''}" data-m="oral">🎙️ Oral (voix + chrono)</div><div class="chip ${eliOral.mode==='ecrit'?'sel':''}" data-m="ecrit">✍️ Écrit (réflexion longue)</div></div>
+     <button class="btn" style="margin-top:20px" id="oralGo">Lancer l'oral →</button>`;
+  stage.querySelectorAll('[data-j]').forEach(c=>c.onclick=()=>{eliOral.profile=c.dataset.j;stage.querySelectorAll('[data-j]').forEach(x=>x.classList.toggle('sel',x===c));});
+  stage.querySelectorAll('[data-m]').forEach(c=>c.onclick=()=>{eliOral.mode=c.dataset.m;stage.querySelectorAll('[data-m]').forEach(x=>x.classList.toggle('sel',x===c));});
+  document.getElementById('oralGo').onclick=oralLive;
+}
+function oralLive(){
+  eliOral.q=0;eliOral.sec=0;const sev=eliOral.profile==='severe';
+  stage.innerHTML=head("🎤",STATE.prog==='aefe'?"Grand Oral":"Simulateur Oral","Épreuve en cours","Reste maître de toi : la question tombe, le chrono part.",null)
+   +`<div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap"><span class="badge-mode">Mode : ${sev?'Examen — Sévère 🧊':'Mentor — Bienveillant 🤝'}</span><span class="badge-mode" id="oralChrono" style="color:var(--accent2)">00:00</span><span class="badge-mode" id="oralProg">Question 1 / 5</span></div>
+     <div class="grid2">
+       <div class="console" id="oralConsole">
+         <div class="jq" id="oralQ">…</div>
+         <div class="jflow" id="oralFlow"></div>
+         ${eliOral.mode==='oral'
+           ? `<button class="micbtn" id="oralMic">🎙️ Répondre (micro)</button>`
+           : `<textarea class="einput" id="oralText" rows="3" placeholder="Rédige ta réponse, prends le temps de structurer…" style="width:100%;resize:vertical;margin-bottom:10px;font-family:inherit"></textarea><button class="micbtn" id="oralMic">Valider ma réponse →</button>`}
+       </div>
+       <div class="card pad" id="oralRight" style="opacity:.45;text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:320px">
+         <div style="font-size:32px">🤫</div><div class="eyebrow" style="margin-top:8px">Examen en cours</div><div class="note" style="background:none;border:none">Concentration maximale. Le verdict s'affiche ici à la toute fin.</div>
+       </div>
+     </div>`;
+  eliOral.timer=setInterval(()=>{eliOral.sec++;const el=document.getElementById('oralChrono');if(!el){clearInterval(eliOral.timer);return;}const m=String(Math.floor(eliOral.sec/60)).padStart(2,'0'),s=String(eliOral.sec%60).padStart(2,'0');el.textContent=m+':'+s;if(sev&&eliOral.sec>=40){el.style.color='var(--red)';}},1000);
+  document.getElementById('oralMic').onclick=oralAnswer;
+  oralAsk();
+}
+function oralAsk(){
+  const qel=document.getElementById('oralQ');if(!qel)return;
+  const q=ORAL_Q[eliOral.q];
+  document.getElementById('oralProg').textContent='Question '+(eliOral.q+1)+' / 5';
+  // silence de transition puis le chrono "encaisse" la question
+  qel.style.opacity=.4;qel.textContent='Jury : …';
+  setTimeout(()=>{qel.style.opacity=1;qel.textContent='Jury : '+q;speak(q);
+    if(eliOral.profile==='bienveillant'){const f=document.getElementById('oralFlow');if(f)f.innerHTML+=`<div class="jbub j">💡 Bloqué ? Je peux te donner un indice — prends ton temps.</div>`;}
+  },500);
+}
+function oralAnswer(){
+  const f=document.getElementById('oralFlow'),c=document.getElementById('oralConsole'),mic=document.getElementById('oralMic');if(!mic)return;
+  if(eliOral.mode==='ecrit'){
+    const ta=document.getElementById('oralText');const txt=(ta&&ta.value.trim())||'';
+    if(f){f.innerHTML+=`<div class="jbub u">${txt?txt.replace(/</g,'&lt;'):'[Réponse rédigée par '+PRENOM+']'}</div>`;f.scrollTop=f.scrollHeight;}
+    if(ta)ta.value='';
+    eliOral.q++; if(eliOral.q>=ORAL_Q.length)oralFinish(); else oralAsk();
+    return;
+  }
+  mic.classList.add('rec');mic.textContent='● Enregistrement…';c.classList.add('rec');
+  setTimeout(()=>{
+    mic.classList.remove('rec');c.classList.remove('rec');mic.textContent='🎙️ Répondre (micro)';
+    if(f){f.innerHTML+=`<div class="jbub u">[Réponse de ${PRENOM} captée — débit & tics analysés…]</div>`;f.scrollTop=f.scrollHeight;}
+    eliOral.q++;
+    if(eliOral.q>=ORAL_Q.length)oralFinish(); else oralAsk();
+  },1100);
+}
+function oralFinish(){if(eliOral.timer){clearInterval(eliOral.timer);eliOral.timer=null;}try{window.speechSynthesis&&window.speechSynthesis.cancel();}catch(e){}renderBulletin();}
+function renderBulletin(){
+  const note=13;
+  stage.innerHTML=head("🎤","Bulletin d'oral","Verdict — analyse à froid","L'épreuve est finie. Voici la vérité, sans blabla.",null)
+   +`<div class="grid2">
+      <div class="card pad">
+        <div class="eyebrow" style="margin-top:0">Verdict du jury</div>
+        <div class="verdict">Prestation correcte mais inégale. Le fond tient, mais la <b>forme manque de structure</b> et le stress se voit sur le débit. Tu peux viser bien plus haut.</div>
+        <div class="eyebrow">3 points forts</div>
+        <div style="font-size:13.5px;line-height:1.9">✅ Bonne maîtrise du fond<br>✅ Exemples pertinents<br>✅ Vocabulaire précis</div>
+        <div class="eyebrow">3 points à corriger</div>
+        <div style="font-size:13.5px;line-height:1.9">⚠️ Plan peu lisible (annonce-le d'emblée)<br>⚠️ Débit trop rapide — signe de stress<br>⚠️ 7 hésitations « euh »</div>
+        <div class="eyebrow">Tics & débit</div>
+        <div class="tic"><i style="left:18%"></i><i style="left:34%"></i><i style="left:52%"></i><i style="left:71%"></i></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">Marqueurs = moments d'hésitation / accélération détectés.</div>
+      </div>
+      <div class="card pad" style="text-align:center">
+        <div class="eyebrow" style="margin-top:0">Note globale</div>
+        <div style="font-family:'Fraunces';font-size:56px;font-weight:700;color:var(--accent2);line-height:1">${note}<span style="font-size:20px;color:var(--muted)">/20</span></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px">Moyenne pondérée de tes 4 axes (vs cible 15/20). <b style="color:var(--ink2)">Le fond te sauve ; l'aisance et la forme te coûtent les points.</b></div>
+        ${radar([7,6,8,5],['Fond','Forme','Timing','Aisance'])}
+        <div style="text-align:left;margin-top:10px;font-size:12px;color:var(--muted);line-height:1.65">
+          <div><b style="color:var(--ink2)">Fond · 7/10</b> — la justesse et la richesse de tes idées.</div>
+          <div><b style="color:var(--ink2)">Forme · 6/10</b> — la clarté de ta structure et de ton expression.</div>
+          <div><b style="color:var(--ink2)">Timing · 8/10</b> — ta gestion du temps imparti.</div>
+          <div><b style="color:var(--ink2)">Aisance · 5/10</b> — ton calme et ta fluidité face au jury.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card pad" style="margin-top:16px;border-color:color-mix(in srgb,var(--gold) 32%,transparent)">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px"><b style="color:var(--gold2)">📄 Éli : « Ton évaluation est complète. »</b><div style="font-size:13px;color:var(--muted);margin-top:4px">Télécharge ta synthèse : ce qui dérange, ce qui rassure, et ton plan pour redoubler d'effort sur le thème entier.</div></div>
+        <button class="dl dlpulse" onclick="alert('PDF Mentor — Oral généré par le moteur unique brandé (voir le fichier d aperçu fourni à côté de la maquette).')">⬇ Télécharger le PDF</button>
+      </div>
+    </div>
+    <div class="passerelle" style="margin-top:16px;flex-wrap:wrap">
+      <div style="font-size:13px;flex:1;min-width:220px"><b>Plan d'Action Immédiat</b><div style="color:var(--muted);margin-top:3px">Le Protocole J‑7 va se tailler automatiquement sur le thème que tu viens de travailler — 80 % de ton programme axé sur tes faiblesses.</div></div>
+      <button class="btnp" onclick="goJ7FromOral()">Activer mon programme J‑7 →</button>
+      <button class="btn ghost" onclick="go('fiches')">Corriger mes lacunes</button>
+    </div>
+    <div style="text-align:center;margin-top:14px"><button class="btn ghost" onclick="renderOral()">↺ Refaire un oral</button></div>`;
+}
+
+/* ================= OUTILS ================= */
+/* ===== TUNNEL « BIM » : Avenir → mini-menu concours → QCM Mode Commando ===== */
+function openConcoursTunnel(id,name){
+  const cm=CONCOURS_MAT[id]||{niveau:'objectif',mat:[{m:'Matières clés',p:'Cruciale'}]};
+  STATE.tunnel={id,name,cm};
+  stage.innerHTML=head("🎯",name,"Mini-menu du concours","Voici les matières stratégiques de ce concours. Quand tu es prêt, lance ta préparation ciblée.",null)
+   +`<div class="card pad"><div class="eyebrow" style="margin-top:0">Matières du concours · ${cm.niveau}</div>
+     ${cm.mat.map(x=>`<div class="matrow ${x.p==='Cruciale'?'cruciale':''}"><span class="dot" style="background:${x.p==='Cruciale'?'var(--red)':x.p==='Stratégique'?'var(--gold2)':'var(--muted)'}"></span> ${x.m} <span class="pr ${x.p}">${x.p}</span></div>`).join('')}
+     <div class="note" style="margin-top:14px">📌 Matières sourcées. <b>Coefficients précis par épreuve : à confirmer</b> (non publiés officiellement par l'établissement).</div>
+     <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn" onclick="startCommando()">Se préparer pour ce concours →</button><button class="btn ghost" onclick="go('avenir')">↩ Retour</button></div></div>`;
+}
+function startCommando(){ STATE.concours=STATE.tunnel; STATE.tunnel=null; go('fiches'); }
+function quitCommando(){ STATE.concours=null; renderFiches(); }
+
+/* ===== FICHES & QCM — menu polymorphe ===== */
+function renderFiches(){
+  if(STATE.concours){ return renderFichesCommando(); }
+  if(isExam()){
+    stage.innerHTML=head("🗂️","Fiches &amp; QCM","Atelier de mémoire · Menu Magique","Classe d’examen détectée — espace complet : fiches générées, quiz adaptatifs, répétition espacée.","Mes fiches")
+     +`<div class="grid3"><div class="card pad"><div class="eyebrow" style="margin-top:0">Générer une fiche</div><div class="lab">Par notion, à ton niveau</div><button class="btn" style="margin-top:6px">+ Nouvelle fiche</button></div><div class="card pad"><div class="eyebrow" style="margin-top:0">Quiz adaptatif</div><div class="lab">Plus tu te trompes, plus il revient</div><button class="btn ghost" style="margin-top:6px">Lancer</button></div><div class="card pad"><div class="eyebrow" style="margin-top:0">Répétition espacée</div><div class="lab">3 notions à revoir aujourd’hui</div><button class="btn ghost" style="margin-top:6px">Réviser</button></div></div>`;
+  } else {
+    const t=trimestreNow();const theme={1:'les fractions',2:'les équations',3:'les statistiques'}[t];
+    stage.innerHTML=head("🗂️","Fiches &amp; QCM","Mode Marathon · fondations","Classe de passage ("+CLS().label+") — pas d’espace examen. On évite les lacunes et on prépare tes devoirs, au rythme de ton école.","Mes fiches")
+     +`<div class="note" style="margin-bottom:16px">📅 <b>Rythme national — Trimestre ${t}.</b> Recommandé cette semaine : <b>Maths — ${theme}</b>. (Aucune saisie : Éli se cale sur le calendrier gabonais.)</div>
+       <div class="grid3">
+        <div class="card pad"><div class="eyebrow" style="margin-top:0">Générer une fiche</div><div class="lab">Focus de la semaine : ${theme}</div><button class="btn" style="margin-top:6px">+ Nouvelle fiche</button></div>
+        <div class="card pad"><div class="eyebrow" style="margin-top:0">Quiz — Préparateur de DS</div><div class="lab">80 % notion du moment · 20 % révisions</div><button class="btn ghost" style="margin-top:6px">Je prépare mon DS</button></div>
+        <div class="card pad"><div class="eyebrow" style="margin-top:0">Répétition espacée</div><div class="lab">Bouclier anti-oubli des mois passés</div><button class="btn ghost" style="margin-top:6px">Réviser</button></div>
+       </div>`;
+  }
+}
+function renderFichesCommando(){
+  const {name,cm}=STATE.concours;
+  const cruc=cm.mat.filter(x=>x.p!=='Secondaire'), sec=cm.mat.filter(x=>x.p==='Secondaire');
+  stage.innerHTML=head("🎯","Fiches &amp; QCM","Mode Commando · "+name,"Espace calibré pour le concours. Tes outils se concentrent sur les coefficients clés.","Mes fiches Concours")
+   +`<div class="warroom"><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div class="wt">🎯 Mode Commando activé — ${name}</div><button class="btn ghost" style="margin-left:auto;padding:8px 13px;font-size:12.5px" onclick="quitCommando()">Quitter le mode concours</button></div>
+      <div style="font-size:12.5px;color:var(--ink2);margin-top:8px">Niveau requis : <b>${cm.niveau}</b> · Ton niveau actuel : <b>11,5/20</b></div>
+      <div class="wbar"><i style="width:62%"></i></div></div>
+    <div class="eyebrow" style="margin-top:0">Matières du concours (priorité chirurgicale)</div>
+    ${cruc.map(x=>`<div class="matrow ${x.p==='Cruciale'?'cruciale':''}"><span class="dot" style="background:${x.p==='Cruciale'?'var(--red)':'var(--gold2)'}"></span> <b>${x.m}</b> <span style="margin-left:10px"><span class="annale">Annales 2024</span><span class="annale">Annales 2025</span><span class="annale">Question piège</span></span><span class="pr ${x.p}">${x.p}</span></div>`).join('')}
+    <details class="autres"><summary>Autres matières (Priorité Bac) — ${sec.length+3} matières</summary>
+      <div class="chips" style="margin-top:10px">${sec.map(x=>`<div class="chip ghost">${x.m}</div>`).join('')}<div class="chip ghost">Philosophie</div><div class="chip ghost">Histoire-Géo</div><div class="chip ghost">EPS</div></div></details>
+    <div class="grid3" style="margin-top:18px">
+      <div class="card pad"><div class="eyebrow" style="margin-top:0">Générer une fiche</div><div class="lab">Thèmes pointus du concours</div><button class="btn" style="margin-top:6px">+ Nouvelle fiche Concours</button></div>
+      <div class="card pad"><div class="eyebrow" style="margin-top:0">Quiz Concours</div><div class="lab">Questions extraites des annales officielles. Plus pointu, plus sélectif.</div><button class="btn" style="margin-top:6px">Lancer le Quiz Concours</button></div>
+      <div class="card pad"><div class="eyebrow" style="margin-top:0">Répétition espacée</div><div class="lab">Tes 3 notions stratégiques à réactiver</div><button class="btn ghost" style="margin-top:6px">Réviser</button></div>
+    </div>
+    <div class="eliconseil"><div style="flex:1;min-width:220px"><b style="color:var(--gold2)">Le conseil d'Éli</b><div style="font-size:13px;color:var(--muted);margin-top:3px">« Je vois que tu t'entraînes pour ${name}. Le concours approche — veux-tu que je bascule ton calendrier en Mode Commando J-7 pour réorganiser tes journées ? »</div></div>
+      <button class="btnp" onclick="goJ7Concours()">Activer le Protocole J-7 Concours →</button></div>`;
+}
+function goJ7Concours(){ go('j7',{fromConcours:true, concours:(STATE.concours&&STATE.concours.name)||'concours'}); }
+function tool(ic,t,role,d,inner){stage.innerHTML=head(ic,t,role,d,t)+inner;}
+function renderCopie(){tool("📸","Analyser ma copie","Correcteur · autonome","Photographie ta copie, même manuscrite. Éli surligne tes erreurs ligne par ligne.",`<div class="card pad"><div class="note">🟩 « Démonstration correcte. » &nbsp; 🟥 « Erreur de signe ligne 4 — tu perds 2 points. » (copie annotée)</div></div>`);}
+function renderTableau(){tool("📷","Scanner un tableau","Preneur de notes · autonome","Photographie le tableau en classe. Éli le transforme en fiche propre, archivée par matière.",`<div class="card pad"><div class="note">Photo → fiche « Théorème de Thalès », rangée dans <b>Maths</b>.</div></div>`);}
+function renderBougie(){stage.innerHTML=head("🕯️","Mode Bougie","État de l’app · transversal","Pas un professeur — un mode survie. Hors‑ligne, économe, reprise fluide.",null)+`<div class="card pad"><div class="eyebrow" style="margin-top:0">État</div><div class="chips"><div class="chip sel">🕯️ Activé</div><div class="chip">☀️ Plein régime</div></div><div class="note" style="margin-top:16px">Tes fiches/PDF déjà consultés restent accessibles sans réseau.</div></div>`;}
+
+/* ---------- Routing ---------- */
+function renderPilier(p){({accueil:renderAccueil,comprendre:renderComprendre,avenir:renderPilier1,j7:renderJ7,predicteur:renderPredicteur,oral:renderOral,fiches:renderFiches,copie:renderCopie,tableau:renderTableau,bougie:renderBougie}[p])();}
+function goJ7FromOral(){go('j7',{fromOral:true,theme:'Brassage génétique',weak:['Forme — structure du propos','Aisance — gestion du stress']});}
+function go(p,opts){
+  opts=opts||{};
+  if(eliOral&&eliOral.timer){clearInterval(eliOral.timer);eliOral.timer=null;try{window.speechSynthesis&&window.speechSynthesis.cancel();}catch(e){}}
+  if(p==='j7'){
+    if(opts.fromOral){STATE.j7ctx={from:'oral',theme:opts.theme,weak:opts.weak||[]};STATE.gate.j7=true;}
+    else if(opts.fromConcours){STATE.j7ctx={from:'concours',concours:opts.concours};STATE.gate.j7=true;}
+    else {STATE.j7ctx=null;}
+  }
+  STATE.pilier=p;
+  updatePilier1();
+  document.querySelectorAll('.navitem').forEach(n=>n.classList.toggle('active',n.dataset.p===p));
+  document.getElementById('crumb').textContent=TITLES[p];
+  if(!can(p)){ renderLocked(p); return; }            // ZÉRO ACCÈS si classe non prérequise
+  if(CONNECTED[p] && !STATE.gate[p]){ sas(p); return; } // basculement chat → Accéder
+  renderPilier(p);
+}
+/* ---------- Rail tags + classe ---------- */
+function refreshTags(){
+  document.querySelectorAll('[data-tag]').forEach(t=>{const p=t.dataset.tag;const ok=can(p);
+    if(p==='fiches'){t.textContent=isExam()?'magique':'simple';t.className='tag '+(isExam()?'ok':'');}
+    else{t.textContent=ok?'ouvert':'🔒';t.className='tag '+(ok?'ok':'lock');}
+    t.closest('.navitem').classList.toggle('locked',!ok);});
+}
+function updateWho(){document.getElementById('whoName').textContent=PRENOM;document.getElementById('avatar').textContent=PRENOM[0];document.getElementById('whoClass').textContent=CLS().label+' · '+(isExam()?'classe d’examen':'classe de passage');}
+function setClass(k){STATE.clsKey=k;STATE.gate={};STATE.concours=null;STATE.tunnel=null;STATE.j7ctx=null;updatePilier1();updateWho();refreshTags();go(STATE.pilier);}
+/* logos animés */
+document.getElementById('railLogo').innerHTML=eliLogo('r',40);
+document.getElementById('topLogo').innerHTML=eliLogo('t',30);
+/* init controls */
+const sel=document.getElementById('classSel');
+function fillClassSel(){sel.innerHTML='';sessionsFor(STATE.prog).forEach(s=>{const g=document.createElement('optgroup');g.label=SESS_LABEL[s];classesFor(STATE.prog,s).forEach(c=>{const o=document.createElement('option');o.value=c.key;o.textContent=c.label;g.appendChild(o);});sel.appendChild(g);});sel.value=STATE.clsKey;}
+fillClassSel(); sel.onchange=()=>setClass(sel.value);
+document.querySelectorAll('.navitem').forEach(n=>n.onclick=()=>go(n.dataset.p));
+document.querySelectorAll('#progSeg button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#progSeg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');STATE.prog=b.dataset.prog;document.body.dataset.prog=STATE.prog;STATE.clsKey=classesFor(STATE.prog,'general')[0].key;STATE.gate={};fillClassSel();updateWho();go(STATE.pilier);});
+/* MODE MAQUETTE (super-admin) : le sélecteur de classe + le switch National/AEFE ne sont visibles QU'ICI.
+   En vue élève, ils disparaissent — l'élève ne choisit jamais sa classe ni son programme (lus en base). */
+let maqOn=true;
+document.getElementById('maqToggle').onclick=()=>{maqOn=!maqOn;document.getElementById('maqbar').style.display=maqOn?'flex':'none';document.getElementById('maqToggle').textContent=maqOn?'👁 Vue élève':'🛠 Mode maquette';};
+/* ENTRÉE — chat d'accueil */
+function startEntry(){
+  document.getElementById('entryLogo').innerHTML=eliLogo('e',40);
+  const body=document.getElementById('ebody'), foot=document.getElementById('efoot');
+  const add=(cls,html)=>{body.innerHTML+=`<div class="cbub ${cls}">${html}</div>`;body.scrollTop=body.scrollHeight;};
+  body.innerHTML=''; foot.innerHTML='';
+  add('eli',`Bonjour et bienvenue 👋 Moi, c'est <b>Éli</b>, ton professeur. Avant qu'on commence : <b>comment t'appelles-tu</b> ?`);
+  foot.innerHTML=`<input class="einput" id="enom" placeholder="Ton prénom" autocomplete="off"><button class="esend" id="esend">Envoyer</button>`;
+  function step1(){
+    const nom=(((document.getElementById('enom')||{}).value)||'').trim()||'Jean'; PRENOM=nom;
+    add('usr',nom);
+    add('eli',`Enchanté, <b>${nom}</b> ! Tu es dans quelle <b>filière</b> ?`);
+    foot.innerHTML=sessionsFor(STATE.prog).map(s=>`<button class="esend" style="background:linear-gradient(135deg,var(--accent),var(--accent2))" data-s="${s}">${SESS_LABEL[s]}</button>`).join('');
+    foot.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>step2(b.dataset.s));
+  }
+  function step2(s){
+    add('usr',SESS_LABEL[s]);
+    add('eli',`Parfait. Et en quelle <b>classe</b> es-tu, en filière ${SESS_LABEL[s].toLowerCase()} ?`);
+    const cs=classesFor(STATE.prog,s);
+    foot.innerHTML=`<select class="eselect" id="ecls" style="flex:1">${cs.map(c=>`<option value="${c.key}">${c.label}</option>`).join('')}</select><button class="esend" id="eval">Valider</button>`;
+    document.getElementById('eval').onclick=()=>step3(document.getElementById('ecls').value);
+  }
+  function step3(k){
+    STATE.clsKey=k; const c=CLS();
+    add('usr',c.label);
+    add('eli',`Très bien, <b>${PRENOM}</b> — <b>${c.label}</b>${c.exam?` (classe d'examen <b>${c.ex}</b>). Je t'emmène droit à ta priorité de travail.`:` (classe de passage). Je t'ouvre tes outils adaptés à ton niveau.`}`);
+    foot.innerHTML=`<button class="eaccess" id="eacc">Accéder à mon espace →</button>`;
+    document.getElementById('eacc').onclick=enterApp;
+  }
+  document.getElementById('esend').onclick=step1;
+  document.getElementById('enom').addEventListener('keydown',e=>{if(e.key==='Enter')step1();});
+}
+function enterApp(){
+  document.getElementById('entry').style.display='none';
+  document.getElementById('shell').style.display='grid';
+  fillClassSel(); updateWho(); refreshTags();
+  const prio = 'accueil';   // enchaînement direct sur le pilier 1 (Caméléon) : Mon Avenir / Cap Seconde / Entrée 6ème / Booster
+  STATE.gate[prio]=true;                           // enchaînement direct, sans page intermédiaire
+  go(prio);
+}
+updateWho(); refreshTags(); startEntry();
+</script>
+</body>
+</html>

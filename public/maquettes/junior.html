@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Éli Junior 🌟</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary:#FF6B35;--primary-light:#FF8C5A;--primary-dark:#E55A24;
+  --secondary:#2D9C3A;--accent:#FFD700;--accent-dark:#F5C200;
+  --purple:#7C3AED;--blue:#3B82F6;--pink:#EC4899;
+  --bg:#FFFBF5;--text:#2D3436;--text-light:#636E72;
+  --shadow:0 8px 32px rgba(0,0,0,0.12);--shadow-sm:0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg:0 16px 48px rgba(0,0,0,0.18);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* ===== LOGO ANIMATIONS ===== */
+.elilogo .flame{transform-origin:155px 20px;animation:flick 1.9s ease-in-out infinite}
+@keyframes flick{0%,100%{opacity:.82;transform:scaleY(1) rotate(0)}45%{opacity:1;transform:scaleY(1.1) rotate(-4deg)}70%{opacity:.9;transform:scaleY(.97) rotate(2deg)}}
+.elilogo .ring{animation:eliHalo 4s ease-in-out infinite}
+@keyframes eliHalo{0%,100%{filter:drop-shadow(0 0 0 transparent)}50%{filter:drop-shadow(0 0 12px rgba(255,215,0,.65))}}
+.elilogo .dot1{animation:dotPop 1.4s ease-in-out infinite}
+.elilogo .dot2{animation:dotPop 1.4s ease-in-out .15s infinite}
+.elilogo .dot3{animation:dotPop 1.4s ease-in-out .3s infinite}
+@keyframes dotPop{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+/* ===== SCREENS ===== */
+.screen{display:none;min-height:100vh;width:100%;position:relative;}
+.screen.active{display:flex;flex-direction:column;}
+
+/* ===== RIPPLE ===== */
+.ripple-host{position:relative;overflow:hidden;}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,0.4);transform:scale(0);animation:rippleOut .6s ease-out forwards;pointer-events:none;}
+@keyframes rippleOut{to{transform:scale(4);opacity:0}}
+
+/* ===== TOP BAR ===== */
+.top-bar{display:flex;align-items:center;padding:14px 20px;gap:12px;position:sticky;top:0;z-index:100;background:rgba(255,251,245,.96);backdrop-filter:blur(16px);border-bottom:1.5px solid rgba(255,107,53,.1);box-shadow:0 2px 12px rgba(0,0,0,.05);}
+.btn-back{width:44px;height:44px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(255,107,53,.4);transition:all .22s cubic-bezier(.34,1.56,.64,1);}
+.btn-back:hover{transform:scale(1.12) rotate(-6deg);}
+.btn-back:active{transform:scale(.92);}
+.top-bar-title{font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:var(--text);flex:1;}
+.user-badge{background:linear-gradient(135deg,var(--accent),var(--primary-light));color:white;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:800;display:flex;align-items:center;gap:6px;box-shadow:0 3px 10px rgba(255,107,53,.3);}
+
+/* ===== XP BAR (global always-on) ===== */
+#xp-bar-global{position:fixed;top:0;left:0;right:0;height:4px;background:rgba(255,107,53,.15);z-index:200;}
+#xp-bar-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));width:0%;transition:width .8s ease;border-radius:2px;}
+
+/* ===== FLOATING ELI FAB ===== */
+#btn-eli-float{position:fixed;bottom:24px;right:20px;z-index:9999;width:70px;height:70px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--purple),#5B21B6);cursor:pointer;box-shadow:0 8px 24px rgba(124,58,237,.5);transition:all .3s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;justify-content:center;}
+#btn-eli-float::before{content:'';position:absolute;inset:-5px;border-radius:50%;border:3px solid rgba(124,58,237,.3);animation:fabRing 2.4s ease-in-out infinite;}
+@keyframes fabRing{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.18);opacity:0}}
+#btn-eli-float:hover{transform:scale(1.15);}
+#btn-eli-float:active{transform:scale(.92);}
+
+/* ===== ELI DIALOG ===== */
+#eli-dialog{position:fixed;bottom:108px;right:20px;z-index:9998;background:white;border-radius:20px 20px 6px 20px;padding:18px 20px;max-width:290px;box-shadow:0 16px 48px rgba(0,0,0,.18);display:none;border:2px solid rgba(124,58,237,.15);}
+#eli-dialog.visible{display:block;animation:popDialog .32s cubic-bezier(.34,1.56,.64,1);}
+@keyframes popDialog{from{opacity:0;transform:scale(.88) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
+#eli-dialog .eli-close{position:absolute;top:8px;right:12px;background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-light);}
+#eli-text{font-size:14px;font-weight:600;color:var(--text);line-height:1.55;}
+#eli-typing{display:inline-block;width:6px;height:14px;background:var(--purple);border-radius:2px;animation:blink .7s step-end infinite;margin-left:2px;vertical-align:middle;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.eli-input-row{display:flex;gap:8px;margin-top:12px;}
+.eli-input-row input{flex:1;padding:8px 12px;border-radius:12px;border:2px solid rgba(124,58,237,.25);font-family:'Nunito',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+.eli-input-row input:focus{border-color:var(--purple);}
+.eli-input-row button{width:36px;height:36px;border-radius:50%;border:none;background:var(--purple);color:white;font-size:16px;cursor:pointer;transition:transform .15s;}
+.eli-input-row button:hover{transform:scale(1.1);}
+.eli-quick-btns{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.eli-quick-btns button{font-size:11px;padding:5px 9px;border-radius:9px;border:2px solid var(--purple);background:white;cursor:pointer;font-family:Nunito,sans-serif;font-weight:700;color:var(--purple);transition:all .15s;}
+.eli-quick-btns button:hover{background:var(--purple);color:white;}
+
+/* ===== WELCOME SCREEN ===== */
+#screen-welcome{background:linear-gradient(160deg,#FFF5EB 0%,#FFF9F5 50%,#F0FFF4 100%);align-items:center;justify-content:center;padding:40px 24px;text-align:center;overflow:hidden;}
+.welcome-bg-shapes{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.shape{position:absolute;border-radius:50%;opacity:.1;}
+.shape-1{width:320px;height:320px;background:var(--primary);top:-110px;right:-90px;animation:floatS 8s ease-in-out infinite;}
+.shape-2{width:220px;height:220px;background:var(--secondary);bottom:-70px;left:-70px;animation:floatS 10s ease-in-out 2s infinite;}
+.shape-3{width:160px;height:160px;background:var(--purple);bottom:110px;right:-50px;animation:floatS 7s ease-in-out 1s infinite;}
+.shape-4{width:110px;height:110px;background:var(--accent);top:210px;left:-25px;animation:floatS 9s ease-in-out 3s infinite;}
+@keyframes floatS{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-22px) rotate(9deg)}}
+
+/* Twinkling stars on welcome */
+.star-field{position:absolute;inset:0;pointer-events:none;}
+.star{position:absolute;border-radius:50%;background:var(--accent);animation:twinkle ease-in-out infinite;}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:1;transform:scale(1)}}
+
+.welcome-logo-wrap{width:164px;height:164px;margin:0 auto 28px;animation:logoFloat 4s ease-in-out infinite;filter:drop-shadow(0 18px 40px rgba(255,107,53,.22));}
+@keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.welcome-title{font-family:'Fraunces',serif;font-size:46px;font-weight:900;background:linear-gradient(135deg,var(--primary),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;line-height:1.1;}
+.welcome-subtitle{font-size:18px;font-weight:700;color:var(--text-light);margin-bottom:8px;}
+.welcome-tagline{font-size:14px;color:var(--text-light);margin-bottom:44px;max-width:300px;line-height:1.65;font-weight:600;}
+.welcome-buttons{display:flex;flex-direction:column;gap:14px;width:100%;max-width:320px;}
+
+/* ===== BUTTONS ===== */
+.btn-primary{padding:18px 32px;border-radius:20px;border:none;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(255,107,53,.38);transition:all .25s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden;}
+.btn-primary:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 12px 30px rgba(255,107,53,.5);}
+.btn-primary:active{transform:scale(.97);}
+.btn-secondary{padding:16px 32px;border-radius:20px;border:2.5px solid var(--primary);background:white;color:var(--primary);font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;cursor:pointer;transition:all .22s;display:flex;align-items:center;justify-content:center;gap:10px;}
+.btn-secondary:hover{background:#FFF5F0;transform:translateY(-2px);}
+
+/* ===== PROFILE ===== */
+#screen-profile{background:linear-gradient(160deg,#FFF5EB 0%,#F8F0FF 100%);overflow-y:auto;}
+.profile-content{padding:24px 20px 120px;max-width:500px;margin:0 auto;}
+.profile-hero{text-align:center;margin-bottom:32px;}
+.profile-hero h2{font-family:'Fraunces',serif;font-size:26px;font-weight:900;margin:12px 0 6px;}
+.profile-hero p{font-size:15px;color:var(--text-light);font-weight:600;}
+.profile-section{margin-bottom:28px;}
+.profile-section label{display:block;font-size:15px;font-weight:800;margin-bottom:10px;}
+.name-input{width:100%;padding:16px 20px;border-radius:16px;border:2.5px solid #E5E7EB;font-family:'Nunito',sans-serif;font-size:18px;font-weight:700;background:white;outline:none;transition:all .2s;box-shadow:var(--shadow-sm);}
+.name-input:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(255,107,53,.1);}
+.class-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.class-card{background:white;border-radius:16px;padding:14px 8px;text-align:center;cursor:pointer;border:2.5px solid transparent;box-shadow:var(--shadow-sm);transition:all .22s cubic-bezier(.34,1.56,.64,1);}
+.class-card:hover{border-color:var(--primary-light);transform:translateY(-3px);}
+.class-card.selected{border-color:var(--primary);background:linear-gradient(135deg,#FFF5F0,#FFE8DC);box-shadow:0 6px 20px rgba(255,107,53,.25);transform:translateY(-3px);}
+.class-card .class-emoji{font-size:28px;margin-bottom:4px;}
+.class-card .class-name{font-size:13px;font-weight:900;}
+.class-card .class-desc{font-size:10px;color:var(--text-light);margin-top:2px;font-weight:600;}
+.btn-start{width:100%;padding:20px;border-radius:20px;border:none;background:linear-gradient(135deg,var(--secondary),#1E8C2B);color:white;font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 8px 24px rgba(45,156,58,.38);transition:all .25s;display:flex;align-items:center;justify-content:center;gap:12px;margin-top:32px;position:relative;overflow:hidden;}
+.btn-start:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(45,156,58,.5);}
+.btn-start:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* ===== PILLARS SCREEN ===== */
+#screen-pillars{background:var(--bg);overflow-y:auto;}
+.pillars-header{padding:20px 20px 8px;max-width:600px;margin:0 auto;width:100%;}
+
+/* Daily Challenge Card */
+.daily-challenge{background:linear-gradient(135deg,#1B5E20,#2D9C3A);border-radius:20px;padding:16px 18px;color:white;display:flex;align-items:center;gap:14px;margin-bottom:16px;box-shadow:0 8px 24px rgba(45,156,58,.35);cursor:pointer;transition:all .25s;position:relative;overflow:hidden;}
+.daily-challenge::before{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.1);}
+.daily-challenge:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(45,156,58,.45);}
+.daily-challenge .dc-icon{font-size:36px;animation:wobble 2s ease-in-out infinite;}
+@keyframes wobble{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+.daily-challenge .dc-text h3{font-family:'Fraunces',serif;font-size:16px;font-weight:900;}
+.daily-challenge .dc-text p{font-size:12px;opacity:.9;font-weight:600;margin-top:2px;}
+.daily-badge{background:rgba(255,215,0,.3);border:2px solid rgba(255,215,0,.6);border-radius:10px;padding:3px 8px;font-size:11px;font-weight:800;margin-top:5px;display:inline-block;}
+
+.greeting-card{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:22px;padding:20px 22px;color:white;display:flex;align-items:center;gap:16px;box-shadow:0 10px 28px rgba(255,107,53,.35);margin-bottom:16px;position:relative;overflow:hidden;}
+.greeting-card::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.1);}
+.greeting-logo{width:64px;height:64px;flex-shrink:0;}
+.greeting-text h2{font-family:'Fraunces',serif;font-size:22px;font-weight:900;}
+.greeting-text p{font-size:13px;opacity:.9;font-weight:600;margin-top:3px;}
+.greeting-class-badge{background:rgba(255,255,255,.25);border-radius:10px;padding:4px 10px;font-size:12px;font-weight:800;display:inline-block;margin-top:6px;backdrop-filter:blur(4px);}
+
+/* Level + XP strip */
+.xp-level-strip{background:white;border-radius:16px;padding:14px 18px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-sm);margin-bottom:16px;border:1.5px solid rgba(255,107,53,.08);}
+.level-badge{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#FF8C00);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:white;flex-shrink:0;box-shadow:0 4px 12px rgba(255,140,0,.35);}
+.xp-info{flex:1;}
+.xp-info .level-name{font-size:13px;font-weight:900;color:var(--text);}
+.xp-info .xp-bar-wrap{height:8px;background:#F1F5F9;border-radius:4px;margin-top:5px;overflow:hidden;}
+.xp-info .xp-bar-inner{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--primary),var(--accent));transition:width .9s ease;}
+.xp-count{font-size:14px;font-weight:900;color:var(--accent-dark);background:#FFF9E6;padding:6px 12px;border-radius:12px;border:1.5px solid rgba(245,194,0,.2);}
+
+.section-title{font-family:'Fraunces',serif;font-size:19px;font-weight:900;color:var(--text);margin-bottom:14px;}
+.pillars-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:0 20px 120px;max-width:600px;margin:0 auto;}
+
+/* ===== PILLAR CARDS ===== */
+.pillar-card{border-radius:22px;padding:20px 16px;cursor:pointer;transition:all .28s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden;min-height:155px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:var(--shadow-sm);border:2px solid transparent;}
+.pillar-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.55) 0%,transparent 55%);opacity:0;transition:opacity .28s;pointer-events:none;}
+.pillar-card:hover{transform:translateY(-7px) scale(1.025);box-shadow:var(--shadow-lg);}
+.pillar-card:hover::after{opacity:1;}
+.pillar-card:active{transform:translateY(-2px) scale(.98);}
+.pillar-card.p1{background:linear-gradient(135deg,#FFF5EB,#FFE8D0);border-color:rgba(255,107,53,.2);}
+.pillar-card.p2{background:linear-gradient(135deg,#F0FFF4,#DCFCE7);border-color:rgba(45,156,58,.2);}
+.pillar-card.p3{background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border-color:rgba(59,130,246,.2);}
+.pillar-card.p4{background:linear-gradient(135deg,#FFF5F5,#FFE4E4);border-color:rgba(236,72,153,.2);}
+.pillar-card.p5{background:linear-gradient(135deg,#F5F3FF,#EDE9FE);border-color:rgba(124,58,237,.2);}
+.pillar-card.p6{background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border-color:rgba(245,194,0,.3);}
+.pillar-card.p7{background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border-color:rgba(16,185,129,.2);}
+.pillar-card.p8{background:linear-gradient(135deg,#FDF4FF,#FAE8FF);border-color:rgba(168,85,247,.2);}
+.pillar-emoji{font-size:40px;margin-bottom:8px;display:block;transition:transform .28s cubic-bezier(.34,1.56,.64,1);}
+.pillar-card:hover .pillar-emoji{transform:scale(1.22) rotate(-8deg);}
+.pillar-name{font-family:'Fraunces',serif;font-size:14px;font-weight:900;color:var(--text);line-height:1.2;margin-bottom:4px;}
+.pillar-desc{font-size:11px;font-weight:600;color:var(--text-light);}
+.pillar-progress-bar{height:7px;background:rgba(0,0,0,.08);border-radius:4px;margin-top:12px;overflow:hidden;}
+.pillar-progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--primary),var(--accent));transition:width .9s ease;}
+.pillar-card.p2 .pillar-progress-fill{background:linear-gradient(90deg,var(--secondary),#7AE389);}
+.pillar-card.p3 .pillar-progress-fill{background:linear-gradient(90deg,var(--blue),#93C5FD);}
+.pillar-card.p4 .pillar-progress-fill{background:linear-gradient(90deg,var(--pink),#F9A8D4);}
+.pillar-card.p5 .pillar-progress-fill{background:linear-gradient(90deg,var(--purple),#C4B5FD);}
+.pillar-card.p6 .pillar-progress-fill{background:linear-gradient(90deg,#D97706,#FCD34D);}
+.pillar-card.p7 .pillar-progress-fill{background:linear-gradient(90deg,#10B981,#6EE7B7);}
+.pillar-card.p8 .pillar-progress-fill{background:linear-gradient(90deg,#A855F7,#D8B4FE);}
+
+/* New lesson count badge */
+.pillar-badge{position:absolute;top:12px;right:12px;background:var(--primary);color:white;border-radius:10px;font-size:10px;font-weight:800;padding:3px 7px;box-shadow:0 2px 8px rgba(255,107,53,.4);}
+.pillar-card.p2 .pillar-badge{background:var(--secondary);}
+.pillar-card.p3 .pillar-badge{background:var(--blue);}
+.pillar-card.p4 .pillar-badge{background:var(--pink);}
+.pillar-card.p5 .pillar-badge{background:var(--purple);}
+.pillar-card.p6 .pillar-badge{background:#D97706;}
+.pillar-card.p7 .pillar-badge{background:#10B981;}
+.pillar-card.p8 .pillar-badge{background:#A855F7;}
+
+/* ===== CONTENT SCREEN ===== */
+#screen-content{background:var(--bg);overflow-y:auto;}
+.content-area{padding:20px 20px 120px;max-width:600px;margin:0 auto;}
+.content-pillar-header{border-radius:22px;padding:28px 24px;margin-bottom:24px;color:white;text-align:center;position:relative;overflow:hidden;box-shadow:var(--shadow);}
+.content-pillar-header::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.12);}
+.content-pillar-header .big-emoji{font-size:62px;margin-bottom:10px;display:block;animation:emojiPulse 3s ease-in-out infinite;}
+@keyframes emojiPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1) rotate(5deg)}}
+.content-pillar-header h2{font-family:'Fraunces',serif;font-size:26px;font-weight:900;position:relative;z-index:1;}
+.content-pillar-header p{font-size:14px;opacity:.92;margin-top:4px;font-weight:600;position:relative;z-index:1;}
+.lesson-list{display:flex;flex-direction:column;gap:12px;}
+.lesson-card{background:white;border-radius:18px;padding:18px 20px;display:flex;align-items:center;gap:16px;cursor:pointer;box-shadow:var(--shadow-sm);transition:all .22s cubic-bezier(.34,1.56,.64,1);border:2px solid transparent;position:relative;overflow:hidden;}
+.lesson-card:hover{border-color:rgba(255,107,53,.25);transform:translateY(-3px) translateX(4px);box-shadow:var(--shadow);}
+.lesson-card.completed{border-color:rgba(45,156,58,.25);}
+.lesson-icon{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;transition:transform .22s;}
+.lesson-card:hover .lesson-icon{transform:scale(1.15) rotate(-5deg);}
+.lesson-card:nth-child(1) .lesson-icon{background:#FFF5EB;}
+.lesson-card:nth-child(2) .lesson-icon{background:#F0FFF4;}
+.lesson-card:nth-child(3) .lesson-icon{background:#EFF6FF;}
+.lesson-card:nth-child(4) .lesson-icon{background:#FDF4FF;}
+.lesson-card:nth-child(5) .lesson-icon{background:#FFFBEB;}
+.lesson-card:nth-child(6) .lesson-icon{background:#FFF5F5;}
+.lesson-info{flex:1;}
+.lesson-info h3{font-size:15px;font-weight:800;color:var(--text);margin-bottom:3px;}
+.lesson-info p{font-size:12px;font-weight:600;color:var(--text-light);}
+.lesson-status{font-size:22px;}
+.lesson-xp-pill{font-size:10px;font-weight:800;background:#FFF9E6;color:var(--accent-dark);border-radius:8px;padding:2px 7px;margin-top:4px;display:inline-block;border:1px solid rgba(245,194,0,.3);}
+
+/* ===== LESSON OVERLAY ===== */
+.lesson-detail-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.55);display:none;align-items:flex-end;backdrop-filter:blur(6px);}
+.lesson-detail-overlay.visible{display:flex;}
+.lesson-detail-panel{background:white;border-radius:28px 28px 0 0;padding:28px 24px 52px;width:100%;max-height:88vh;overflow-y:auto;animation:slideUpPanel .38s cubic-bezier(.34,1.56,.64,1);}
+@keyframes slideUpPanel{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.drag-handle{width:42px;height:5px;background:#E5E7EB;border-radius:3px;margin:0 auto 22px;}
+.lesson-detail-panel h2{font-family:'Fraunces',serif;font-size:24px;font-weight:900;margin-bottom:8px;}
+.detail-emoji{font-size:52px;text-align:center;display:block;margin-bottom:14px;animation:emojiPulse 3s ease-in-out infinite;}
+.lesson-content-text{font-size:15px;line-height:1.82;color:var(--text);font-weight:600;}
+.lesson-content-text .highlight{background:linear-gradient(135deg,#FFF5EB,#FFE8D0);border-radius:12px;padding:14px 16px;margin:14px 0;border-left:4px solid var(--primary);}
+.lesson-content-text .example{background:#F0FFF4;border-radius:12px;padding:12px 14px;margin:8px 0;font-size:14px;}
+.quiz-mini{margin-top:22px;}
+.quiz-mini h3{font-family:'Fraunces',serif;font-size:17px;font-weight:900;margin-bottom:14px;}
+.quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.quiz-opt{background:#F8FAFC;border:2.5px solid #E5E7EB;border-radius:14px;padding:16px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;color:var(--text);position:relative;overflow:hidden;}
+.quiz-opt:hover{border-color:var(--primary);background:#FFF5F0;transform:scale(1.04);}
+.quiz-opt.correct{border-color:var(--secondary);background:#F0FFF4;color:var(--secondary);}
+.quiz-opt.wrong{border-color:#EF4444;background:#FFF5F5;color:#EF4444;animation:shake .5s ease;}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.quiz-feedback{text-align:center;font-size:16px;font-weight:800;margin-top:12px;padding:12px;border-radius:14px;display:none;}
+.quiz-feedback.show{display:block;animation:popIn .3s cubic-bezier(.34,1.56,.64,1);}
+@keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.quiz-feedback.good{background:#F0FFF4;color:var(--secondary);}
+.quiz-feedback.bad{background:#FFF5F5;color:#EF4444;}
+.btn-panel{width:100%;padding:16px;border-radius:16px;border:none;background:var(--primary);color:white;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;cursor:pointer;margin-top:24px;transition:all .22s;position:relative;overflow:hidden;}
+.btn-panel:hover{background:var(--primary-dark);transform:translateY(-2px);}
+
+/* ===== QUIZ SCREEN ===== */
+#screen-quiz{background:var(--bg);overflow-y:auto;}
+.quiz-content{padding:24px 20px 120px;max-width:500px;margin:0 auto;}
+.quiz-progress-wrap{margin-bottom:28px;}
+.quiz-progress{display:flex;gap:6px;margin-bottom:8px;}
+.quiz-dot{flex:1;height:9px;border-radius:5px;background:#E5E7EB;transition:all .35s;}
+.quiz-dot.done{background:var(--secondary);}
+.quiz-dot.current{background:var(--primary);box-shadow:0 0 10px rgba(255,107,53,.5);}
+.quiz-counter{font-size:12px;font-weight:700;color:var(--text-light);text-align:right;}
+.quiz-question-card{background:white;border-radius:24px;padding:28px 24px;margin-bottom:24px;box-shadow:var(--shadow);border:1.5px solid rgba(255,107,53,.08);}
+.quiz-question-card .q-num{font-size:12px;font-weight:800;color:var(--text-light);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.quiz-question-card .q-text{font-family:'Fraunces',serif;font-size:21px;font-weight:900;color:var(--text);line-height:1.4;}
+.quiz-question-card .q-emoji{font-size:54px;text-align:center;display:block;margin:18px 0;animation:emojiPulse 3s ease-in-out infinite;}
+.quiz-answers{display:flex;flex-direction:column;gap:12px;}
+.quiz-answer-btn{padding:18px 20px;border-radius:18px;border:2.5px solid #E5E7EB;background:white;font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .22s;color:var(--text);text-align:left;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden;}
+.quiz-answer-btn:hover{border-color:var(--primary);background:#FFF5F0;transform:translateX(6px);}
+.quiz-answer-btn.selected-correct{border-color:var(--secondary);background:#F0FFF4;color:var(--secondary);animation:bounceIn .5s;}
+.quiz-answer-btn.selected-wrong{border-color:#EF4444;background:#FFF5F5;color:#EF4444;animation:shake .5s ease;}
+@keyframes bounceIn{0%,100%{transform:scale(1)}40%{transform:scale(1.05)}70%{transform:scale(.97)}}
+.answer-badge{width:34px;height:34px;border-radius:50%;background:#F1F5F9;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;flex-shrink:0;transition:all .22s;}
+.quiz-answer-btn.selected-correct .answer-badge{background:var(--secondary);color:white;}
+.quiz-answer-btn.selected-wrong .answer-badge{background:#EF4444;color:white;}
+.quiz-answer-btn:hover .answer-badge{background:var(--primary);color:white;}
+
+/* Result screen */
+.quiz-result-screen{text-align:center;padding:40px 0;}
+.result-emoji{font-size:90px;margin-bottom:16px;display:block;animation:emojiPulse 2s ease-in-out infinite;}
+.quiz-result-screen h2{font-family:'Fraunces',serif;font-size:30px;font-weight:900;margin-bottom:8px;}
+.quiz-result-screen p{font-size:16px;color:var(--text-light);font-weight:600;}
+.stars-row{display:flex;justify-content:center;gap:8px;font-size:46px;margin:20px 0;}
+.score-circle{width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));margin:20px auto;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 8px 28px rgba(255,107,53,.4);}
+.score-circle .score-num{font-family:'Fraunces',serif;font-size:32px;font-weight:900;color:white;}
+.score-circle .score-label{font-size:11px;color:rgba(255,255,255,.9);font-weight:700;}
+
+/* ===== ACHIEVEMENTS ===== */
+#screen-achievements{background:var(--bg);overflow-y:auto;}
+.achievements-content{padding:20px 20px 120px;max-width:600px;margin:0 auto;}
+.badge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.badge-item{background:white;border-radius:18px;padding:18px 8px;text-align:center;box-shadow:var(--shadow-sm);transition:all .22s;border:2px solid transparent;}
+.badge-item:hover{transform:translateY(-4px);box-shadow:var(--shadow);}
+.badge-item.earned{border-color:var(--accent);background:linear-gradient(135deg,#FFFBEB,white);}
+.badge-item.earned .badge-icon{animation:wiggle 2s ease-in-out infinite;}
+@keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+.badge-item.locked{opacity:.38;}
+.badge-item .badge-icon{font-size:38px;margin-bottom:8px;display:block;}
+.badge-item .badge-name{font-size:11px;font-weight:800;color:var(--text);}
+
+/* ===== LOADING ===== */
+.loading-screen{position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#FFF5EB,#F0FFF4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;transition:opacity .4s;}
+.loading-screen h2{font-family:'Fraunces',serif;font-size:36px;font-weight:900;color:var(--primary);}
+.loading-screen p{font-size:16px;color:var(--text-light);font-weight:600;}
+.loading-dots{display:flex;gap:10px;}
+.loading-dots span{width:14px;height:14px;border-radius:50%;background:var(--primary);animation:bounce-dot .8s ease-in-out infinite;}
+.loading-dots span:nth-child(2){animation-delay:.15s;background:var(--secondary);}
+.loading-dots span:nth-child(3){animation-delay:.3s;background:var(--purple);}
+@keyframes bounce-dot{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;bottom:106px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:white;padding:12px 26px;border-radius:40px;font-size:14px;font-weight:700;opacity:0;transition:all .3s;z-index:9999;white-space:nowrap;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.25);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ===== XP POPUP ===== */
+.xp-popup{position:fixed;pointer-events:none;z-index:9997;font-family:'Fraunces',serif;font-size:22px;font-weight:900;color:var(--accent-dark);text-shadow:0 2px 8px rgba(0,0,0,.2);animation:xpFloat 1.4s ease-out forwards;}
+@keyframes xpFloat{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-80px) scale(1.3)}}
+
+/* ===== CONFETTI ===== */
+.confetti-container{position:fixed;inset:0;pointer-events:none;z-index:9998;overflow:hidden;}
+.confetti-piece{position:absolute;border-radius:2px;animation:confettiFall linear forwards;}
+@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+/* ===== STREAK MODAL ===== */
+.streak-modal{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
+.streak-modal.visible{display:flex;}
+.streak-modal-inner{background:white;border-radius:28px;padding:40px 32px;text-align:center;max-width:320px;width:90%;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);box-shadow:var(--shadow-lg);}
+.streak-modal-inner h2{font-family:'Fraunces',serif;font-size:28px;font-weight:900;margin:16px 0 8px;}
+.streak-modal-inner p{font-size:15px;color:var(--text-light);font-weight:600;}
+.streak-fire{font-size:72px;animation:emojiPulse 1.5s ease-in-out infinite;}
+
+/* ===== FICHE / DEVOIR ===== */
+.fiche-tag{display:inline-block;background:#EFF6FF;color:var(--blue);font-size:11px;font-weight:800;padding:4px 12px;border-radius:20px;border:1.5px solid rgba(59,130,246,.25);margin-bottom:14px;}
+.devoir-box{background:linear-gradient(135deg,#F5F3FF,#EDE9FE);border-radius:16px;padding:16px 18px;margin:20px 0;border-left:4px solid var(--purple);}
+.devoir-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;color:var(--purple);font-family:'Fraunces',serif;font-size:15px;}
+.devoir-box p{font-size:14px;font-weight:600;color:var(--text);line-height:1.6;}
+
+/* ===== JOURNAL DE BORD ===== */
+.journal-card{background:white;border-radius:18px;padding:16px 18px;box-shadow:var(--shadow-sm);margin-bottom:22px;border:1.5px solid rgba(124,58,237,.1);}
+.journal-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;}
+.journal-head span:first-child{font-family:'Fraunces',serif;font-size:15px;font-weight:900;color:var(--text);}
+.journal-sub{font-size:11px;color:var(--text-light);font-weight:600;}
+.journal-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed #F1F5F9;}
+.journal-item:last-child{border-bottom:none;}
+.ji-icon{font-size:20px;flex-shrink:0;}
+.ji-text{flex:1;font-size:13px;font-weight:700;color:var(--text);}
+.ji-time{font-size:11px;color:var(--text-light);font-weight:700;}
+
+/* ===== SOUS-MATIÈRES (CHAPITRES) ===== */
+.subcat-row{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 14px;margin-bottom:6px;-webkit-overflow-scrolling:touch;}
+.subcat-row::-webkit-scrollbar{display:none;}
+.subcat-chip{flex-shrink:0;background:white;border:2px solid #E5E7EB;border-radius:14px;padding:8px 14px;font-size:13px;font-weight:800;color:var(--text-light);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;white-space:nowrap;box-shadow:var(--shadow-sm);}
+.subcat-chip.active{border-color:var(--primary);color:var(--primary);background:#FFF5F0;transform:translateY(-2px);}
+.subcat-chip .sc-emo{font-size:16px;}
+.subcat-title{font-family:'Fraunces',serif;font-size:16px;font-weight:900;color:var(--text);margin:18px 4px 12px;display:flex;align-items:center;gap:8px;}
+.subcat-title .sct-line{flex:1;height:2px;background:linear-gradient(90deg,rgba(255,107,53,.3),transparent);border-radius:2px;}
+
+/* ===== PARCOURS (LESSON PATH) ===== */
+.path-wrap{position:relative;padding:8px 0;}
+.path-node{display:flex;align-items:center;gap:16px;position:relative;padding:6px 0;}
+.path-node:not(:last-child)::after{content:'';position:absolute;left:27px;top:60px;width:3px;height:calc(100% - 24px);background:repeating-linear-gradient(to bottom,#E5E7EB 0 6px,transparent 6px 12px);z-index:0;}
+.path-node.done:not(:last-child)::after{background:repeating-linear-gradient(to bottom,var(--secondary) 0 6px,transparent 6px 12px);}
+.path-dot{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;position:relative;z-index:1;box-shadow:var(--shadow-sm);border:3px solid white;transition:all .25s cubic-bezier(.34,1.56,.64,1);}
+.path-node .lesson-card{flex:1;}
+.path-node.locked{opacity:.5;}
+.path-node.locked .lesson-card{pointer-events:none;}
+.path-dot.cur{animation:nodePulse 1.8s ease-in-out infinite;}
+@keyframes nodePulse{0%,100%{box-shadow:0 0 0 0 rgba(255,107,53,.5)}50%{box-shadow:0 0 0 10px rgba(255,107,53,0)}}
+
+/* ===== HEARTS (VIES) ===== */
+.quiz-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.hearts{display:flex;gap:4px;font-size:22px;}
+.heart.lost{filter:grayscale(1);opacity:.35;transform:scale(.85);transition:all .3s;}
+.heart{transition:transform .25s cubic-bezier(.34,1.56,.64,1);}
+.combo-pill{background:linear-gradient(135deg,#F59E0B,#FF6B35);color:white;font-weight:900;font-size:14px;padding:6px 14px;border-radius:14px;display:flex;align-items:center;gap:5px;box-shadow:0 4px 14px rgba(255,107,53,.4);opacity:0;transform:scale(.6);transition:all .3s cubic-bezier(.34,1.56,.64,1);}
+.combo-pill.show{opacity:1;transform:scale(1);}
+.combo-pill.bump{animation:comboBump .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes comboBump{0%,100%{transform:scale(1)}45%{transform:scale(1.28) rotate(-4deg)}}
+
+/* ===== CHEST / MYSTERY MODAL ===== */
+.chest-modal{position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
+.chest-modal.visible{display:flex;}
+.chest-inner{background:white;border-radius:28px;padding:40px 32px;text-align:center;max-width:330px;width:90%;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);box-shadow:var(--shadow-lg);}
+.chest-emoji{font-size:88px;display:inline-block;cursor:pointer;animation:chestShake 1.1s ease-in-out infinite;}
+@keyframes chestShake{0%,100%{transform:rotate(0)}20%{transform:rotate(-9deg)}40%{transform:rotate(9deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(5deg)}}
+.chest-inner h2{font-family:'Fraunces',serif;font-size:26px;font-weight:900;margin:16px 0 8px;}
+.chest-inner p{font-size:15px;color:var(--text-light);font-weight:600;margin-bottom:18px;}
+
+/* ===== ÉLI MOOD ===== */
+.eli-mood{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#F5F3FF,#EDE9FE);border-radius:18px;padding:14px 16px;margin-bottom:16px;border:1.5px solid rgba(124,58,237,.12);}
+.eli-mood .em-face{font-size:38px;animation:emojiPulse 3s ease-in-out infinite;}
+.eli-mood .em-text{flex:1;}
+.eli-mood .em-text strong{font-family:'Fraunces',serif;font-size:14px;color:var(--purple);display:block;margin-bottom:2px;}
+.eli-mood .em-text span{font-size:12px;color:var(--text-light);font-weight:600;}
+.eli-energy{height:8px;background:#E9E3FF;border-radius:4px;margin-top:6px;overflow:hidden;}
+.eli-energy-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--pink));border-radius:4px;transition:width .9s ease;}
+
+/* ===== PODIUM / CLASSEMENT ===== */
+.podium-card{background:white;border-radius:18px;padding:16px 18px;box-shadow:var(--shadow-sm);margin-bottom:16px;border:1.5px solid rgba(245,194,0,.15);}
+.podium-head{font-family:'Fraunces',serif;font-size:15px;font-weight:900;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.rank-row{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:12px;margin-bottom:6px;transition:all .2s;}
+.rank-row.me{background:linear-gradient(135deg,#FFF9E6,#FFF5EB);border:1.5px solid rgba(245,194,0,.35);}
+.rank-pos{width:28px;height:28px;border-radius:50%;background:#F1F5F9;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;flex-shrink:0;}
+.rank-row.r1 .rank-pos{background:linear-gradient(135deg,#FFD700,#F5C200);color:white;}
+.rank-row.r2 .rank-pos{background:linear-gradient(135deg,#C0C0C0,#9CA3AF);color:white;}
+.rank-row.r3 .rank-pos{background:linear-gradient(135deg,#CD7F32,#B8732E);color:white;}
+.rank-name{flex:1;font-size:14px;font-weight:800;color:var(--text);}
+.rank-xp{font-size:13px;font-weight:900;color:var(--accent-dark);}
+
+@media(min-width:640px){.pillars-grid{grid-template-columns:repeat(3,1fr);}}
+</style>
+</head>
+<body>
+
+<div id="xp-bar-global"><div id="xp-bar-fill"></div></div>
+<div class="loading-screen" id="loading-screen">
+  <div id="loading-logo"></div>
+  <h2>Éli Junior</h2>
+  <p>Chargement en cours...</p>
+  <div class="loading-dots"><span></span><span></span><span></span></div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="confetti-container" id="confetti-container"></div>
+<div class="streak-modal" id="streak-modal">
+  <div class="streak-modal-inner">
+    <div class="streak-fire">🔥</div>
+    <h2 id="streak-modal-title">Tu es revenu !</h2>
+    <p id="streak-modal-msg">Ta série continue !</p>
+    <div style="font-size:48px;margin:16px 0" id="streak-modal-num">2</div>
+    <button class="btn-primary" style="width:100%;margin-top:8px" onclick="closeStreakModal()">🚀 C'est parti !</button>
+  </div>
+</div>
+
+<div class="chest-modal" id="chest-modal">
+  <div class="chest-inner">
+    <div class="chest-emoji" id="chest-emoji" onclick="openChest()">🎁</div>
+    <h2 id="chest-title">Coffre mystère !</h2>
+    <p id="chest-msg">Tu as terminé 3 leçons ! Touche le coffre pour l'ouvrir 🎉</p>
+    <button class="btn-primary" style="width:100%" onclick="closeChest()">✨ Super !</button>
+  </div>
+</div>
+
+<button id="btn-eli-float" title="Parler à Éli" onclick="toggleEliDialog()">
+  <span id="fab-logo"></span>
+</button>
+
+<div id="eli-dialog">
+  <button class="eli-close" onclick="closeEliDialog()">✕</button>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+    <span id="dialog-logo-sm"></span>
+    <strong style="font-size:14px;color:var(--purple);font-family:'Fraunces',serif;">Éli dit :</strong>
+  </div>
+  <p id="eli-text">Bonjour ! Je suis Éli, ton ami ! Comment puis-je t'aider ? 😊</p>
+  <span id="eli-typing" style="display:none"></span>
+  <div class="eli-input-row">
+    <input type="text" id="eli-input" placeholder="Pose une question..." onkeydown="if(event.key==='Enter')sendToEli()">
+    <button onclick="sendToEli()">➤</button>
+  </div>
+  <div class="eli-quick-btns">
+    <button onclick="eliQuickReply('Je ne comprends pas')">❓ Pas compris</button>
+    <button onclick="eliQuickReply('Lis-moi ça')">🔊 Lis-moi</button>
+    <button onclick="eliQuickReply('Bravo !')">🎉 Bravo !</button>
+  </div>
+</div>
+
+<!-- WELCOME -->
+<div class="screen active" id="screen-welcome">
+  <div class="welcome-bg-shapes">
+    <div class="shape shape-1"></div><div class="shape shape-2"></div>
+    <div class="shape shape-3"></div><div class="shape shape-4"></div>
+  </div>
+  <div class="star-field" id="star-field"></div>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;min-height:100vh;text-align:center;">
+    <div class="welcome-logo-wrap" id="welcome-logo-container"></div>
+    <div class="welcome-title">Éli Junior</div>
+    <div class="welcome-subtitle">Apprendre, c'est une aventure ! 🌟</div>
+    <p class="welcome-tagline">La plateforme éducative pour les enfants du Gabon. Du CP1 au CM2, explore et apprends avec Éli !</p>
+    <div class="welcome-buttons">
+      <button class="btn-primary ripple-host" onclick="addRipple(event);goToProfile()">🚀 Commencer l'aventure !</button>
+      <button class="btn-secondary ripple-host" onclick="addRipple(event);tryReturningUser()">👋 Content de te revoir !</button>
+    </div>
+    <p style="margin-top:26px;font-size:12px;color:var(--text-light);font-weight:600;">🇬🇦 Fait avec ❤️ pour les enfants du Gabon</p>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="screen" id="screen-profile">
+  <div class="top-bar">
+    <button class="btn-back ripple-host" onclick="addRipple(event);goTo('screen-welcome')">←</button>
+    <span class="top-bar-title">Ton profil</span>
+    <span id="profile-logo-bar"></span>
+  </div>
+  <div class="profile-content">
+    <div class="profile-hero">
+      <div style="font-size:68px">👦🏾</div>
+      <h2>Qui es-tu, petit(e) aventurier(e) ? 🌟</h2>
+      <p>Dis-nous ton prénom et ta classe pour commencer !</p>
+    </div>
+    <div class="profile-section">
+      <label>📝 Ton prénom</label>
+      <input type="text" class="name-input" id="input-name" placeholder="Ex: Aïsha, Kalvin, Naomie..." maxlength="20" oninput="checkProfileForm()">
+    </div>
+    <div class="profile-section">
+      <label>🏫 Ta classe</label>
+      <div class="class-grid">
+        <div class="class-card" onclick="selectClass('CP1',this)"><div class="class-emoji">🌱</div><div class="class-name">CP1</div><div class="class-desc">6-7 ans</div></div>
+        <div class="class-card" onclick="selectClass('CP2',this)"><div class="class-emoji">🌿</div><div class="class-name">CP2</div><div class="class-desc">7-8 ans</div></div>
+        <div class="class-card" onclick="selectClass('CE1',this)"><div class="class-emoji">🌳</div><div class="class-name">CE1</div><div class="class-desc">8-9 ans</div></div>
+        <div class="class-card" onclick="selectClass('CE2',this)"><div class="class-emoji">⭐</div><div class="class-name">CE2</div><div class="class-desc">9-10 ans</div></div>
+        <div class="class-card" onclick="selectClass('CM1',this)"><div class="class-emoji">🏆</div><div class="class-name">CM1</div><div class="class-desc">10-11 ans</div></div>
+        <div class="class-card" onclick="selectClass('CM2',this)"><div class="class-emoji">🎓</div><div class="class-name">CM2</div><div class="class-desc">11-12 ans</div></div>
+      </div>
+    </div>
+    <button class="btn-start ripple-host" id="btn-start" disabled onclick="addRipple(event);saveProfile()">🎉 C'est parti !</button>
+  </div>
+</div>
+
+<!-- PILLARS -->
+<div class="screen" id="screen-pillars">
+  <div class="top-bar">
+    <button class="btn-back ripple-host" onclick="addRipple(event);goTo('screen-welcome')">🏠</button>
+    <span class="top-bar-title" id="pillars-title">Éli Junior</span>
+    <div class="user-badge" id="user-badge-top"><span id="badge-class-label">CP1</span> ⭐</div>
+  </div>
+  <div style="overflow-y:auto;flex:1;">
+    <div class="pillars-header">
+      <div class="daily-challenge ripple-host" onclick="addRipple(event);openDailyChallenge()">
+        <div class="dc-icon">🎁</div>
+        <div class="dc-text">
+          <h3>Défi du jour !</h3>
+          <p>Un exercice surprise t'attend</p>
+          <span class="daily-badge">+50 XP bonus</span>
+        </div>
+      </div>
+      <div class="greeting-card">
+        <div class="greeting-logo" id="greeting-logo"></div>
+        <div class="greeting-text">
+          <h2 id="greeting-name">Bonjour ! 👋</h2>
+          <p id="greeting-message">Prêt(e) pour une nouvelle aventure ?</p>
+          <span class="greeting-class-badge" id="greeting-class">CP1</span>
+        </div>
+      </div>
+      <div class="xp-level-strip">
+        <div class="level-badge" id="level-badge-icon">⭐</div>
+        <div class="xp-info">
+          <div class="level-name" id="level-name-label">Explorateur</div>
+          <div class="xp-bar-wrap"><div class="xp-bar-inner" id="xp-bar-local" style="width:0%"></div></div>
+        </div>
+        <div class="xp-count" id="xp-display">✨ 0 XP</div>
+      </div>
+      <div class="eli-mood" id="eli-mood">
+        <div class="em-face" id="em-face">😊</div>
+        <div class="em-text">
+          <strong id="em-title">Éli est content !</strong>
+          <span id="em-sub">Continue à apprendre avec moi !</span>
+          <div class="eli-energy"><div class="eli-energy-fill" id="em-energy" style="width:50%"></div></div>
+        </div>
+      </div>
+      <div class="podium-card">
+        <div class="podium-head">🏅 Classement de la semaine</div>
+        <div id="podium-list"></div>
+        <p style="font-size:11px;color:var(--text-light);font-weight:600;text-align:center;margin-top:8px">Gagne des XP pour monter dans le classement ! 🚀</p>
+      </div>
+      <div class="journal-card">
+        <div class="journal-head"><span>📔 Mon journal de bord</span><span class="journal-sub">Ce que j'ai fait</span></div>
+        <div id="journal-list"></div>
+      </div>
+      <div class="section-title">Choisis ta matière 🎯</div>
+    </div>
+    <div class="pillars-grid">
+      <div class="pillar-card p1 ripple-host" onclick="addRipple(event);openPillar(0)">
+        <span class="pillar-badge" id="pb-0">4 leçons</span>
+        <div><span class="pillar-emoji">📖</span><div class="pillar-name">Français</div><div class="pillar-desc">Lecture · Dictée · Conjugaison · Grammaire</div></div>
+        <div class="pillar-progress-bar"><div class="pillar-progress-fill" style="width:0%"></div></div>
+      </div>
+      <div class="pillar-card p2 ripple-host" onclick="addRipple(event);openPillar(1)">
+        <span class="pillar-badge" id="pb-1">4 leçons</span>
+        <div><span class="pillar-emoji">🔢</span><div class="pillar-name">Mathématiques</div><div class="pillar-desc">Calcul · Numération · Géométrie · Mesures</div></div>
+        <div class="pillar-progress-bar"><div class="pillar-progress-fill" style="width:0%"></div></div>
+      </div>
+      <div class="pillar-card p3 ripple-host" onclick="addRipple(event);openPillar(2)">
+        <span class="pillar-badge" id="pb-2">3 leçons</span>
+        <div><span class="pillar-emoji">🌍</span><div class="pillar-name">Découverte du Monde</div><div class="pillar-desc">Sciences · Géographie · Histoire · Civisme</div></div>
+        <div class="pillar-progress-bar"><div class="pillar-progress-fill" style="width:0%"></div></div>
+      </div>
+      <div class="pillar-card p4 ripple-host" onclick="addRipple(event);openPillar(3)">
+        <span class="pillar-badge" id="pb-3">2 leçons</span>
+        <div><span class="pillar-emoji">🎨</span><div class="pillar-name">Arts &amp; Musique</div><div class="pillar-desc">Dessin · Peinture · Musique · Collage</div></div>
+        <div class="pillar-progress-bar"><div class="pillar-progress-fill" style="width:0%"></div></div>
+      </div>
+      <div class="pillar-card p5 ripple-host" onclick="addRipple(event);openPillar(4)">
+        <span class="pillar-badge" id="pb-4">2 leçons</span>
+        <div><span class="pillar-emoji">🗣️</span><div class="pillar-name">Expression Orale</div><div class="pillar-desc">Élocution · Vocabulaire · Récitation</div></div>
+        <div class="pillar-progress-bar"><div class="pillar-progress-fill" style="width:0%"></div></div>
+      </div>
+      <div class="pillar-card p6 ripple-host" onclick="addRipple(event);openPillar(5)">
+        <span class="pillar-badge" id="pb-5">2 leçons</span>
+        <div><span class="pillar-emoji">📚</span><div class="pillar-name">Contes &amp; Littérature</div><div class="pillar-desc">Récits · Fables · Légendes · Civisme</div></div>
+        <div class="pillar-progress-bar"><div class="pillar-progress-fill" style="width:0%"></div></div>
+      </div>
+      <div class="pillar-card p7 ripple-host" onclick="addRipple(event);openPillar(6)">
+        <span class="pillar-badge" id="pb-6">2 quiz</span>
+        <div><span class="pillar-emoji">🎮</span><div class="pillar-name">Quiz &amp; Défis</div><div class="pillar-desc">Jeux, quiz, challenges</div></div>
+        <div class="pillar-progress-bar"><div class="pillar-progress-fill" style="width:0%"></div></div>
+      </div>
+      <div class="pillar-card p8 ripple-host" onclick="addRipple(event);openPillar(7)">
+        <span class="pillar-badge" id="pb-7">Palmarès</span>
+        <div><span class="pillar-emoji">🏆</span><div class="pillar-name">Mes Réussites</div><div class="pillar-desc">Badges, étoiles, progrès</div></div>
+        <div class="pillar-progress-bar"><div class="pillar-progress-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="screen" id="screen-content">
+  <div class="top-bar">
+    <button class="btn-back ripple-host" onclick="addRipple(event);goTo('screen-pillars')">←</button>
+    <span class="top-bar-title" id="content-pillar-title">Leçons</span>
+    <div class="user-badge"><span id="content-class-label">CP1</span> ⭐</div>
+  </div>
+  <div class="content-area" id="content-area"></div>
+</div>
+
+<!-- QUIZ -->
+<div class="screen" id="screen-quiz">
+  <div class="top-bar">
+    <button class="btn-back ripple-host" onclick="addRipple(event);goTo('screen-content')">←</button>
+    <span class="top-bar-title" id="quiz-title">Quiz</span>
+  </div>
+  <div class="quiz-content" id="quiz-content"></div>
+</div>
+
+<!-- ACHIEVEMENTS -->
+<div class="screen" id="screen-achievements">
+  <div class="top-bar">
+    <button class="btn-back ripple-host" onclick="addRipple(event);goTo('screen-pillars')">←</button>
+    <span class="top-bar-title">Mes Réussites 🏆</span>
+  </div>
+  <div class="achievements-content" id="achievements-content"></div>
+</div>
+
+<!-- LESSON OVERLAY -->
+<div class="lesson-detail-overlay" id="lesson-overlay" onclick="closeLessonIfClickedOutside(event)">
+  <div class="lesson-detail-panel">
+    <div class="drag-handle"></div>
+    <div id="lesson-panel-content"></div>
+  </div>
+</div>
+
+<script>
+// ===== ELI LOGO =====
+function eliLogo(sfx,sz){return `<svg class="elilogo" width="${sz}" height="${sz}" viewBox="0 0 200 200" aria-label="Éli"><defs><radialGradient id="L1${sfx}" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#388E3C"/><stop offset="100%" stop-color="#1B5E20"/></radialGradient><linearGradient id="L2${sfx}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFE082"/><stop offset="100%" stop-color="#FFA000"/></linearGradient><linearGradient id="L3${sfx}" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#FFA000"/><stop offset="60%" stop-color="#FFD54F"/><stop offset="100%" stop-color="#FFFDE7"/></linearGradient></defs><circle class="ring" cx="100" cy="100" r="86" fill="url(#L1${sfx})"/><rect x="61" y="44" width="13" height="108" rx="6" fill="url(#L2${sfx})"/><rect x="61" y="44" width="78" height="13" rx="6" fill="url(#L2${sfx})"/><rect x="61" y="91" width="60" height="13" rx="6" fill="url(#L2${sfx})"/><rect x="61" y="139" width="78" height="13" rx="6" fill="url(#L2${sfx})"/><path class="flame" d="M147 44C145 34,141 24,147 12C150 5,156 1,156 1C156 1,167 10,164 24C162 32,156 38,156 44Z" fill="url(#L3${sfx})"/><circle class="dot1" cx="82" cy="172" r="4.5" fill="url(#L2${sfx})" opacity=".9"/><circle class="dot2" cx="100" cy="176" r="5.5" fill="url(#L2${sfx})"/><circle class="dot3" cx="118" cy="172" r="4.5" fill="url(#L2${sfx})" opacity=".9"/></svg>`;}
+
+function injectLogos(){
+  [['welcome-logo-container','w',160],['greeting-logo','g',64],['loading-logo','l',100],['fab-logo','f',44],['dialog-logo-sm','d',28],['profile-logo-bar','p',36]].forEach(([id,sfx,sz])=>{const e=document.getElementById(id);if(e)e.innerHTML=eliLogo(sfx,sz);});
+}
+
+// ===== STARS FIELD =====
+function buildStars(){
+  const f=document.getElementById('star-field');if(!f)return;
+  for(let i=0;i<28;i++){const s=document.createElement('div');s.className='star';const sz=2+Math.random()*4;s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*4}s;`;f.appendChild(s);}
+}
+
+// ===== RIPPLE =====
+function addRipple(e){
+  const btn=e.currentTarget;const r=document.createElement('span');r.className='ripple';const rect=btn.getBoundingClientRect();const sz=Math.max(rect.width,rect.height);r.style.cssText=`width:${sz}px;height:${sz}px;left:${e.clientX-rect.left-sz/2}px;top:${e.clientY-rect.top-sz/2}px;`;btn.appendChild(r);r.addEventListener('animationend',()=>r.remove());
+}
+
+// ===== CONFIG =====
+const SUPABASE_URL='https://szhdlixejgaqzafpirwv.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6aGRsaXhlamdhcXphZnBpcnd2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzODI3MDQsImV4cCI6MjA5NTk1ODcwNH0.oe_nwB51o2ZoNlyDZPzukXQimK18gFN_DieoMBupZiM';
+
+// ===== STATE =====
+let state={userName:'',userClass:'',xp:0,streak:1,progress:{},badges:[],journal:[],currentScreen:'screen-welcome',currentPillar:0,currentSubcat:null,currentLesson:null,quizQuestions:[],quizIndex:0,quizScore:0,selectedClass:null,lessonsDone:0,weeklyXp:0,hearts:3,combo:0,maxCombo:0};
+
+// ===== LEVELS =====
+const LEVELS=[{min:0,max:49,name:'Graine',icon:'🌱'},{min:50,max:149,name:'Explorateur',icon:'🔭'},{min:150,max:299,name:'Savant',icon:'📚'},{min:300,max:499,name:'Champion',icon:'🏆'},{min:500,max:999,name:'Génie',icon:'💎'},{min:1000,max:Infinity,name:'Légende',icon:'⭐'}];
+function getLevel(xp){return LEVELS.find(l=>xp>=l.min&&xp<=l.max)||LEVELS[0];}
+function getLevelProgress(xp){const l=getLevel(xp);if(l.max===Infinity)return 100;return Math.round(((xp-l.min)/(l.max-l.min))*100);}
+
+// ===== PILLARS & CURRICULUM =====
+const PILLARS=[
+  {id:'lecture',name:'Français',emoji:'📖',color:'linear-gradient(135deg,#FF6B35,#FF8C5A)',desc:'Lecture, écriture et grammaire'},
+  {id:'maths',name:'Mathématiques',emoji:'🔢',color:'linear-gradient(135deg,#2D9C3A,#3DB84A)',desc:'Nombres, calcul et géométrie'},
+  {id:'monde',name:'Découverte du Monde',emoji:'🌍',color:'linear-gradient(135deg,#3B82F6,#60A5FA)',desc:'Sciences, géographie et histoire'},
+  {id:'arts',name:'Arts & Musique',emoji:'🎨',color:'linear-gradient(135deg,#EC4899,#F9A8D4)',desc:'Dessin, peinture et musique'},
+  {id:'oral',name:'Expression Orale',emoji:'🗣️',color:'linear-gradient(135deg,#7C3AED,#A78BFA)',desc:'Élocution, vocabulaire et récitation'},
+  {id:'contes',name:'Contes & Littérature',emoji:'📚',color:'linear-gradient(135deg,#D97706,#FCD34D)',desc:'Récits, fables et légendes'},
+  {id:'quiz',name:'Quiz & Défis',emoji:'🎮',color:'linear-gradient(135deg,#10B981,#6EE7B7)',desc:'Teste tes connaissances'},
+  {id:'palmares',name:'Mes Réussites',emoji:'🏆',color:'linear-gradient(135deg,#A855F7,#D8B4FE)',desc:'Regarde tous tes succès'}
+];
+
+// ===== SOUS-MATIÈRES (composantes réelles de chaque matière) =====
+const SUBCATS={
+  lecture:[{e:'📕',n:'Lecture'},{e:'✍️',n:'Écriture & Dictée'},{e:'🔤',n:'Grammaire'},{e:'🕐',n:'Conjugaison'},{e:'✒️',n:'Orthographe'}],
+  maths:[{e:'🧮',n:'Numération'},{e:'➕',n:'Calcul'},{e:'🔷',n:'Géométrie'},{e:'📏',n:'Mesures'},{e:'🧩',n:'Problèmes'}],
+  monde:[{e:'🔬',n:'Sciences'},{e:'🗺️',n:'Géographie'},{e:'⏳',n:'Histoire'},{e:'🤝',n:'Vivre ensemble'}],
+  arts:[{e:'🖌️',n:'Dessin & Peinture'},{e:'🎵',n:'Musique'},{e:'✂️',n:'Travaux manuels'}],
+  oral:[{e:'🗣️',n:'Élocution'},{e:'💬',n:'Vocabulaire'},{e:'🎤',n:'Récitation'}],
+  contes:[{e:'📖',n:'Récits & Fables'},{e:'🌍',n:'Légendes'},{e:'💡',n:'Morale & Civisme'}],
+};
+// Répartit les leçons d'une matière dans ses sous-composantes (par paquets)
+function groupBySubcat(pid,lessons){
+  const cats=SUBCATS[pid];
+  if(!cats||!cats.length)return [{cat:{e:'📚',n:'Leçons'},items:lessons.map((l,i)=>({l,i}))}];
+  const groups=cats.map(c=>({cat:c,items:[]}));
+  lessons.forEach((l,i)=>{groups[i%cats.length].items.push({l,i});});
+  return groups.filter(g=>g.items.length>0);
+}
+
+// L = leçon raccourci : {t:titre, e:emoji, d:desc, c:contenu(fiche), q:quiz, dv:devoir}
+function L(t,e,d,c,q,dv){return {title:t,emoji:e,desc:d,content:c,quiz:q||[],devoir:dv||''};}
+const CURRICULUM={
+  // ====================== CP1 (6-7 ans) ======================
+  CP1:{
+    lecture:[
+      L('Les voyelles','🔤','A, E, I, O, U',`<div class="highlight">Les voyelles : <strong>A · E · I · O · U</strong> 🎵</div><p>Ce sont 5 lettres qu'on peut chanter. On les trouve dans presque tous les mots !</p><div class="example">🔵 <strong>A</strong> comme Arbre<br>🟢 <strong>E</strong> comme Éléphant<br>🟡 <strong>I</strong> comme Iguane<br>🟠 <strong>O</strong> comme Orange<br>🔴 <strong>U</strong> comme Ukulélé</div>`,[{q:'Laquelle est une voyelle ?',e:'🔤',opts:['B','A','C','D'],ans:1},{q:'Combien y a-t-il de voyelles ?',e:'🔢',opts:['3','4','5','6'],ans:2}],'Écris les 5 voyelles 3 fois chacune sur ton cahier.'),
+      L('Les consonnes','🅱️','Les autres lettres',`<div class="highlight">Toutes les lettres qui ne sont <strong>pas des voyelles</strong> sont des consonnes !</div><div class="example">🐝 <strong>B</strong> comme Banane<br>🐱 <strong>C</strong> comme Chat<br>🦆 <strong>D</strong> comme Dauphin<br>🦊 <strong>F</strong> comme Forêt</div>`,[{q:'B comme...?',e:'🐝',opts:['Arbre','Banane','Orange','Étoile'],ans:1},{q:'C comme...?',e:'🐱',opts:['Dauphin','Arbre','Chat','Forêt'],ans:2}],'Trouve 3 objets de la maison qui commencent par B.'),
+      L('Les syllabes','🗣️','Consonne + voyelle',`<div class="highlight">Une <strong>syllabe</strong> = une consonne + une voyelle 🎵</div><div class="example">✨ <strong>BA</strong>-na-ne<br>✨ <strong>MA</strong>-man<br>✨ <strong>PA</strong>-pa</div><p>Frappe dans tes mains pour chaque syllabe : ba-na-ne = 3 frappes !</p>`,[{q:'Combien de syllabes dans MAMA ?',e:'👏',opts:['1','2','3','4'],ans:1},{q:'BA + NA + NE = ?',e:'🍌',opts:['Banane','Orange','Carotte','Pomme'],ans:0}],'Découpe en syllabes : tomate, sac, école.'),
+      L('Mes premiers mots','✍️','Lire et écrire',`<div class="highlight">Tu sais déjà lire tes premiers mots ! 🌟</div><div class="example">🌺 <strong>MAMA</strong> · 🏠 <strong>PAPA</strong> · 🐱 <strong>CHAT</strong> · 🌳 <strong>ARBRE</strong></div>`,[{q:'Quel mot veut dire ta maman ?',e:'👩',opts:['PAPA','MAMA','CHAT','ARBRE'],ans:1},{q:'L\'animal qui fait MIAOU ?',e:'🐱',opts:['CHIEN','CHAT','ARBRE','PAPA'],ans:1}],'Recopie ton prénom 5 fois en majuscules.'),
+      L('La phrase','📝','Majuscule et point',`<div class="highlight">Une <strong>phrase</strong> commence par une <strong>majuscule</strong> et finit par un <strong>point</strong>. </div><div class="example">✅ Le chat dort.<br>❌ le chat dort</div>`,[{q:'Une phrase commence par une...?',e:'🔠',opts:['Virgule','Majuscule','Minuscule','Espace'],ans:1},{q:'Une phrase finit par un...?',e:'⏹️',opts:['Point','Chiffre','Dessin','Trait'],ans:0}],'Écris une phrase sur ton animal préféré.'),
+    ],
+    maths:[
+      L('Compter jusqu\'à 10','🔢','Les nombres 1 à 10',`<div class="highlight">Comptons jusqu'à <strong>10</strong> ! 🎉</div><div class="example">1 Un · 2 Deux · 3 Trois · 4 Quatre · 5 Cinq<br>6 Six · 7 Sept · 8 Huit · 9 Neuf · 10 Dix</div><p>Compte sur tes doigts ! 🖐️</p>`,[{q:'Quel nombre vient après 7 ?',e:'➡️',opts:['6','8','9','10'],ans:1},{q:'Quel nombre vient avant 5 ?',e:'⬅️',opts:['3','4','6','7'],ans:1}],'Compte les fenêtres de ta maison.'),
+      L('Plus grand, plus petit','⚖️','Comparer',`<div class="highlight">Le crocodile 🐊 mange toujours le <strong>plus grand</strong> nombre !</div><div class="example">5 > 3 → 5 est plus grand<br>2 < 7 → 2 est plus petit</div>`,[{q:'Lequel est plus grand ?',e:'🐊',opts:['3','7','2','1'],ans:1},{q:'3 est ... que 5 ?',e:'⚖️',opts:['Plus grand','Égal','Plus petit','Aucun'],ans:2}],'Range 3 jouets du plus petit au plus grand.'),
+      L('L\'addition','➕','Mettre ensemble',`<div class="highlight">Additionner = <strong>mettre ensemble</strong> ! ➕</div><div class="example">🍎🍎 + 🍎 = 3 (2+1)<br>⭐⭐⭐ + ⭐⭐ = 5 (3+2)</div>`,[{q:'2 + 3 = ?',e:'➕',opts:['4','5','6','3'],ans:1},{q:'4 + 1 = ?',e:'🔢',opts:['3','4','5','6'],ans:2}],'Calcule : 3+2, 1+4, 2+2.'),
+      L('La soustraction','➖','Enlever',`<div class="highlight">Soustraire = <strong>enlever</strong> ! ➖</div><div class="example">🍪🍪🍪🍪 − 🍪 = 3 (4−1)<br>5 − 2 = 3</div>`,[{q:'5 − 2 = ?',e:'➖',opts:['2','3','4','7'],ans:1},{q:'3 − 1 = ?',e:'🔢',opts:['1','2','3','4'],ans:1}],'Mange 1 fruit sur 4 : combien reste-t-il ?'),
+      L('Les formes','🔷','Cercle, carré, triangle',`<div class="highlight">Les formes sont partout ! 🔷</div><div class="example">⭕ Cercle — rond<br>🟥 Carré — 4 côtés égaux<br>🔺 Triangle — 3 côtés</div>`,[{q:'Quelle forme a 3 côtés ?',e:'🔺',opts:['Cercle','Carré','Triangle','Rectangle'],ans:2},{q:'Le soleil ressemble à un...?',e:'☀️',opts:['Triangle','Cercle','Carré','Rectangle'],ans:1}],'Dessine un carré, un cercle et un triangle.'),
+    ],
+    monde:[
+      L('Mon corps','🧍','Les parties du corps',`<div class="highlight">Connais-tu ton corps ? 🧍</div><div class="example">👁️ Les yeux — voir<br>👂 Les oreilles — entendre<br>👃 Le nez — sentir<br>👄 La bouche — parler</div>`,[{q:'On entend avec...?',e:'👂',opts:['Les yeux','Le nez','Les oreilles','La bouche'],ans:2},{q:'On voit avec...?',e:'👁️',opts:['Les yeux','Les oreilles','Les mains','Les pieds'],ans:0}],'Montre et nomme 5 parties de ton corps.'),
+      L('Les 5 sens','✋','Voir, entendre, sentir...',`<div class="highlight">Nous avons <strong>5 sens</strong> ! ✋</div><div class="example">👀 La vue · 👂 L'ouïe · 👃 L'odorat · 👅 Le goût · ✋ Le toucher</div>`,[{q:'Le goût, c\'est avec...?',e:'👅',opts:['La langue','Les yeux','Les pieds','Le dos'],ans:0},{q:'Combien avons-nous de sens ?',e:'✋',opts:['3','4','5','6'],ans:2}],'Goûte un fruit et dis s\'il est sucré ou acide.'),
+      L('Le Gabon, mon pays','🇬🇦','Mon beau pays',`<div class="highlight">Le <strong>Gabon</strong> est ton pays ! 🇬🇦</div><div class="example">🏙️ Capitale : <strong>Libreville</strong><br>🌊 Océan : <strong>Atlantique</strong><br>🌿 Beaucoup de <strong>forêts</strong></div>`,[{q:'Capitale du Gabon ?',e:'🏙️',opts:['Franceville','Port-Gentil','Libreville','Oyem'],ans:2},{q:'Océan du Gabon ?',e:'🌊',opts:['Indien','Pacifique','Atlantique','Arctique'],ans:2}],'Dessine le drapeau du Gabon (vert, jaune, bleu).'),
+      L('Les animaux du Gabon','🐘','Notre faune',`<div class="highlight">Le Gabon est un paradis d'animaux ! 🌿</div><div class="example">🐘 Éléphant forestier<br>🦍 Gorille<br>🐊 Crocodile<br>🦜 Perroquet</div>`,[{q:'Le plus grand animal du Gabon ?',e:'🐘',opts:['Gorille','Crocodile','Éléphant','Perroquet'],ans:2},{q:'Où vit le crocodile ?',e:'🐊',opts:['Les arbres','Le ciel','Les rivières','Le désert'],ans:2}],'Nomme 3 animaux qui vivent dans la forêt.'),
+    ],
+    arts:[
+      L('Les couleurs primaires','🎨','Rouge, bleu, jaune',`<div class="highlight">3 couleurs <strong>primaires</strong> créent toutes les autres ! 🎨</div><div class="example">🔴 + 🔵 = 🟣 Violet<br>🔴 + 🟡 = 🟠 Orange<br>🔵 + 🟡 = 🟢 Vert</div>`,[{q:'Rouge + Bleu = ?',e:'🎨',opts:['Vert','Orange','Violet','Jaune'],ans:2},{q:'Bleu + Jaune = ?',e:'🖌️',opts:['Orange','Vert','Rouge','Violet'],ans:1}],'Fais un dessin avec 3 couleurs.'),
+      L('Le rythme et la musique','🎵','Sons africains',`<div class="highlight">La musique africaine est pleine de <strong>rythmes</strong> ! 🥁</div><div class="example">🥁 Le tam-tam · 👏 Les claquements · 🎶 Le chant</div>`,[{q:'Le tam-tam est un...?',e:'🥁',opts:['Corde','Percussion','Vent','Clavier'],ans:1},{q:'Faire de la musique, c\'est...?',e:'🎵',opts:['Courir','Frapper des mains','Dormir','Manger'],ans:1}],'Invente un rythme en frappant des mains.'),
+    ],
+    oral:[
+      L('La politesse','👋','Bonjour, merci',`<div class="highlight">La politesse, c'est important ! 🌟</div><div class="example">🌅 Bonjour · 😊 Merci · 🙏 S'il vous plaît · 🤝 Pardon</div>`,[{q:'Le matin, on dit...?',e:'🌅',opts:['Bonsoir','Bonne nuit','Bonjour','Au revoir'],ans:2},{q:'Pour remercier, on dit...?',e:'😊',opts:['Pardon','Merci','Bonjour','Salut'],ans:1}],'Dis bonjour et merci à 3 personnes aujourd\'hui.'),
+      L('Me présenter','🙋','Dire qui je suis',`<div class="highlight">Sais-tu te présenter ? 🙋</div><div class="example">👤 Je m'appelle...<br>🎂 J'ai ... ans<br>🏫 Je suis en ...</div>`,[{q:'Pour dire ton nom...?',e:'👤',opts:['Je vis','Je mange','Je m\'appelle','Je marche'],ans:2},{q:'Pour ton âge...?',e:'🎂',opts:['J\'ai X ans','J\'habite','Je dors','J\'aime'],ans:0}],'Présente-toi devant un miroir.'),
+    ],
+    contes:[
+      L('Le lièvre et la tortue','🐢','Fable sur la patience',`<div class="highlight">🐰 Le lièvre court vite. 🐢 La tortue va lentement.</div><div class="example">Le lièvre s'endort... La tortue continue.<br>🏆 La tortue gagne !</div><div class="highlight">💡 La patience est plus forte que la rapidité.</div>`,[{q:'Qui gagne la course ?',e:'🏆',opts:['Le lièvre','La tortue','Les deux','Personne'],ans:1},{q:'La leçon ?',e:'💡',opts:['Courir','Dormir','Être patient','Manger'],ans:2}],'Raconte l\'histoire à un membre de ta famille.'),
+      L('Le conte du baobab','🌳','Conte africain',`<div class="highlight">Au Gabon, un grand <strong>baobab</strong> abritait tous les animaux... 🌳</div><div class="example">🐘 L'éléphant pour l'ombre<br>🦜 Les perroquets pour leurs nids<br>🐝 Les abeilles pour le miel</div><div class="highlight">💡 L'entraide rend plus fort.</div>`,[{q:'L\'arbre du conte ?',e:'🌳',opts:['Manguier','Baobab','Palmier','Cocotier'],ans:1},{q:'La leçon ?',e:'💡',opts:['L\'entraide','La vitesse','La solitude','La peur'],ans:0}],'Dessine le baobab et ses animaux.'),
+    ],
+  },
+  // ====================== CP2 (7-8 ans) ======================
+  CP2:{
+    lecture:[
+      L('Les sons complexes','🔡','ch, ou, on, an',`<div class="highlight">Deux lettres forment parfois <strong>un seul son</strong> !</div><div class="example">🐱 <strong>ch</strong> → chat<br>🦉 <strong>ou</strong> → hibou<br>🎈 <strong>on</strong> → ballon<br>👜 <strong>an</strong> → maman</div>`,[{q:'Le son de "chat" ?',e:'🐱',opts:['ch','ou','on','an'],ans:0},{q:'"hibou" contient le son...?',e:'🦉',opts:['an','ou','ch','on'],ans:1}],'Trouve 2 mots avec le son "ou".'),
+      L('Lire une phrase','📖','Phrases entières',`<div class="highlight">Lis lentement, mot après mot, puis relis vite.</div><div class="example">📚 « Le petit chat boit du lait. »<br>📚 « Maman prépare le repas. »</div>`,[{q:'Combien de mots dans « Le chat dort » ?',e:'🔢',opts:['2','3','4','5'],ans:1},{q:'On lit de...?',e:'➡️',opts:['droite à gauche','gauche à droite','bas en haut','le milieu'],ans:1}],'Lis 3 phrases à voix haute à un adulte.'),
+      L('Le pluriel','➕','Un / des, le -s',`<div class="highlight">Plusieurs choses → on ajoute un <strong>-s</strong> !</div><div class="example">1 chat → des chat<strong>s</strong><br>1 fleur → des fleur<strong>s</strong></div>`,[{q:'Le pluriel de "chien" ?',e:'🐶',opts:['chien','chiens','chiene','chiens-s'],ans:1},{q:'On ajoute quelle lettre au pluriel ?',e:'🔤',opts:['-a','-e','-s','-t'],ans:2}],'Mets au pluriel : un livre, une table.'),
+      L('Majuscule et point','✍️','Bien écrire',`<div class="highlight">Une phrase : <strong>majuscule</strong> au début, <strong>point</strong> à la fin.</div><div class="example">✅ Le soleil brille.<br>❌ le soleil brille</div>`,[{q:'On commence par une...?',e:'🔠',opts:['minuscule','majuscule','virgule','chiffre'],ans:1},{q:'On finit par un...?',e:'⏹️',opts:['point','dessin','chiffre','espace'],ans:0}],'Écris 2 phrases correctement.'),
+    ],
+    maths:[
+      L('Les nombres jusqu\'à 100','💯','Compter loin',`<div class="highlight">On compte par paquets de 10 : 10, 20, 30... 100 !</div><div class="example">21 = 20 + 1<br>45 = 40 + 5<br>99 = 90 + 9</div>`,[{q:'Après 49 vient...?',e:'➡️',opts:['40','50','59','60'],ans:1},{q:'70 = ?',e:'🔢',opts:['7','17','70','77'],ans:2}],'Compte de 10 en 10 jusqu\'à 100.'),
+      L('Dizaines et unités','🔟','d et u',`<div class="highlight">Chaque nombre a des <strong>dizaines</strong> et des <strong>unités</strong>.</div><div class="example">34 → 3 dizaines + 4 unités<br>58 → 5 dizaines + 8 unités</div>`,[{q:'Dans 47, il y a combien de dizaines ?',e:'🔟',opts:['7','4','47','11'],ans:1},{q:'3 dizaines + 2 unités = ?',e:'🔢',opts:['23','32','5','302'],ans:1}],'Décompose : 26, 81, 53.'),
+      L('Addition posée','➕','Avec retenue',`<div class="highlight">On additionne les <strong>unités</strong>, puis les <strong>dizaines</strong>.</div><div class="example">&nbsp;&nbsp;25<br>+ 13<br>= 38</div>`,[{q:'25 + 13 = ?',e:'➕',opts:['28','38','35','48'],ans:1},{q:'40 + 30 = ?',e:'🔢',opts:['70','60','80','10'],ans:0}],'Pose et calcule : 32 + 24.'),
+      L('Soustraction posée','➖','Enlever',`<div class="highlight">On enlève les unités, puis les dizaines.</div><div class="example">&nbsp;&nbsp;47<br>− 12<br>= 35</div>`,[{q:'47 − 12 = ?',e:'➖',opts:['35','25','59','34'],ans:0},{q:'50 − 20 = ?',e:'🔢',opts:['30','20','70','40'],ans:0}],'Pose et calcule : 68 − 25.'),
+      L('Les doubles','✖️','2 fois plus',`<div class="highlight">Le double = <strong>2 fois</strong> le nombre.</div><div class="example">Double de 3 = 6<br>Double de 5 = 10<br>Double de 10 = 20</div>`,[{q:'Le double de 4 ?',e:'✖️',opts:['6','8','4','12'],ans:1},{q:'Le double de 6 ?',e:'🔢',opts:['10','12','16','8'],ans:1}],'Trouve le double de 7 et de 8.'),
+    ],
+    monde:[
+      L('Les saisons','🍂','Le temps qui passe',`<div class="highlight">Au Gabon, il y a la <strong>saison sèche</strong> et la <strong>saison des pluies</strong>. 🌦️</div><div class="example">☀️ Saison sèche : il fait chaud, peu de pluie<br>🌧️ Saison des pluies : il pleut beaucoup</div>`,[{q:'Au Gabon, combien de grandes saisons ?',e:'🌦️',opts:['2','3','4','1'],ans:0},{q:'Quand pleut-il beaucoup ?',e:'🌧️',opts:['Saison sèche','Saison des pluies','Jamais','La nuit'],ans:1}],'Observe le ciel et dis quelle saison c\'est.'),
+      L('Les plantes','🌱','Comment ça pousse',`<div class="highlight">Une plante a besoin d'<strong>eau</strong>, de <strong>soleil</strong> et de <strong>terre</strong>. 🌱</div><div class="example">🌰 Graine → 🌱 pousse → 🌿 plante → 🌸 fleur</div>`,[{q:'De quoi a besoin une plante ?',e:'🌱',opts:['Eau et soleil','Bonbons','Télé','Musique'],ans:0},{q:'Au début, la plante est une...?',e:'🌰',opts:['Fleur','Graine','Branche','Feuille'],ans:1}],'Plante une graine de haricot dans un pot.'),
+      L('La famille','👨‍👩‍👧','Les liens',`<div class="highlight">La famille, ce sont les gens qu'on aime ! 💚</div><div class="example">👴 Grand-père · 👵 Grand-mère<br>👨 Papa · 👩 Maman<br>👧 Sœur · 👦 Frère</div>`,[{q:'Le papa de ton papa, c\'est ton...?',e:'👴',opts:['Frère','Oncle','Grand-père','Cousin'],ans:2},{q:'La fille de tes parents est ta...?',e:'👧',opts:['Sœur','Tante','Mère','Voisine'],ans:0}],'Dessine l\'arbre de ta famille.'),
+    ],
+    arts:[
+      L('Les couleurs chaudes et froides','🌈','Chaud / froid',`<div class="highlight">Certaines couleurs sont <strong>chaudes</strong>, d'autres <strong>froides</strong>.</div><div class="example">🔥 Chaudes : rouge, orange, jaune<br>❄️ Froides : bleu, vert, violet</div>`,[{q:'Le rouge est une couleur...?',e:'🔥',opts:['Froide','Chaude','Grise','Noire'],ans:1},{q:'Le bleu est une couleur...?',e:'❄️',opts:['Chaude','Froide','Jaune','Rouge'],ans:1}],'Colorie un soleil en couleurs chaudes.'),
+      L('Le collage','✂️','Créer avec du papier',`<div class="highlight">Avec du papier découpé, on crée de belles images ! ✂️</div><div class="example">📄 Découpe des formes<br>🖇️ Colle-les<br>🎨 Décore !</div>`,[{q:'Pour découper on utilise...?',e:'✂️',opts:['Des ciseaux','Une cuillère','Un crayon','Une règle'],ans:0},{q:'Pour fixer le papier...?',e:'🖇️',opts:['De l\'eau','De la colle','Du sel','Du sable'],ans:1}],'Fais un collage avec des formes en papier.'),
+    ],
+    oral:[
+      L('Raconter ma journée','🌞','Le matin, le soir',`<div class="highlight">On peut raconter dans l'<strong>ordre</strong> : d'abord, ensuite, enfin.</div><div class="example">🌅 D'abord je me lève<br>🏫 Ensuite je vais à l'école<br>🌙 Enfin je dors</div>`,[{q:'Quel mot dit ce qui vient en premier ?',e:'🥇',opts:['Enfin','D\'abord','Hier','Jamais'],ans:1},{q:'Le soir, on dit...?',e:'🌙',opts:['Bonjour','Bonsoir','Salut matin','Midi'],ans:1}],'Raconte ta journée à un adulte dans l\'ordre.'),
+      L('Poser une question','❓','Qui, quoi, où',`<div class="highlight">Pour demander, on utilise : <strong>qui, quoi, où, quand, pourquoi</strong>.</div><div class="example">❓ Qui est là ?<br>❓ Où est mon sac ?<br>❓ Pourquoi tu pleures ?</div>`,[{q:'Pour demander un lieu, on dit...?',e:'📍',opts:['Qui','Où','Quand','Quoi'],ans:1},{q:'Pour demander une personne...?',e:'🧍',opts:['Qui','Où','Quoi','Quand'],ans:0}],'Pose 3 questions à ton ami.'),
+    ],
+    contes:[
+      L('L\'araignée Anansi','🕷️','Conte de la ruse',`<div class="highlight">Anansi l'araignée est petite mais très <strong>maligne</strong> ! 🕷️</div><div class="example">Grâce à son intelligence, Anansi gagne face aux plus grands.</div><div class="highlight">💡 L'intelligence vaut mieux que la force.</div>`,[{q:'Anansi est une...?',e:'🕷️',opts:['Tortue','Araignée','Souris','Fourmi'],ans:1},{q:'Sa qualité ?',e:'💡',opts:['La force','La ruse','La taille','La vitesse'],ans:1}],'Invente une petite ruse comme Anansi.'),
+      L('La poule aux œufs d\'or','🥚','Conte sur la patience',`<div class="highlight">Une poule pondait un œuf en or chaque jour. 🥚</div><div class="example">Le fermier impatient voulut tout d'un coup... et perdit tout !</div><div class="highlight">💡 Trop pressé, on perd tout.</div>`,[{q:'Que pondait la poule ?',e:'🥚',opts:['Du pain','Un œuf en or','Du lait','Rien'],ans:1},{q:'La leçon ?',e:'💡',opts:['Être patient','Courir','Crier','Dormir'],ans:0}],'Explique pourquoi il faut être patient.'),
+    ],
+  },
+  // ====================== CE1 (8-9 ans) ======================
+  CE1:{
+    lecture:[
+      L('Le nom','🏷️','Commun et propre',`<div class="highlight">Le <strong>nom</strong> désigne une personne, un animal ou une chose.</div><div class="example">🏷️ Nom commun : chien, ville, table<br>📛 Nom propre (majuscule) : Léa, Libreville</div>`,[{q:'"Libreville" est un nom...?',e:'📛',opts:['commun','propre','verbe','adjectif'],ans:1},{q:'"table" est un nom...?',e:'🏷️',opts:['propre','commun','verbe','pluriel'],ans:1}],'Trouve 3 noms propres et 3 noms communs.'),
+      L('Le verbe','🏃','L\'action',`<div class="highlight">Le <strong>verbe</strong> dit ce qu'on <strong>fait</strong>.</div><div class="example">🏃 courir · 🍽️ manger · 😴 dormir · ✍️ écrire</div>`,[{q:'Lequel est un verbe ?',e:'🏃',opts:['table','manger','rouge','vite'],ans:1},{q:'"dormir" est un...?',e:'😴',opts:['nom','verbe','couleur','chiffre'],ans:1}],'Écris 5 verbes d\'action.'),
+      L('Présent : être et avoir','🕐','Conjugaison',`<div class="highlight">Au <strong>présent</strong> : c'est maintenant !</div><div class="example">ÊTRE : je suis, tu es, il est<br>AVOIR : j'ai, tu as, il a</div>`,[{q:'"Je ... content" → être ?',e:'🙂',opts:['suis','es','est','sont'],ans:0},{q:'"Tu ... un chat" → avoir ?',e:'🐱',opts:['ai','as','a','ont'],ans:1}],'Conjugue "être" avec je, tu, il.'),
+      L('Les accents','✒️','é, è, ê',`<div class="highlight">Les accents changent le son et le sens !</div><div class="example">é → école (aigu)<br>è → mère (grave)<br>ê → forêt (circonflexe)</div>`,[{q:'L\'accent dans "école" est...?',e:'✒️',opts:['grave','aigu','circonflexe','aucun'],ans:1},{q:'"forêt" a un accent...?',e:'🌲',opts:['aigu','grave','circonflexe','tréma'],ans:2}],'Écris 3 mots avec un accent.'),
+    ],
+    maths:[
+      L('Nombres jusqu\'à 1000','🔢','Centaines',`<div class="highlight">Maintenant on va jusqu'à <strong>1000</strong> ! Centaines, dizaines, unités.</div><div class="example">347 = 3 centaines + 4 dizaines + 7 unités</div>`,[{q:'Dans 256, combien de centaines ?',e:'💯',opts:['2','5','6','256'],ans:0},{q:'Après 199 vient...?',e:'➡️',opts:['200','100','299','190'],ans:0}],'Décompose 482 et 705.'),
+      L('La multiplication','✖️','Addition répétée',`<div class="highlight">Multiplier = additionner plusieurs fois le même nombre.</div><div class="example">3 × 4 = 4 + 4 + 4 = 12<br>2 × 5 = 5 + 5 = 10</div>`,[{q:'3 × 4 = ?',e:'✖️',opts:['7','12','9','34'],ans:1},{q:'2 × 6 = ?',e:'🔢',opts:['8','12','10','26'],ans:1}],'Récite la table de 2.'),
+      L('Table de 2 et 5','📊','Apprendre par cœur',`<div class="highlight">Les tables aident à calculer vite !</div><div class="example">Table de 5 : 5, 10, 15, 20, 25, 30...<br>Table de 2 : 2, 4, 6, 8, 10...</div>`,[{q:'5 × 4 = ?',e:'📊',opts:['9','20','25','15'],ans:1},{q:'2 × 8 = ?',e:'🔢',opts:['16','10','18','28'],ans:0}],'Apprends la table de 5.'),
+      L('Mesurer les longueurs','📏','cm et m',`<div class="highlight">On mesure avec le <strong>mètre</strong> (m) et le <strong>centimètre</strong> (cm).</div><div class="example">1 m = 100 cm<br>Une règle = 30 cm</div>`,[{q:'1 mètre = combien de cm ?',e:'📏',opts:['10','100','1000','50'],ans:1},{q:'On mesure un crayon en...?',e:'✏️',opts:['cm','km','litres','kg'],ans:0}],'Mesure ton lit en cm avec une règle.'),
+      L('Lire l\'heure','🕐','Les horloges',`<div class="highlight">La grande aiguille = les minutes, la petite = les heures.</div><div class="example">🕒 3h00 · 🕧 12h30 · 🕕 6h00</div>`,[{q:'La petite aiguille montre...?',e:'🕐',opts:['les minutes','les heures','les jours','rien'],ans:1},{q:'Une heure = combien de minutes ?',e:'⏰',opts:['30','60','100','24'],ans:1}],'Lis l\'heure 3 fois dans la journée.'),
+    ],
+    monde:[
+      L('Le cycle de l\'eau','💧','Pluie et nuages',`<div class="highlight">L'eau voyage en boucle : évaporation, nuages, pluie ! 💧</div><div class="example">☀️ Le soleil chauffe l'eau → 💨 vapeur<br>☁️ Nuages → 🌧️ pluie → 🌊 rivières</div>`,[{q:'Le soleil transforme l\'eau en...?',e:'💨',opts:['glace','vapeur','pierre','sable'],ans:1},{q:'Les nuages donnent...?',e:'🌧️',opts:['du feu','de la pluie','du vent chaud','du sable'],ans:1}],'Observe la buée sur un verre froid.'),
+      L('Les métiers','👷','Le travail',`<div class="highlight">Chaque métier aide la société ! 👷</div><div class="example">👨‍⚕️ Médecin — soigne<br>👩‍🏫 Enseignant — apprend<br>👨‍🌾 Agriculteur — cultive<br>🚒 Pompier — sauve</div>`,[{q:'Qui soigne les malades ?',e:'👨‍⚕️',opts:['Le médecin','Le boulanger','Le pilote','Le peintre'],ans:0},{q:'Qui éteint le feu ?',e:'🚒',opts:['Le facteur','Le pompier','Le coiffeur','Le juge'],ans:1}],'Quel métier veux-tu faire ? Dessine-le.'),
+      L('Les provinces du Gabon','🗺️','Mon pays',`<div class="highlight">Le Gabon a <strong>9 provinces</strong> ! 🗺️</div><div class="example">📍 Estuaire (Libreville)<br>📍 Haut-Ogooué (Franceville)<br>📍 Ogooué-Maritime (Port-Gentil)</div>`,[{q:'Combien de provinces au Gabon ?',e:'🗺️',opts:['5','7','9','12'],ans:2},{q:'Dans quelle province est Libreville ?',e:'📍',opts:['Estuaire','Woleu-Ntem','Ngounié','Ogooué-Lolo'],ans:0}],'Trouve ta province sur une carte.'),
+    ],
+    arts:[
+      L('Le dessin d\'observation','✏️','Dessiner le réel',`<div class="highlight">On regarde bien avant de dessiner ! 👀</div><div class="example">🍃 Observe une feuille : sa forme, ses lignes<br>✏️ Puis dessine-la doucement</div>`,[{q:'Avant de dessiner, on...?',e:'👀',opts:['observe','court','dort','crie'],ans:0},{q:'On dessine avec...?',e:'✏️',opts:['une fourchette','un crayon','un ballon','une clé'],ans:1}],'Dessine une feuille en l\'observant.'),
+      L('Les instruments de musique','🎸','Familles d\'instruments',`<div class="highlight">Les instruments ont des familles ! 🎶</div><div class="example">🥁 Percussion : tam-tam<br>🎸 Cordes : guitare<br>🎺 Vent : flûte</div>`,[{q:'La guitare est un instrument à...?',e:'🎸',opts:['vent','cordes','percussion','clavier'],ans:1},{q:'La flûte est un instrument à...?',e:'🎺',opts:['cordes','vent','percussion','pile'],ans:1}],'Trouve un objet qui fait un son rythmé.'),
+    ],
+    oral:[
+      L('Raconter une histoire','📣','Début, milieu, fin',`<div class="highlight">Une histoire a un <strong>début</strong>, un <strong>milieu</strong> et une <strong>fin</strong>.</div><div class="example">📖 Il était une fois... (début)<br>⚡ Un problème arrive... (milieu)<br>🎉 Tout finit bien (fin)</div>`,[{q:'Une histoire commence souvent par...?',e:'📖',opts:['Il était une fois','Au revoir','Fin','Merci'],ans:0},{q:'La fin, c\'est...?',e:'🎉',opts:['le début','la dernière partie','le titre','rien'],ans:1}],'Raconte une histoire en 3 parties.'),
+      L('Dire un poème','🎤','Réciter',`<div class="highlight">Pour réciter : parle <strong>fort</strong>, <strong>doucement</strong> et avec le sourire ! 🎤</div><div class="example">🗣️ Respire bien<br>👀 Regarde devant<br>🎵 Mets le ton</div>`,[{q:'Pour bien réciter, il faut parler...?',e:'🔊',opts:['tout bas','fort et clair','vite et bas','sans bouger'],ans:1},{q:'On regarde...?',e:'👀',opts:['par terre','devant soi','le plafond','derrière'],ans:1}],'Apprends 4 vers d\'un poème.'),
+    ],
+    contes:[
+      L('La légende de l\'Ogooué','🌊','Conte du Gabon',`<div class="highlight">L'Ogooué est le plus grand fleuve du Gabon. 🌊</div><div class="example">Les contes racontent comment le fleuve nourrit les villages et relie les peuples.</div><div class="highlight">💡 La nature est un trésor à protéger.</div>`,[{q:'L\'Ogooué est un...?',e:'🌊',opts:['fleuve','montagne','désert','animal'],ans:0},{q:'Que devons-nous faire de la nature ?',e:'🌿',opts:['La salir','La protéger','L\'oublier','La brûler'],ans:1}],'Dessine un fleuve et des villages.'),
+      L('Le respect des aînés','🙇','Éducation civique',`<div class="highlight">En Afrique, on respecte beaucoup les <strong>aînés</strong> et les <strong>sages</strong>. 🙇</div><div class="example">👴 On les écoute<br>🤝 On les salue<br>💚 On les aide</div>`,[{q:'Comment traiter les aînés ?',e:'🙇',opts:['Avec respect','En criant','En les ignorant','En se moquant'],ans:0},{q:'Que fait-on en arrivant ?',e:'🤝',opts:['On salue','On part','On crie','On dort'],ans:0}],'Aide une personne âgée aujourd\'hui.'),
+    ],
+  },
+  // ====================== CE2 (9-10 ans) ======================
+  CE2:{
+    lecture:[
+      L('Types de phrases','❓','Affirmer, demander...',`<div class="highlight">4 types de phrases !</div><div class="example">. Déclarative : Il pleut.<br>? Interrogative : Pleut-il ?<br>! Exclamative : Quelle pluie !<br>➡️ Impérative : Ferme la porte.</div>`,[{q:'« Pleut-il ? » est une phrase...?',e:'❓',opts:['déclarative','interrogative','exclamative','impérative'],ans:1},{q:'Quel signe pour l\'exclamation ?',e:'❗',opts:['.','?','!',','],ans:2}],'Écris une phrase de chaque type.'),
+      L('Passé, présent, futur','⏳','Le temps',`<div class="highlight">Hier (passé), aujourd'hui (présent), demain (futur).</div><div class="example">⏪ Hier, je mangeais<br>▶️ Aujourd'hui, je mange<br>⏩ Demain, je mangerai</div>`,[{q:'"Demain je jouerai" est au...?',e:'⏩',opts:['passé','présent','futur','jamais'],ans:2},{q:'"Hier" indique le...?',e:'⏪',opts:['futur','passé','présent','rien'],ans:1}],'Écris une phrase au passé et au futur.'),
+      L('L\'adjectif','🌈','Décrire',`<div class="highlight">L'<strong>adjectif</strong> décrit le nom : comment il est.</div><div class="example">🐘 Un grand éléphant<br>🌸 Une jolie fleur<br>🔵 Un ballon bleu</div>`,[{q:'Dans "petit chat", l\'adjectif est...?',e:'🐱',opts:['chat','petit','le','un'],ans:1},{q:'Un adjectif sert à...?',e:'🌈',opts:['compter','décrire','courir','manger'],ans:1}],'Décris ta chambre avec 3 adjectifs.'),
+      L('Le présent des verbes en -er','✍️','Conjuguer',`<div class="highlight">Verbes en -er au présent : -e, -es, -e, -ons, -ez, -ent.</div><div class="example">CHANTER : je chante, tu chantes, il chante, nous chantons</div>`,[{q:'"Nous (jouer)" → ?',e:'🎮',opts:['joue','jouons','jouez','jouent'],ans:1},{q:'"Tu (manger)" → ?',e:'🍽️',opts:['mange','manges','mangent','mangeons'],ans:1}],'Conjugue "danser" à toutes les personnes.'),
+    ],
+    maths:[
+      L('Nombres jusqu\'à 10 000','🔢','Grands nombres',`<div class="highlight">Milliers, centaines, dizaines, unités !</div><div class="example">3 254 = 3 milliers + 2 centaines + 5 dizaines + 4 unités</div>`,[{q:'Dans 4 321, le chiffre des milliers ?',e:'🔢',opts:['4','3','2','1'],ans:0},{q:'Après 2 999 vient...?',e:'➡️',opts:['3000','2000','2099','2900'],ans:0}],'Écris 3 nombres de 4 chiffres.'),
+      L('Tables de multiplication','✖️','Jusqu\'à 10',`<div class="highlight">Connaître ses tables = calculer vite !</div><div class="example">7 × 8 = 56<br>6 × 9 = 54<br>4 × 7 = 28</div>`,[{q:'6 × 7 = ?',e:'✖️',opts:['42','36','48','13'],ans:0},{q:'8 × 9 = ?',e:'🔢',opts:['72','64','81','89'],ans:0}],'Apprends la table de 7.'),
+      L('La division','➗','Partager',`<div class="highlight">Diviser = <strong>partager</strong> en parts égales.</div><div class="example">12 ÷ 3 = 4 (12 bonbons pour 3 enfants)<br>10 ÷ 2 = 5</div>`,[{q:'12 ÷ 4 = ?',e:'➗',opts:['3','4','6','8'],ans:0},{q:'20 ÷ 5 = ?',e:'🔢',opts:['4','5','10','15'],ans:0}],'Partage 15 billes entre 3 amis.'),
+      L('Les angles','📐','Droit, aigu, obtus',`<div class="highlight">Un angle droit forme un coin parfait, comme un L ! 📐</div><div class="example">📐 Angle droit = 90°<br>🔻 Aigu = plus petit<br>🔺 Obtus = plus grand</div>`,[{q:'Un angle droit mesure...?',e:'📐',opts:['45°','90°','100°','180°'],ans:1},{q:'Le coin d\'une feuille est un angle...?',e:'📄',opts:['droit','aigu','obtus','rond'],ans:0}],'Trouve 3 angles droits dans ta maison.'),
+      L('Les contenances','🥤','Litres',`<div class="highlight">On mesure les liquides en <strong>litres</strong> (L). 🥤</div><div class="example">1 bouteille d'eau = 1,5 L<br>1 verre ≈ 0,2 L</div>`,[{q:'On mesure l\'eau en...?',e:'💧',opts:['kg','litres','cm','heures'],ans:1},{q:'Une grande bouteille fait environ...?',e:'🍶',opts:['1 L','1 cm','1 kg','1 h'],ans:0}],'Combien de verres remplit 1 litre ?'),
+    ],
+    monde:[
+      L('Le système solaire','🪐','Les planètes',`<div class="highlight">8 planètes tournent autour du <strong>Soleil</strong> ! ☀️</div><div class="example">☀️ Soleil · 🌍 Terre · 🔴 Mars · 🪐 Saturne</div>`,[{q:'Notre planète s\'appelle...?',e:'🌍',opts:['Mars','La Terre','Jupiter','Vénus'],ans:1},{q:'Au centre, il y a...?',e:'☀️',opts:['la Lune','le Soleil','Mars','la Terre'],ans:1}],'Dessine le Soleil et la Terre.'),
+      L('L\'alimentation','🥗','Bien manger',`<div class="highlight">Pour grandir, mange varié et équilibré ! 🥗</div><div class="example">🍎 Fruits et légumes<br>🍚 Féculents (riz, manioc)<br>🐟 Protéines (poisson, viande)<br>💧 Bois de l'eau</div>`,[{q:'Que faut-il boire chaque jour ?',e:'💧',opts:['Du soda','De l\'eau','Du café','Rien'],ans:1},{q:'Les fruits apportent des...?',e:'🍎',opts:['vitamines','cailloux','métaux','plastiques'],ans:0}],'Note ce que tu manges au déjeuner.'),
+      L('L\'histoire du Gabon','📜','Notre passé',`<div class="highlight">Le Gabon est indépendant depuis le <strong>17 août 1960</strong> ! 🇬🇦</div><div class="example">📜 Avant : colonie<br>🎉 17 août 1960 : indépendance<br>🏛️ Aujourd'hui : république</div>`,[{q:'Le Gabon est indépendant depuis...?',e:'📜',opts:['1960','1980','2000','1945'],ans:0},{q:'Quelle est la fête nationale ?',e:'🎉',opts:['1er janvier','17 août','25 décembre','14 juillet'],ans:1}],'Demande à un adulte ce qu\'est l\'indépendance.'),
+    ],
+    arts:[
+      L('Les nuances de couleurs','🎨','Clair et foncé',`<div class="highlight">En ajoutant du blanc ou du noir, on change la couleur !</div><div class="example">🔵 Bleu + blanc = bleu clair<br>🔵 Bleu + noir = bleu foncé</div>`,[{q:'Bleu + blanc donne du bleu...?',e:'🤍',opts:['clair','foncé','rouge','vert'],ans:0},{q:'Pour foncer une couleur, on ajoute...?',e:'⚫',opts:['du blanc','du noir','de l\'eau','du jaune'],ans:1}],'Fais 3 nuances d\'une même couleur.'),
+      L('Le chant choral','🎶','Chanter ensemble',`<div class="highlight">Chanter à plusieurs, c'est une chorale ! 🎶</div><div class="example">👥 On chante ensemble<br>🎵 On suit le même rythme<br>😊 On écoute les autres</div>`,[{q:'Une chorale, c\'est chanter...?',e:'👥',opts:['seul','à plusieurs','en dormant','en courant'],ans:1},{q:'Dans une chorale, il faut...?',e:'👂',opts:['crier','écouter les autres','partir','se taire'],ans:1}],'Chante une chanson avec ta famille.'),
+    ],
+    oral:[
+      L('Le débat','💬','Donner son avis',`<div class="highlight">On peut donner son avis et écouter celui des autres. 💬</div><div class="example">🗣️ « Je pense que... »<br>👂 « Et toi, qu'en penses-tu ? »<br>🤝 On respecte chaque avis</div>`,[{q:'Pour donner son avis, on dit...?',e:'🗣️',opts:['Je pense que','Au revoir','Tais-toi','Rien'],ans:0},{q:'Pendant un débat, il faut...?',e:'👂',opts:['couper la parole','écouter','crier','partir'],ans:1}],'Donne ton avis sur ton plat préféré.'),
+      L('L\'anglais : les salutations','🇬🇧','Hello !',`<div class="highlight">On commence l'anglais ! 🇬🇧</div><div class="example">👋 Hello = Bonjour<br>😊 Thank you = Merci<br>👋 Goodbye = Au revoir</div>`,[{q:'"Hello" veut dire...?',e:'👋',opts:['Bonjour','Merci','Non','Manger'],ans:0},{q:'"Thank you" veut dire...?',e:'😊',opts:['Au revoir','Merci','Oui','Pardon'],ans:1}],'Dis "Hello" et "Thank you" aujourd\'hui.'),
+    ],
+    contes:[
+      L('Pourquoi la tortue a une carapace','🐢','Conte étiologique',`<div class="highlight">Les contes expliquent le monde de façon imagée ! 🐢</div><div class="example">Un conte raconte comment la tortue a eu sa carapace après une aventure.</div><div class="highlight">💡 Chaque chose a son histoire.</div>`,[{q:'Ce conte explique...?',e:'🐢',opts:['la carapace','la pluie','les étoiles','le feu'],ans:0},{q:'Les contes servent à...?',e:'📖',opts:['expliquer','dormir','manger','courir'],ans:0}],'Invente un conte « Pourquoi... ».'),
+      L('Vivre ensemble','🤝','Éducation civique',`<div class="highlight">Pour bien vivre ensemble : <strong>respect</strong>, <strong>partage</strong>, <strong>entraide</strong>. 🤝</div><div class="example">♻️ Garder propre<br>🤝 Aider les autres<br>🙏 Dire pardon</div>`,[{q:'Pour vivre ensemble, il faut...?',e:'🤝',opts:['se respecter','se bagarrer','crier','voler'],ans:0},{q:'Que fait-on de son quartier ?',e:'♻️',opts:['On le salit','On le garde propre','On l\'ignore','On le casse'],ans:1}],'Ramasse un déchet et jette-le à la poubelle.'),
+    ],
+  },
+  // ====================== CM1 (10-11 ans) ======================
+  CM1:{
+    lecture:[
+      L('Le COD','🎯','Complément du verbe',`<div class="highlight">Le <strong>COD</strong> répond à « qui ? » ou « quoi ? » après le verbe.</div><div class="example">Léa mange <u>une pomme</u> → mange quoi ? une pomme (COD)</div>`,[{q:'Dans "Il lit un livre", le COD est...?',e:'📕',opts:['Il','lit','un livre','dans'],ans:2},{q:'Le COD répond à...?',e:'🎯',opts:['où ?','quoi ?','quand ?','comment ?'],ans:1}],'Trouve le COD dans : « Je bois du jus. »'),
+      L('L\'imparfait','⏪','Temps du passé',`<div class="highlight">L'imparfait raconte le passé qui dure : -ais, -ais, -ait...</div><div class="example">Je jouais, tu jouais, il jouait, nous jouions</div>`,[{q:'"Nous (chanter)" à l\'imparfait ?',e:'🎵',opts:['chantions','chantons','chanterons','chantâmes'],ans:0},{q:'L\'imparfait parle du...?',e:'⏪',opts:['futur','passé','présent','demain'],ans:1}],'Conjugue "regarder" à l\'imparfait.'),
+      L('Synonymes et contraires','🔁','Vocabulaire',`<div class="highlight">Synonyme = même sens. Contraire = sens opposé.</div><div class="example">🔁 grand = immense (synonymes)<br>↔️ grand ≠ petit (contraires)</div>`,[{q:'Le contraire de "chaud" ?',e:'❄️',opts:['tiède','froid','brûlant','sec'],ans:1},{q:'Un synonyme de "content" ?',e:'😀',opts:['triste','heureux','fâché','fatigué'],ans:1}],'Trouve 2 synonymes de "beau".'),
+      L('Les homophones','👂','a / à, et / est',`<div class="highlight">Même son, écriture différente !</div><div class="example">a (avoir) / à (lieu)<br>et (+) / est (être)</div>`,[{q:'"Il ... content" → être ?',e:'🙂',opts:['et','est','ait','ai'],ans:1},{q:'"Je vais ... l\'école" ?',e:'🏫',opts:['a','à','as','ah'],ans:1}],'Écris une phrase avec "et" et "est".'),
+    ],
+    maths:[
+      L('Les grands nombres','🔢','Millions',`<div class="highlight">On lit les grands nombres par tranches de 3 chiffres.</div><div class="example">1 000 000 = un million<br>2 540 300 = deux millions...</div>`,[{q:'Combien de zéros dans un million ?',e:'🔢',opts:['4','5','6','7'],ans:2},{q:'1 000 000 se lit...?',e:'📖',opts:['mille','un million','cent','un milliard'],ans:1}],'Écris un million en chiffres.'),
+      L('Les fractions','🍕','Parts égales',`<div class="highlight">Une fraction = une part d'un tout. 🍕</div><div class="example">½ = une moitié<br>¼ = un quart<br>3/4 = trois quarts</div>`,[{q:'½ d\'une pizza, c\'est...?',e:'🍕',opts:['toute','la moitié','un quart','rien'],ans:1},{q:'¼ veut dire...?',e:'🔢',opts:['un quart','la moitié','le double','trois'],ans:0}],'Partage un gâteau en 4 et colorie ¼.'),
+      L('Les nombres décimaux','🔟','La virgule',`<div class="highlight">Après la virgule : dixièmes, centièmes ! </div><div class="example">3,5 → 3 et 5 dixièmes<br>2,75 → 2 et 75 centièmes</div>`,[{q:'Dans 4,2 le chiffre après la virgule est le...?',e:'🔟',opts:['dixième','centième','millième','entier'],ans:0},{q:'2,5 + 0,5 = ?',e:'➕',opts:['2','3','2,10','7'],ans:1}],'Écris 3 nombres avec une virgule.'),
+      L('Le périmètre','📐','Le tour',`<div class="highlight">Le périmètre = la <strong>longueur du tour</strong> d'une figure.</div><div class="example">Carré de côté 5 → 5+5+5+5 = 20 cm</div>`,[{q:'Périmètre d\'un carré de côté 3 ?',e:'📐',opts:['9','12','6','3'],ans:1},{q:'Le périmètre, c\'est...?',e:'🔲',opts:['le tour','l\'intérieur','la hauteur','le poids'],ans:0}],'Mesure le périmètre de ton cahier.'),
+      L('Proportionnalité','⚖️','Règle de trois',`<div class="highlight">Si 1 stylo coûte 100 F, alors 3 stylos coûtent 300 F !</div><div class="example">1 → 100 F<br>3 → 300 F<br>5 → 500 F</div>`,[{q:'Si 1 pain = 200 F, 2 pains = ?',e:'🍞',opts:['200 F','400 F','100 F','600 F'],ans:1},{q:'4 bonbons à 50 F = ?',e:'🍬',opts:['100 F','150 F','200 F','250 F'],ans:2}],'Si 1 cahier = 500 F, combien pour 3 ?'),
+    ],
+    monde:[
+      L('Les continents','🌍','Les 5 continents',`<div class="highlight">La Terre a <strong>5 continents</strong> ! 🌍</div><div class="example">🌍 Afrique (le nôtre) · 🌏 Asie · 🌎 Amériques · 🗺️ Europe · 🧊 Océanie/Antarctique</div>`,[{q:'Le Gabon est en...?',e:'🌍',opts:['Asie','Europe','Afrique','Amérique'],ans:2},{q:'Combien de continents ?',e:'🗺️',opts:['3','4','5','7'],ans:2}],'Trouve l\'Afrique sur un planisphère.'),
+      L('Le corps humain','🫀','Les organes',`<div class="highlight">Nos organes travaillent en équipe ! 🫀</div><div class="example">🫀 Le cœur — pompe le sang<br>🫁 Les poumons — respirent<br>🧠 Le cerveau — pense</div>`,[{q:'Le cœur sert à...?',e:'🫀',opts:['penser','pomper le sang','digérer','voir'],ans:1},{q:'On respire avec les...?',e:'🫁',opts:['reins','poumons','os','cheveux'],ans:1}],'Pose ta main sur ton cœur et compte les battements.'),
+      L('Le climat équatorial','🌴','Le Gabon',`<div class="highlight">Le Gabon a un climat <strong>équatorial</strong> : chaud et humide ! 🌴</div><div class="example">🌡️ Il fait chaud toute l'année<br>🌧️ Beaucoup de pluie<br>🌳 Forêt dense</div>`,[{q:'Le climat du Gabon est...?',e:'🌴',opts:['désertique','équatorial','polaire','sec'],ans:1},{q:'Ce climat favorise...?',e:'🌳',opts:['le désert','la forêt','la neige','les glaciers'],ans:1}],'Note la météo pendant 3 jours.'),
+    ],
+    arts:[
+      L('La perspective','🏞️','Loin et près',`<div class="highlight">Plus c'est loin, plus c'est petit ! 🏞️</div><div class="example">🌳 Arbre proche = grand<br>🌲 Arbre lointain = petit</div>`,[{q:'Un objet loin paraît...?',e:'🔭',opts:['plus grand','plus petit','invisible','rouge'],ans:1},{q:'La perspective donne une impression de...?',e:'🏞️',opts:['profondeur','son','goût','poids'],ans:0}],'Dessine une route qui s\'éloigne.'),
+      L('Les genres musicaux','🎼','Styles de musique',`<div class="highlight">Il existe plein de styles : traditionnel, moderne... 🎼</div><div class="example">🥁 Musique traditionnelle gabonaise<br>🎤 Variété<br>🎷 Jazz</div>`,[{q:'Le tam-tam est dans la musique...?',e:'🥁',opts:['traditionnelle','électronique','classique','jazz'],ans:0},{q:'Un style de musique s\'appelle un...?',e:'🎼',opts:['genre','nombre','angle','organe'],ans:0}],'Écoute 2 styles de musique différents.'),
+    ],
+    oral:[
+      L('L\'exposé','🎤','Présenter un sujet',`<div class="highlight">Un exposé : on présente un sujet à la classe. 🎤</div><div class="example">1️⃣ Introduction<br>2️⃣ Le sujet<br>3️⃣ Conclusion</div>`,[{q:'Un exposé a combien de grandes parties ?',e:'🔢',opts:['1','3','10','0'],ans:1},{q:'On commence par l\'...?',e:'🎬',opts:['introduction','conclusion','fin','rien'],ans:0}],'Prépare un mini-exposé sur ton animal préféré.'),
+      L('Anglais : me présenter','🇬🇧','My name is...',`<div class="highlight">En anglais ! 🇬🇧</div><div class="example">😊 My name is... = Je m'appelle...<br>🔢 I am 10 = J'ai 10 ans</div>`,[{q:'"My name is Léa" veut dire...?',e:'😊',opts:['J\'ai faim','Je m\'appelle Léa','J\'ai 10 ans','Au revoir'],ans:1},{q:'"I am" veut dire...?',e:'🧍',opts:['Je suis','Tu es','Il est','Nous'],ans:0}],'Présente-toi en anglais.'),
+    ],
+    contes:[
+      L('Les fables de La Fontaine','🦊','Le corbeau et le renard',`<div class="highlight">Le renard flatte le corbeau pour voler son fromage ! 🦊🧀</div><div class="example">« Tout flatteur vit aux dépens de celui qui l'écoute. »</div><div class="highlight">💡 Méfie-toi des compliments intéressés.</div>`,[{q:'Qui prend le fromage ?',e:'🦊',opts:['Le corbeau','Le renard','Le loup','La poule'],ans:1},{q:'La morale parle des...?',e:'💡',opts:['flatteurs','animaux','arbres','nombres'],ans:0}],'Apprends la morale par cœur.'),
+      L('Les droits de l\'enfant','🧒','Éducation civique',`<div class="highlight">Chaque enfant a des <strong>droits</strong> ! 🧒</div><div class="example">📚 Droit à l'éducation<br>🏥 Droit à la santé<br>🛡️ Droit à la protection<br>🎮 Droit de jouer</div>`,[{q:'Tous les enfants ont droit à l\'...?',e:'📚',opts:['éducation','argent','voiture','télé'],ans:0},{q:'Jouer est un...?',e:'🎮',opts:['droit','interdit','devoir payant','secret'],ans:0}],'Cite 2 de tes droits d\'enfant.'),
+    ],
+  },
+  // ====================== CM2 (11-12 ans) ======================
+  CM2:{
+    lecture:[
+      L('COD et COI','🎯','Compléments',`<div class="highlight">COD : qui/quoi. COI : à qui/à quoi (avec « à » ou « de »).</div><div class="example">Je parle <u>à mon ami</u> → COI<br>Je vois <u>mon ami</u> → COD</div>`,[{q:'"Il pense à sa mère" → "à sa mère" est...?',e:'🎯',opts:['COD','COI','sujet','verbe'],ans:1},{q:'Le COD répond à...?',e:'❓',opts:['à qui ?','quoi ?','où ?','quand ?'],ans:1}],'Trouve le COI dans « Je téléphone à Paul. »'),
+      L('Le passé composé','⏮️','Passé récent',`<div class="highlight">Passé composé : auxiliaire (être/avoir) + participe passé.</div><div class="example">J'ai mangé · Tu es parti · Nous avons fini</div>`,[{q:'"J\'ai (manger)" → ?',e:'🍽️',opts:['mangé','manger','mangeais','mangerai'],ans:0},{q:'Le passé composé utilise...?',e:'⏮️',opts:['un seul mot','un auxiliaire + participe','rien','le futur'],ans:1}],'Écris 3 phrases au passé composé.'),
+      L('Le futur simple','⏩','Demain',`<div class="highlight">Futur : -rai, -ras, -ra, -rons, -rez, -ront.</div><div class="example">Je mangerai, tu mangeras, il mangera</div>`,[{q:'"Nous (finir)" au futur ?',e:'⏩',opts:['finirons','finissons','finîmes','finir'],ans:0},{q:'Le futur parle de...?',e:'🔮',opts:['hier','maintenant','demain','jamais'],ans:2}],'Conjugue "voyager" au futur.'),
+      L('La rédaction','📝','Écrire un texte',`<div class="highlight">Un bon texte : idées dans l'ordre, paragraphes, ponctuation.</div><div class="example">📌 Une idée par paragraphe<br>✍️ Phrases claires<br>✅ Relire pour corriger</div>`,[{q:'On organise un texte en...?',e:'📑',opts:['paragraphes','cercles','chiffres','dessins'],ans:0},{q:'Après avoir écrit, il faut...?',e:'✅',opts:['relire','déchirer','dormir','crier'],ans:0}],'Écris un texte de 5 lignes sur tes vacances.'),
+    ],
+    maths:[
+      L('Opérations sur les décimaux','🔢','Calculer avec virgule',`<div class="highlight">On aligne les virgules pour additionner !</div><div class="example">&nbsp;12,50<br>+ 3,25<br>= 15,75</div>`,[{q:'2,5 + 1,5 = ?',e:'➕',opts:['3','4','3,10','40'],ans:1},{q:'10,5 − 0,5 = ?',e:'➖',opts:['10','9','11','5'],ans:0}],'Calcule 6,75 + 2,25.'),
+      L('Pourcentages','💯','Pour cent',`<div class="highlight">50 % = la moitié · 25 % = un quart · 100 % = le tout.</div><div class="example">50 % de 200 = 100<br>25 % de 80 = 20</div>`,[{q:'50 % de 100 = ?',e:'💯',opts:['25','50','100','10'],ans:1},{q:'100 % d\'une chose, c\'est...?',e:'🔢',opts:['rien','la moitié','le tout','le double'],ans:2}],'Calcule 50 % de 60.'),
+      L('Aire des figures','⬛','Surface',`<div class="highlight">Aire d'un rectangle = longueur × largeur.</div><div class="example">Rectangle 5 × 3 = 15 cm²<br>Carré 4 × 4 = 16 cm²</div>`,[{q:'Aire d\'un rectangle 6 × 2 ?',e:'⬛',opts:['8','12','16','62'],ans:1},{q:'L\'aire se mesure en...?',e:'📐',opts:['cm','cm²','litres','kg'],ans:1}],'Calcule l\'aire de ta table (L × l).'),
+      L('La symétrie','🪞','Effet miroir',`<div class="highlight">Une figure symétrique se reflète comme dans un miroir ! 🪞</div><div class="example">🦋 Un papillon est symétrique<br>❤️ Un cœur aussi</div>`,[{q:'Une figure symétrique a un effet...?',e:'🪞',opts:['miroir','sonore','coloré','rapide'],ans:0},{q:'Lequel est symétrique ?',e:'🦋',opts:['Le papillon','Une tache','Un gribouillis','Rien'],ans:0}],'Dessine la moitié d\'un papillon, complète l\'autre.'),
+      L('Vitesse et durée','⏱️','Temps et distance',`<div class="highlight">On peut calculer une durée entre deux heures. ⏱️</div><div class="example">De 8h à 10h = 2 heures<br>1 h = 60 min</div>`,[{q:'De 9h à 11h, ça fait...?',e:'⏱️',opts:['1 h','2 h','3 h','20 min'],ans:1},{q:'1 h = combien de minutes ?',e:'⏰',opts:['30','60','100','24'],ans:1}],'Calcule combien de temps tu dors la nuit.'),
+    ],
+    monde:[
+      L('Les volcans et séismes','🌋','La Terre bouge',`<div class="highlight">La Terre est vivante : volcans et tremblements ! 🌋</div><div class="example">🌋 Volcan = montagne qui crache de la lave<br>🌍 Séisme = la terre tremble</div>`,[{q:'Un volcan crache de la...?',e:'🌋',opts:['eau','lave','neige','farine'],ans:1},{q:'Un séisme, c\'est la terre qui...?',e:'🌍',opts:['tremble','brille','chante','dort'],ans:0}],'Cherche une image de volcan.'),
+      L('Le développement durable','♻️','Protéger la planète',`<div class="highlight">Protégeons la Terre pour demain ! ♻️</div><div class="example">♻️ Recycler<br>💧 Économiser l'eau<br>🌳 Planter des arbres<br>🔌 Éteindre les lumières</div>`,[{q:'Recycler, c\'est...?',e:'♻️',opts:['jeter partout','réutiliser','brûler','cacher'],ans:1},{q:'Pour la planète, on plante des...?',e:'🌳',opts:['déchets','arbres','plastiques','pierres'],ans:1}],'Trouve 3 façons d\'économiser l\'eau.'),
+      L('Géographie de l\'Afrique','🌍','Notre continent',`<div class="highlight">L'Afrique est un grand continent de 54 pays ! 🌍</div><div class="example">🏜️ Désert du Sahara (nord)<br>🌳 Forêts (centre, Gabon)<br>🦁 Savanes</div>`,[{q:'Combien de pays en Afrique ?',e:'🌍',opts:['10','27','54','100'],ans:2},{q:'Le grand désert africain ?',e:'🏜️',opts:['Sahara','Kalahari','Gobi','Atacama'],ans:0}],'Cite 3 pays voisins du Gabon.'),
+    ],
+    arts:[
+      L('Les grands peintres','🖼️','L\'art dans le monde',`<div class="highlight">Des artistes célèbres ont marqué l'histoire ! 🖼️</div><div class="example">🎨 On observe les couleurs, les formes, les émotions d'un tableau.</div>`,[{q:'Une œuvre peinte s\'appelle un...?',e:'🖼️',opts:['tableau','livre','disque','film'],ans:0},{q:'Dans un tableau, on regarde les...?',e:'🎨',opts:['couleurs et formes','prix','sons','odeurs'],ans:0}],'Décris un tableau qui te plaît.'),
+      L('Créer une chanson','🎤','Paroles et rythme',`<div class="highlight">Une chanson = des paroles + un rythme + une mélodie ! 🎶</div><div class="example">✍️ Écris des rimes<br>🥁 Trouve un rythme<br>🎵 Chante-les</div>`,[{q:'Une chanson a des...?',e:'🎤',opts:['paroles','clous','pierres','chiffres'],ans:0},{q:'Des mots qui finissent pareil sont des...?',e:'🎵',opts:['rimes','angles','organes','nombres'],ans:0}],'Invente 2 vers qui riment.'),
+    ],
+    oral:[
+      L('Le discours','🎙️','Convaincre',`<div class="highlight">Un bon orateur parle clairement et regarde son public. 🎙️</div><div class="example">👀 Regarde les gens<br>🗣️ Parle fort et lentement<br>💪 Sois confiant</div>`,[{q:'Un bon orateur regarde...?',e:'👀',opts:['par terre','son public','le mur','ses pieds'],ans:1},{q:'Il faut parler...?',e:'🗣️',opts:['très vite','clairement','tout bas','en chantant'],ans:1}],'Fais un petit discours de 1 minute.'),
+      L('Anglais : la conversation','🇬🇧','How are you ?',`<div class="highlight">Une vraie conversation en anglais ! 🇬🇧</div><div class="example">❓ How are you? = Comment vas-tu ?<br>😊 I'm fine = Je vais bien<br>🙏 Please = S'il te plaît</div>`,[{q:'"How are you?" veut dire...?',e:'❓',opts:['Quel âge ?','Comment vas-tu ?','Où es-tu ?','Quoi ?'],ans:1},{q:'"I\'m fine" veut dire...?',e:'😊',opts:['Je vais bien','J\'ai faim','Au revoir','Merci'],ans:0}],'Demande "How are you?" à quelqu\'un.'),
+    ],
+    contes:[
+      L('Le mythe et la légende','📜','Récits anciens',`<div class="highlight">Mythes et légendes expliquent le monde et transmettent la sagesse. 📜</div><div class="example">🌟 Les légendes gabonaises racontent l'origine des fleuves, des animaux, des peuples.</div><div class="highlight">💡 Les histoires gardent la mémoire d'un peuple.</div>`,[{q:'Les légendes transmettent...?',e:'📜',opts:['la sagesse','des bonbons','de l\'argent','rien'],ans:0},{q:'Une légende parle souvent du...?',e:'🌟',opts:['passé','prix','foot','code'],ans:0}],'Demande une légende à tes grands-parents.'),
+      L('Citoyen responsable','🗳️','Éducation civique',`<div class="highlight">Un bon citoyen respecte les lois et aide la communauté. 🗳️</div><div class="example">🤝 Respecter les autres<br>🗳️ Voter (plus tard)<br>♻️ Protéger l'environnement<br>📜 Suivre les règles</div>`,[{q:'Un bon citoyen respecte les...?',e:'📜',opts:['lois','bonbons','jeux vidéo','nuages'],ans:0},{q:'Il aide sa...?',e:'🤝',opts:['communauté','télé','console','voiture'],ans:0}],'Fais une bonne action pour ton quartier.'),
+    ],
+  },
+};
+// Construire le pilier "Quiz & Défis" pour chaque classe (QCM bonus tirés des leçons)
+function buildClassQuizzes(){
+  Object.keys(CURRICULUM).forEach(cls=>{
+    const data=CURRICULUM[cls];
+    const pick=(pid)=> (data[pid]||[]).flatMap(le=>le.quiz||[]);
+    const fr=pick('lecture'), ma=pick('maths'), mo=pick('monde');
+    const mix=[...pick('arts'),...pick('oral'),...pick('contes')];
+    const take=(arr,n)=>arr.sort(()=>Math.random()-0.5).slice(0,n);
+    data.quiz=[
+      {title:'QCM Français',emoji:'📖',desc:'Teste ton français !',isQuiz:true,questions:take([...fr],6)},
+      {title:'QCM Mathématiques',emoji:'🔢',desc:'Teste tes maths !',isQuiz:true,questions:take([...ma],6)},
+      {title:'QCM Découverte',emoji:'🌍',desc:'Sciences & monde !',isQuiz:true,questions:take([...mo],5)},
+      {title:'Grand Défi mélangé',emoji:'🏆',desc:'Toutes les matières !',isQuiz:true,questions:take([...fr,...ma,...mo,...mix],8)},
+    ].filter(q=>q.questions.length>0);
+  });
+}
+buildClassQuizzes();
+
+// ===== NAVIGATION =====
+function goTo(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');state.currentScreen=id;window.scrollTo(0,0);closeEliDialog();}
+function goToProfile(){goTo('screen-profile');}
+function tryReturningUser(){const s=loadProfile();if(s){applyProfile(s);updatePillarsScreen();goTo('screen-pillars');setTimeout(()=>eliSpeak(`Bon retour ${state.userName} ! Tu as ${state.xp} XP ! 🌟`),400);}else{showToast('Pas encore de profil — crée-en un ! 😊');goToProfile();}}
+
+// ===== PROFILE =====
+function selectClass(cls,el){state.selectedClass=cls;document.querySelectorAll('.class-card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');checkProfileForm();}
+function checkProfileForm(){const n=document.getElementById('input-name').value.trim();document.getElementById('btn-start').disabled=!(n.length>=2&&state.selectedClass);}
+function saveProfile(){const name=document.getElementById('input-name').value.trim();if(!name||!state.selectedClass)return;state.userName=name;state.userClass=state.selectedClass;state.xp=0;state.streak=1;state.progress={};state.badges=[];state.lessonsDone=0;state.weeklyXp=0;persistProfile();updatePillarsScreen();goTo('screen-pillars');setTimeout(()=>eliSpeak(`Bienvenue ${name} ! Je suis Éli ! Ensemble on va explorer plein de choses ! 🌟`),400);}
+function applyProfile(s){state.userName=s.name;state.userClass=s.classe;state.xp=s.xp||0;state.streak=s.streak||1;state.progress=s.progress||{};state.badges=s.badges||[];state.journal=s.journal||[];state.lessonsDone=s.lessonsDone||0;state.weeklyXp=s.weeklyXp||0;}
+function persistProfile(){localStorage.setItem('eli_junior_profile',JSON.stringify({name:state.userName,classe:state.userClass,xp:state.xp,streak:state.streak,progress:state.progress,badges:state.badges,journal:state.journal||[],lessonsDone:state.lessonsDone||0,weeklyXp:state.weeklyXp||0,lastVisit:new Date().toISOString()}));}
+function loadProfile(){try{const r=localStorage.getItem('eli_junior_profile');return r?JSON.parse(r):null;}catch{return null;}}
+
+// ===== PILLARS SCREEN =====
+function updatePillarsScreen(){
+  document.getElementById('greeting-name').textContent=`Bonjour ${state.userName} ! 👋`;
+  document.getElementById('greeting-message').textContent=getMotivationalMessage();
+  document.getElementById('greeting-class').textContent=state.userClass;
+  document.getElementById('badge-class-label').textContent=state.userClass;
+  document.getElementById('content-class-label').textContent=state.userClass;
+  const lv=getLevel(state.xp);
+  document.getElementById('xp-display').textContent=`✨ ${state.xp} XP`;
+  document.getElementById('level-name-label').textContent=`${lv.icon} ${lv.name}`;
+  document.getElementById('level-badge-icon').textContent=lv.icon;
+  document.getElementById('xp-bar-local').style.width=getLevelProgress(state.xp)+'%';
+  document.getElementById('xp-bar-fill').style.width=Math.min(state.xp/10,100)+'%';
+  updateProgressBars();
+  updatePillarBadges();
+  renderJournal();
+  renderPodium();
+  const mood=getEliMood();
+  const f=document.getElementById('em-face');if(f)f.textContent=mood.face;
+  const t=document.getElementById('em-title');if(t)t.textContent=mood.title;
+  const s=document.getElementById('em-sub');if(s)s.textContent=mood.sub;
+  const en=document.getElementById('em-energy');if(en)en.style.width=mood.energy+'%';
+}
+function getMotivationalMessage(){const m=['Prêt(e) pour une nouvelle aventure ?','Chaque leçon te rend plus fort(e) ! 💪','Tu es une vraie étoile ! ⭐','Apprendre, c\'est le super pouvoir ! 🦸','Quelle leçon aujourd\'hui ? 🎯','Continue, tu es incroyable ! 🌟'];return m[Math.floor(Math.random()*m.length)];}
+function updateProgressBars(){const fills=document.querySelectorAll('.pillar-progress-fill');PILLARS.forEach((p,i)=>{if(fills[i])fills[i].style.width=(state.progress[p.id]||0)+'%';});}
+function updatePillarBadges(){
+  const cls=state.userClass||'CP1';
+  PILLARS.forEach((p,i)=>{
+    const el=document.getElementById('pb-'+i);if(!el)return;
+    const lessons=(CURRICULUM[cls]||CURRICULUM.CP1)[p.id]||[];
+    const done=lessons.filter((_,j)=>(state.progress[p.id+'_'+j]||0)>=100).length;
+    if(i<7&&lessons.length>0){el.textContent=done>0?`${done}/${lessons.length} ✓`:`${lessons.length} leçon${lessons.length>1?'s':''}`;}
+  });
+}
+
+// ===== DAILY CHALLENGE =====
+function openDailyChallenge(){
+  const cls=state.userClass||'CP1';
+  const cur=CURRICULUM[cls]||CURRICULUM.CP1;
+  const quizPillar=cur.quiz;
+  const lesson=quizPillar[Math.floor(Math.random()*quizPillar.length)];
+  addXP(50);showToast('🎁 Défi du jour débloqué ! +50 XP');launchConfetti();
+  setTimeout(()=>{startQuiz(lesson,6,0);},300);
+}
+
+// ===== CONTENT SCREEN =====
+function openPillar(idx){
+  if(idx===7){openAchievements();return;}
+  state.currentPillar=idx;state.currentSubcat=null;
+  renderPillarContent();
+  goTo('screen-content');
+}
+function renderPillarContent(){
+  const idx=state.currentPillar;
+  const pillar=PILLARS[idx];const cls=state.userClass||'CP1';
+  const lessons=(CURRICULUM[cls]||CURRICULUM.CP1)[pillar.id]||[];
+  document.getElementById('content-pillar-title').textContent=pillar.name;
+  const area=document.getElementById('content-area');
+  const done=lessons.filter((_,j)=>(state.progress[pillar.id+'_'+j]||0)>=100).length;
+  area.innerHTML=`<div class="content-pillar-header" style="background:${pillar.color}"><span class="big-emoji">${pillar.emoji}</span><h2>${pillar.name}</h2><p>${pillar.desc} — Classe ${cls}</p><p style="margin-top:6px;font-size:13px;opacity:.95">📊 ${done}/${lessons.length} leçons terminées</p></div><div id="subcat-zone"></div>`;
+  const zone=document.getElementById('subcat-zone');
+  if(!lessons.length){zone.innerHTML=`<div style="text-align:center;padding:40px;color:var(--text-light)"><div style="font-size:52px">🚧</div><p style="font-weight:700;margin-top:12px">Bientôt disponible !</p></div>`;return;}
+  if(pillar.isQuiz||!SUBCATS[pillar.id]){renderLessonPath(zone,pillar,lessons,lessons.map((l,i)=>({l,i})));return;}
+  const groups=groupBySubcat(pillar.id,lessons);
+  // chips row
+  const chips=`<div class="subcat-row">${groups.map((g,gi)=>{const gdone=g.items.filter(it=>(state.progress[pillar.id+'_'+it.i]||0)>=100).length;return `<button class="subcat-chip${state.currentSubcat===gi?' active':''}" onclick="selectSubcat(${gi})"><span class="sc-emo">${g.cat.e}</span>${g.cat.n} <span style="opacity:.7;font-size:11px">${gdone}/${g.items.length}</span></button>`;}).join('')}</div>`;
+  const shown=state.currentSubcat==null?groups:[groups[state.currentSubcat]];
+  let body=chips;
+  shown.forEach(g=>{
+    body+=`<div class="subcat-title"><span>${g.cat.e}</span> ${g.cat.n} <span class="sct-line"></span></div><div class="path-wrap" data-g></div>`;
+  });
+  zone.innerHTML=body;
+  const wraps=zone.querySelectorAll('.path-wrap');
+  shown.forEach((g,k)=>renderLessonPath(wraps[k],pillar,lessons,g.items));
+}
+function selectSubcat(gi){state.currentSubcat=(state.currentSubcat===gi?null:gi);renderPillarContent();}
+function renderLessonPath(container,pillar,allLessons,items){
+  container.classList.add('path-wrap');
+  let prevDone=true;
+  items.forEach((it,k)=>{
+    const i=it.i,lesson=it.l;
+    const completed=(state.progress[pillar.id+'_'+i]||0)>=100;
+    const locked=!completed&&!prevDone&&!lesson.isQuiz;
+    const isCur=!completed&&prevDone&&!lesson.isQuiz;
+    const node=document.createElement('div');
+    node.className='path-node'+(completed?' done':'')+(locked?' locked':'');
+    const dotBg=completed?'background:linear-gradient(135deg,#2D9C3A,#3DB84A);color:white':locked?'background:#E5E7EB':'background:linear-gradient(135deg,#FFF5EB,#FFE8D0)';
+    const dotIcon=completed?'✓':locked?'🔒':lesson.emoji;
+    node.innerHTML=`<div class="path-dot${isCur?' cur':''}" style="${dotBg}">${dotIcon}</div><div class="lesson-card ripple-host${completed?' completed':''}"><div class="lesson-info"><h3>${lesson.title}</h3><p>${lesson.desc}</p><span class="lesson-xp-pill">+25 XP</span></div><div class="lesson-status">${completed?'✅':locked?'🔒':'▶️'}</div></div>`;
+    if(!locked){node.querySelector('.lesson-card').onclick=(e)=>{addRipple(e);setTimeout(()=>lesson.isQuiz?startQuiz(lesson,pillar._idx??PILLARS.indexOf(pillar),i):openLesson(lesson,PILLARS.indexOf(pillar),i),80);};}
+    container.appendChild(node);
+    prevDone=completed||lesson.isQuiz;
+  });
+}
+
+// ===== LESSON OVERLAY =====
+function openLesson(lesson,pillarIdx,lessonIdx){
+  state.currentLesson={lesson,pillarIdx,lessonIdx};
+  let quizHTML='';
+  if(lesson.quiz&&lesson.quiz.length>0){const q=lesson.quiz[0];quizHTML=`<div class="quiz-mini"><h3>🎯 Mini-quiz !</h3><p style="font-size:16px;font-weight:700;margin-bottom:14px">${q.e} ${q.q}</p><div class="quiz-options" id="mini-quiz-opts">${q.opts.map((o,i)=>`<button class="quiz-opt" onclick="checkMiniQuiz(${i},${q.ans},this)">${o}</button>`).join('')}</div><div class="quiz-feedback" id="mini-feedback"></div></div>`;}
+  const devoirHTML=lesson.devoir?`<div class="devoir-box"><div class="devoir-head"><span id="dialog-logo-devoir"></span><strong>Le devoir d'Éli</strong></div><p>📌 ${lesson.devoir}</p></div>`:'';
+  document.getElementById('lesson-panel-content').innerHTML=`<div class="fiche-tag">📄 Fiche de cours</div><span class="detail-emoji">${lesson.emoji}</span><h2>${lesson.title}</h2><div class="lesson-content-text" id="fiche-printable">${lesson.content}</div>${devoirHTML}${quizHTML}<div style="display:flex;gap:10px;margin-top:24px;flex-wrap:wrap"><button class="btn-panel ripple-host" style="flex:1;background:var(--secondary)" onclick="addRipple(event);eliReadLesson()">🔊 Éli lit</button><button class="btn-panel ripple-host" style="flex:1;background:var(--blue)" onclick="addRipple(event);printFiche()">🖨️ Ma fiche</button></div><button class="btn-panel ripple-host" style="width:100%;margin-top:10px" onclick="addRipple(event);markLessonDone(${pillarIdx},${lessonIdx})">✅ J'ai compris !</button>`;
+  const dl=document.getElementById('dialog-logo-devoir');if(dl)dl.innerHTML=eliLogo('dv',26);
+  document.getElementById('lesson-overlay').classList.add('visible');
+}
+function printFiche(){
+  const l=state.currentLesson?.lesson;if(!l)return;
+  const w=window.open('','_blank');
+  if(!w){showToast('Autorise les fenêtres pour imprimer 🖨️');return;}
+  w.document.write(`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Fiche — ${l.title}</title><style>body{font-family:Georgia,serif;color:#2D3436;max-width:680px;margin:30px auto;padding:0 24px;line-height:1.7}.hd{text-align:center;border-bottom:3px solid #FF6B35;padding-bottom:14px;margin-bottom:20px}.hd h1{color:#FF6B35;font-size:26px}.hd .sub{color:#888;font-size:13px;margin-top:4px}.highlight{background:#FFF5EB;border-left:4px solid #FF6B35;border-radius:8px;padding:12px 16px;margin:12px 0}.example{background:#F0FFF4;border-radius:8px;padding:10px 14px;margin:8px 0}.dv{background:#F5F3FF;border-left:4px solid #7C3AED;border-radius:8px;padding:12px 16px;margin:18px 0}.ft{margin-top:30px;text-align:center;color:#aaa;font-size:12px;border-top:1px solid #eee;padding-top:12px}</style></head><body><div class="hd"><h1>${l.emoji} ${l.title}</h1><div class="sub">Éli Junior — Classe ${state.userClass||'CP1'} · Fiche de ${state.userName||'l\'élève'}</div></div>${l.content}${l.devoir?`<div class="dv"><strong>📌 Devoir d'Éli :</strong> ${l.devoir}</div>`:''}<div class="ft">🌿 Éli Junior — Apprendre, c'est une aventure ! 🇬🇦</div></body></html>`);
+  w.document.close();setTimeout(()=>w.print(),400);
+  showToast('📄 Ta fiche est prête !');
+}
+function closeLessonIfClickedOutside(e){if(e.target===document.getElementById('lesson-overlay'))closeLesson();}
+function closeLesson(){document.getElementById('lesson-overlay').classList.remove('visible');}
+function checkMiniQuiz(selected,correct,btn){
+  document.querySelectorAll('#mini-quiz-opts .quiz-opt').forEach((o,i)=>{o.disabled=true;if(i===correct)o.classList.add('correct');else if(i===selected&&selected!==correct)o.classList.add('wrong');});
+  const fb=document.getElementById('mini-feedback');fb.className='quiz-feedback show '+(selected===correct?'good':'bad');fb.textContent=selected===correct?'🎉 Bravo ! Bonne réponse !':'😅 Pas tout à fait... La bonne réponse est en vert !';
+  if(selected===correct){addXP(10);showXpPopup(10);eliSpeak('Excellent ! Tu es brillant(e) ! 🌟');}
+}
+function markLessonDone(pillarIdx,lessonIdx){
+  const key=PILLARS[pillarIdx].id+'_'+lessonIdx;const already=state.progress[key]>=100;state.progress[key]=100;
+  const cls=state.userClass||'CP1';const lessons=(CURRICULUM[cls]||CURRICULUM.CP1)[PILLARS[pillarIdx].id]||[];
+  let done=0;lessons.forEach((_,i)=>{if(state.progress[PILLARS[pillarIdx].id+'_'+i]>=100)done++;});
+  state.progress[PILLARS[pillarIdx].id]=lessons.length>0?Math.round((done/lessons.length)*100):0;
+  addXP(25);showXpPopup(25);playSound('done');
+  logJournal('📖',`Leçon « ${lessons[lessonIdx]?.title||''} » terminée`);
+  if(!already)state.lessonsDone=(state.lessonsDone||0)+1;
+  persistProfile();closeLesson();
+  if(state.currentScreen==='screen-content')renderPillarContent();
+  updateProgressBars();updatePillarBadges();
+  showToast('🌟 Leçon terminée ! +25 XP');launchConfetti();checkBadges();
+  if(!already&&state.lessonsDone%3===0)setTimeout(()=>showChest(),700);
+}
+// ===== JOURNAL DE BORD =====
+function logJournal(icon,text){
+  state.journal=state.journal||[];
+  state.journal.unshift({icon,text,date:new Date().toISOString()});
+  state.journal=state.journal.slice(0,20);
+  persistProfile();renderJournal();
+}
+function renderJournal(){
+  const wrap=document.getElementById('journal-list');if(!wrap)return;
+  const j=state.journal||[];
+  if(!j.length){wrap.innerHTML=`<p style="font-size:12px;color:var(--text-light);font-weight:600;text-align:center;padding:8px">Tes activités apparaîtront ici ! 🌟</p>`;return;}
+  wrap.innerHTML=j.slice(0,5).map(e=>{const d=new Date(e.date);const h=d.getHours().toString().padStart(2,'0')+'h'+d.getMinutes().toString().padStart(2,'0');return `<div class="journal-item"><span class="ji-icon">${e.icon}</span><span class="ji-text">${e.text}</span><span class="ji-time">${h}</span></div>`;}).join('');
+}
+function eliReadLesson(){const l=state.currentLesson?.lesson;if(!l)return;eliSpeak(l.title+'. '+l.content.replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim());}
+
+// ===== QUIZ =====
+function startQuiz(lesson,pillarIdx,lessonIdx){state.quizQuestions=lesson.questions||[];state.quizIndex=0;state.quizScore=0;state.hearts=3;state.combo=0;state.maxCombo=0;state.currentPillar=pillarIdx;document.getElementById('quiz-title').textContent=lesson.title;renderQuizQuestion();goTo('screen-quiz');}
+function heartsHTML(){return `<div class="hearts">${[0,1,2].map(i=>`<span class="heart${i>=state.hearts?' lost':''}">❤️</span>`).join('')}</div>`;}
+function renderQuizQuestion(){
+  const content=document.getElementById('quiz-content');
+  if(state.hearts<=0){showQuizFail();return;}
+  if(state.quizIndex>=state.quizQuestions.length){showQuizResult();return;}
+  const q=state.quizQuestions[state.quizIndex];const total=state.quizQuestions.length;
+  const dots=Array.from({length:total},(_,i)=>`<div class="quiz-dot ${i<state.quizIndex?'done':i===state.quizIndex?'current':''}"></div>`).join('');
+  content.innerHTML=`<div class="quiz-topbar">${heartsHTML()}<div class="combo-pill${state.combo>=2?' show':''}" id="combo-pill">🔥 Combo ×${state.combo}</div></div><div class="quiz-progress-wrap"><div class="quiz-progress">${dots}</div><div class="quiz-counter">${state.quizIndex+1} / ${total}</div></div><div class="quiz-question-card"><div class="q-num">Question ${state.quizIndex+1}</div><span class="q-emoji">${q.e}</span><div class="q-text">${q.q}</div></div><div class="quiz-answers">${q.opts.map((o,i)=>`<button class="quiz-answer-btn ripple-host" onclick="addRipple(event);answerQuiz(${i},${q.ans},this)"><span class="answer-badge">${'ABCD'[i]}</span>${o}</button>`).join('')}</div>`;
+}
+function answerQuiz(selected,correct,btn){
+  document.querySelectorAll('.quiz-answer-btn').forEach((b,i)=>{b.disabled=true;if(i===correct)b.classList.add('selected-correct');else if(i===selected&&selected!==correct)b.classList.add('selected-wrong');});
+  if(selected===correct){
+    playSound('good');
+    state.quizScore++;state.combo++;state.maxCombo=Math.max(state.maxCombo,state.combo);
+    const bonus=state.combo>=2?5*(state.combo-1):0;const gain=15+bonus;
+    addXP(gain);showXpPopup(gain);
+    const cp=document.getElementById('combo-pill');if(cp){cp.textContent=`🔥 Combo ×${state.combo}`;if(state.combo>=2){cp.classList.add('show','bump');setTimeout(()=>cp.classList.remove('bump'),420);}}
+    if(state.combo===3)showToast('🔥 En feu ! Combo ×3 !');
+  }else{
+    playSound('bad');
+    state.combo=0;state.hearts--;
+    const hs=document.querySelectorAll('.heart');if(hs[state.hearts])hs[state.hearts].classList.add('lost');
+    const cp=document.getElementById('combo-pill');if(cp)cp.classList.remove('show');
+    if(state.hearts<=0){setTimeout(showQuizFail,900);return;}
+  }
+  setTimeout(()=>{state.quizIndex++;renderQuizQuestion();},1100);
+}
+function showQuizFail(){
+  document.getElementById('quiz-content').innerHTML=`<div class="quiz-result-screen"><span class="result-emoji">💔</span><h2>Plus de cœurs !</h2><p>Ce n'est pas grave, on réessaie !</p><div class="score-circle" style="background:linear-gradient(135deg,#EF4444,#F87171)"><div class="score-num">${state.quizScore}</div><div class="score-label">bonnes réponses</div></div><button class="btn-primary ripple-host" style="width:100%" onclick="addRipple(event);startQuiz({questions:state.quizQuestions,title:document.getElementById('quiz-title').textContent},state.currentPillar,0)">🔄 Réessayer</button><button class="btn-secondary" style="width:100%;margin-top:10px" onclick="goTo('screen-content')">← Retour</button></div>`;
+  eliSpeak('Tu as perdu tes cœurs, mais ce n\'est rien ! Respire et réessaie, tu vas y arriver ! 💪');
+}
+function showQuizResult(){
+  const total=state.quizQuestions.length,score=state.quizScore,pct=Math.round((score/total)*100);
+  let emoji='😅',msg='Continue d\'essayer !',stars='⭐';
+  if(pct>=80){emoji='🎉';msg='Excellent ! Tu es un champion !';stars='⭐⭐⭐';launchConfetti();}
+  else if(pct>=60){emoji='😊';msg='Bien joué ! Tu progresses !';stars='⭐⭐';}
+  const comboLine=state.maxCombo>=2?`<p style="color:var(--primary);font-weight:800;margin-top:6px">🔥 Meilleur combo : ×${state.maxCombo}</p>`:'';
+  document.getElementById('quiz-content').innerHTML=`<div class="quiz-result-screen"><span class="result-emoji">${emoji}</span><h2>${msg}</h2><p>${score} / ${total} bonnes réponses</p>${comboLine}<div class="stars-row">${stars}</div><div class="score-circle"><div class="score-num">${pct}%</div><div class="score-label">Score</div></div><button class="btn-primary ripple-host" style="width:100%" onclick="addRipple(event);renderPillarContent();goTo('screen-content')">← Retour aux leçons</button><button class="btn-secondary" style="width:100%;margin-top:10px" onclick="goTo('screen-pillars')">🏠 Menu principal</button></div>`;
+  eliSpeak(`${msg} Tu as eu ${score} sur ${total} ! ${pct>=80?'Je suis très fier de toi !':'Révise encore et tu vas y arriver !'}`);
+  logJournal('🎯',`Quiz terminé : ${score}/${total} (${pct}%)`);
+  checkBadges();
+}
+
+// ===== ACHIEVEMENTS =====
+function openAchievements(){
+  const allBadges=[
+    {id:'first_lesson',icon:'📖',name:'Première leçon',cond:()=>Object.keys(state.progress).filter(k=>!PILLARS.map(p=>p.id).includes(k)).length>0},
+    {id:'quiz_master',icon:'🎯',name:'Quiz Master',cond:()=>state.quizScore>=5},
+    {id:'xp_50',icon:'⭐',name:'50 XP gagnés',cond:()=>state.xp>=50},
+    {id:'xp_100',icon:'🌟',name:'100 XP gagnés',cond:()=>state.xp>=100},
+    {id:'gabon_explorer',icon:'🇬🇦',name:'Explorateur du Gabon',cond:()=>(state.progress['monde']||0)>0},
+    {id:'math_hero',icon:'🔢',name:'Héros des Maths',cond:()=>(state.progress['maths']||0)>=50},
+    {id:'storyteller',icon:'📚',name:'Conteur d\'histoires',cond:()=>(state.progress['contes']||0)>0},
+    {id:'reader',icon:'📗',name:'Petit lecteur',cond:()=>(state.progress['lecture']||0)>=50},
+    {id:'streak_3',icon:'🔥',name:'3 jours de suite',cond:()=>state.streak>=3},
+    {id:'perfect_quiz',icon:'💯',name:'Quiz parfait',cond:()=>state.quizScore>=5&&state.quizIndex>=5},
+    {id:'arts_lover',icon:'🎨',name:'Artiste en herbe',cond:()=>(state.progress['arts']||0)>0},
+    {id:'speaker',icon:'🗣️',name:'Bon orateur',cond:()=>(state.progress['oral']||0)>0},
+  ];
+  const earned=allBadges.filter(b=>b.cond()||state.badges.includes(b.id));
+  const earnedIds=earned.map(b=>b.id);
+  const lv=getLevel(state.xp);
+  document.getElementById('achievements-content').innerHTML=`
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-size:64px">🏆</div>
+      <h2 style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;margin-top:10px">Mes Réussites</h2>
+      <p style="color:var(--text-light);font-weight:600;margin-top:4px">${earned.length} badge${earned.length!==1?'s':''} obtenus sur ${allBadges.length}</p>
+      <div style="background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:18px;padding:20px;margin:18px 0;color:white;box-shadow:var(--shadow)">
+        <div style="font-family:'Fraunces',serif;font-size:38px;font-weight:900">${state.xp} XP</div>
+        <div style="font-size:13px;opacity:.92;margin-top:4px">${lv.icon} Niveau : ${lv.name}</div>
+        <div style="height:8px;background:rgba(255,255,255,.3);border-radius:4px;margin-top:10px;overflow:hidden"><div style="height:100%;background:white;border-radius:4px;width:${getLevelProgress(state.xp)}%;transition:width .9s ease"></div></div>
+      </div>
+    </div>
+    <div class="badge-grid">
+      ${allBadges.map(b=>`<div class="badge-item ${earnedIds.includes(b.id)?'earned':'locked'}"><div class="badge-icon">${b.icon}</div><div class="badge-name">${b.name}</div>${earnedIds.includes(b.id)?'<div style="font-size:10px;color:var(--secondary);font-weight:700;margin-top:4px">✓ Obtenu !</div>':''}</div>`).join('')}
+    </div>`;
+  state.badges=earnedIds;persistProfile();goTo('screen-achievements');
+}
+function checkBadges(){persistProfile();}
+
+// ===== XP =====
+function addXP(amount){
+  const prev=getLevel(state.xp);
+  state.xp+=amount;state.weeklyXp=(state.weeklyXp||0)+amount;
+  const xpEl=document.getElementById('xp-display');if(xpEl)xpEl.textContent=`✨ ${state.xp} XP`;
+  const barL=document.getElementById('xp-bar-local');if(barL)barL.style.width=getLevelProgress(state.xp)+'%';
+  const barG=document.getElementById('xp-bar-fill');if(barG)barG.style.width=Math.min(state.xp/10,100)+'%';
+  const curr=getLevel(state.xp);
+  if(curr.name!==prev.name){showToast(`${curr.icon} Niveau atteint : ${curr.name} !`);launchConfetti();}
+  const lnEl=document.getElementById('level-name-label');if(lnEl)lnEl.textContent=`${curr.icon} ${curr.name}`;
+  const lbEl=document.getElementById('level-badge-icon');if(lbEl)lbEl.textContent=curr.icon;
+  persistProfile();
+}
+
+function showXpPopup(amount){
+  const popup=document.createElement('div');popup.className='xp-popup';popup.textContent=`+${amount} XP !`;popup.style.cssText=`left:${40+Math.random()*200}px;top:${window.innerHeight/2}px;`;document.body.appendChild(popup);popup.addEventListener('animationend',()=>popup.remove());
+}
+
+// ===== ELI ASSISTANT =====
+function eliSpeak(text){
+  const el=document.getElementById('eli-text');
+  if(el){el.textContent='';typeText(el,text,0);}
+  if('speechSynthesis' in window){window.speechSynthesis.cancel();const utt=new SpeechSynthesisUtterance(text);utt.lang='fr-FR';utt.rate=.88;utt.pitch=1.08;const v=window.speechSynthesis.getVoices().find(v=>v.lang.startsWith('fr'));if(v)utt.voice=v;window.speechSynthesis.speak(utt);}
+}
+function typeText(el,text,i){
+  const cursor=document.getElementById('eli-typing');if(cursor)cursor.style.display='inline-block';
+  if(i<text.length){el.textContent+=text[i];setTimeout(()=>typeText(el,text,i+1),18);}
+  else{if(cursor)cursor.style.display='none';}
+}
+function toggleEliDialog(){const d=document.getElementById('eli-dialog');if(d.classList.contains('visible'))closeEliDialog();else{d.classList.add('visible');eliSpeak(getEliContext());}}
+function closeEliDialog(){document.getElementById('eli-dialog').classList.remove('visible');window.speechSynthesis&&window.speechSynthesis.cancel();}
+function getEliContext(){const n=state.userName||'ami',s=state.currentScreen;if(s==='screen-welcome')return `Bonjour ! Je suis Éli 🌿, ton ami ! Clique sur "Commencer" pour t'inscrire !`;if(s==='screen-profile')return `Dis-moi ton prénom et ta classe ! Je vais te préparer un parcours spécialement pour toi ! 🌟`;if(s==='screen-pillars')return `Bonjour ${n} ! Tu as ${state.xp} points d'XP ! Choisis un pilier ! 🎯`;if(s==='screen-content')return `Tu explores ${PILLARS[state.currentPillar]?.name} ! Clique sur une leçon pour commencer ! 📖`;if(s==='screen-quiz')return `Concentre-toi ${n} ! Tu peux le faire ! 🎯`;return `Je suis Éli, ton ami ! Comment puis-je t'aider ? 😊`;}
+function sendToEli(){const input=document.getElementById('eli-input'),text=input.value.trim();if(!text)return;input.value='';const r=getEliResponse(text.toLowerCase());eliSpeak(r);}
+function eliQuickReply(text){eliSpeak(getEliResponse(text.toLowerCase()));}
+function getEliResponse(text){if(text.includes('comprends pas'))return 'Pas de panique ! Relis doucement. Tu peux appuyer sur "Éli lit pour moi" ! 📖';if(text.includes('lis')||text.includes('lire')){if(state.currentLesson)eliReadLesson();return 'Je vais lire pour toi ! 👂';}if(text.includes('bravo')||text.includes('merci'))return 'Merci à toi ! Tu es une vraie étoile 🌟';if(text.includes('fatigué')||text.includes('difficile'))return 'Prends une pause, bois de l\'eau 💧, et reviens !';if(text.includes('gabon'))return 'Le Gabon 🇬🇦 est un pays magnifique avec des forêts et des éléphants !';return `Super question ${state.userName||'ami'} ! Explore les leçons pour trouver ! 🌟`;}
+
+// ===== COFFRE MYSTÈRE =====
+function showChest(){
+  const m=document.getElementById('chest-modal');
+  document.getElementById('chest-emoji').textContent='🎁';
+  document.getElementById('chest-emoji').style.pointerEvents='auto';
+  document.getElementById('chest-title').textContent='Coffre mystère !';
+  document.getElementById('chest-msg').textContent=`Bravo ${state.userName||''} ! Tu as terminé ${state.lessonsDone} leçons. Touche le coffre ! 🎉`;
+  m.classList.add('visible');playSound('chest');
+}
+function openChest(){
+  const rewards=[20,30,40,50];const r=rewards[Math.floor(Math.random()*rewards.length)];
+  addXP(r);showXpPopup(r);launchConfetti();playSound('good');
+  document.getElementById('chest-emoji').textContent='✨';
+  document.getElementById('chest-emoji').style.pointerEvents='none';
+  document.getElementById('chest-title').textContent=`+${r} XP !`;
+  document.getElementById('chest-msg').textContent='Quelle belle récompense ! Continue comme ça ! 🌟';
+  logJournal('🎁',`Coffre mystère ouvert : +${r} XP`);
+}
+function closeChest(){document.getElementById('chest-modal').classList.remove('visible');}
+
+// ===== SONS (Web Audio API) =====
+let audioCtx=null;
+function playSound(type){
+  try{
+    audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+    const seq=type==='good'?[[660,0],[880,.09]]:type==='bad'?[[200,0],[150,.12]]:type==='done'?[[523,0],[659,.1],[784,.2]]:type==='chest'?[[440,0],[554,.1],[659,.2],[880,.3]]:[[440,0]];
+    seq.forEach(([f,t])=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type==='bad'?'sawtooth':'sine';o.frequency.value=f;o.connect(g);g.connect(audioCtx.destination);const st=audioCtx.currentTime+t;g.gain.setValueAtTime(.0001,st);g.gain.exponentialRampToValueAtTime(.18,st+.02);g.gain.exponentialRampToValueAtTime(.0001,st+.18);o.start(st);o.stop(st+.2);});
+  }catch(e){}
+}
+
+// ===== ÉLI MOOD =====
+function getEliMood(){
+  const last=state.lastVisitTs?new Date(state.lastVisitTs):null;
+  const energy=Math.min(100,30+(state.weeklyXp||0)/5);
+  let face='😊',title='Éli est content !',sub='Continue à apprendre avec moi !';
+  if((state.weeklyXp||0)>=150){face='🤩';title='Éli est super fier !';sub='Tu travailles comme un champion !';}
+  else if((state.weeklyXp||0)>=50){face='😄';title='Éli est joyeux !';sub='On progresse super bien ensemble !';}
+  else if((state.weeklyXp||0)===0){face='🥺';title='Éli t\'attendait...';sub='Fais une leçon pour me rendre heureux !';}
+  return {face,title,sub,energy};
+}
+
+// ===== CLASSEMENT (podium local) =====
+function renderPodium(){
+  const wrap=document.getElementById('podium-list');if(!wrap)return;
+  const me={name:(state.userName||'Toi')+' (toi)',xp:state.weeklyXp||0,me:true};
+  const bots=[{name:'Aïsha',xp:120},{name:'Kalvin',xp:95},{name:'Naomie',xp:70},{name:'Ethan',xp:45}];
+  const all=[...bots,me].sort((a,b)=>b.xp-a.xp);
+  wrap.innerHTML=all.map((p,i)=>`<div class="rank-row r${i+1}${p.me?' me':''}"><div class="rank-pos">${i+1}</div><div class="rank-name">${p.name}</div><div class="rank-xp">✨ ${p.xp}</div></div>`).join('');
+}
+
+// ===== TOAST =====
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+
+// ===== CONFETTI =====
+function launchConfetti(){const c=document.getElementById('confetti-container');const colors=['#FF6B35','#FFD700','#2D9C3A','#7C3AED','#EC4899','#3B82F6','#F59E0B'];for(let i=0;i<70;i++){const p=document.createElement('div');p.className='confetti-piece';const sz=6+Math.random()*9;p.style.cssText=`left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};width:${sz}px;height:${sz}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.8}s;`;c.appendChild(p);p.addEventListener('animationend',()=>p.remove());}}
+
+// ===== STREAK MODAL =====
+function closeStreakModal(){document.getElementById('streak-modal').classList.remove('visible');}
+function showStreakModal(streak){const m=document.getElementById('streak-modal');document.getElementById('streak-modal-title').textContent=streak>1?`${streak} jours de suite !`:'Bon retour !';document.getElementById('streak-modal-msg').textContent=streak>1?`Tu es incroyable ! Continue comme ça ! 🔥`:'Ta série reprend aujourd\'hui !';document.getElementById('streak-modal-num').textContent=`🔥 × ${streak}`;m.classList.add('visible');}
+
+// ===== INIT =====
+window.addEventListener('load',()=>{
+  injectLogos();
+  buildStars();
+
+  const saved=loadProfile();
+  let showStreak=false;let streakVal=1;
+  if(saved){
+    const last=new Date(saved.lastVisit||0),now=new Date();
+    const diff=Math.floor((now-last)/(1000*60*60*24));
+    if(diff===1){saved.streak=(saved.streak||1)+1;showStreak=true;}
+    else if(diff>1){saved.streak=1;}
+    streakVal=saved.streak||1;
+    localStorage.setItem('eli_junior_profile',JSON.stringify({...saved,lastVisit:now.toISOString()}));
+    applyProfile(saved);
+  }
+
+  setTimeout(()=>{
+    const ls=document.getElementById('loading-screen');
+    if(ls){ls.style.opacity='0';setTimeout(()=>ls.remove(),400);}
+    if(showStreak&&streakVal>1)setTimeout(()=>showStreakModal(streakVal),600);
+  },1400);
+
+  window.speechSynthesis&&window.speechSynthesis.getVoices();
+});
+if(window.speechSynthesis)window.speechSynthesis.addEventListener('voiceschanged',()=>window.speechSynthesis.getVoices());
+</script>
+</body>
+</html>
