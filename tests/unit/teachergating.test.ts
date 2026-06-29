@@ -24,9 +24,9 @@ describe('T3 — Gating enseignant (2 essais puis premium)', () => {
     expect(teacherAccessDecision(['teacher'], { trial_count: 0 }, NOW)).toMatchObject({ allow: true, reason: 'trial', consumeTrial: true });
     expect(teacherAccessDecision(['teacher'], { trial_count: 1 }, NOW)).toMatchObject({ allow: true, reason: 'trial', consumeTrial: true });
   });
-  it('au-delà de 2 essais : paywall', () => {
+  it('au-delà des essais gratuits : paywall', () => {
     const d = teacherAccessDecision(['teacher'], { trial_count: TEACHER_TRIAL_MAX }, NOW);
-    expect(d).toEqual({ allow: false, reason: 'paywall', trialsUsed: 2 });
+    expect(d).toEqual({ allow: false, reason: 'paywall', trialsUsed: TEACHER_TRIAL_MAX });
   });
   it('profil de facturation absent : traité comme 0 essai utilisé', () => {
     expect(teacherAccessDecision(['teacher'], null, NOW)).toMatchObject({ allow: true, reason: 'trial' });

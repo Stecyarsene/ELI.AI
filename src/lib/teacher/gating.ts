@@ -1,6 +1,6 @@
 import type { Role } from '@/lib/access';
 
-export const TEACHER_TRIAL_MAX = 2;
+export const TEACHER_TRIAL_MAX = 3;
 
 export interface TeacherBilling {
   is_paid?: boolean | null;
@@ -16,7 +16,7 @@ export type TeacherDecision =
  * Décide si un enseignant peut générer du matériel (T3 §d).
  *  - super_admin / school_admin (staff non-enseignant) : accès libre (supervision).
  *  - abonnement actif (is_paid + paid_until non dépassé) : accès libre.
- *  - sinon : 2 essais gratuits (trial_count) — chaque essai en consomme un.
+ *  - sinon : 3 essais gratuits (trial_count) — chaque essai en consomme un.
  *  - au-delà : paywall.
  */
 export function teacherAccessDecision(roles: readonly Role[], billing: TeacherBilling | null, now: Date = new Date()): TeacherDecision {

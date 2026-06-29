@@ -3,7 +3,7 @@ import { checkLimit } from '@/lib/ratelimit';
 
 export const runtime = 'nodejs';
 
-/** Essai GRATUIT visiteur (non connecté) : réponse Éli adaptée au pilier/matière, voix-d'abord.
+/** Essai de découverte visiteur (non connecté) : réponse Éli adaptée au pilier/matière, voix-d'abord.
  *  Le comptage des essais (2 max) est géré côté client ; ici on sécurise et on limite la longueur.
  *  Aucune donnée personnelle, aucun accès base : porte d'entrée pour découvrir Éli avant inscription. */
 export async function POST(req: Request) {
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   const rl = await checkLimit('ai', `trial:${ip}`, { failClosed: true });
   if (!rl.ok) {
     return Response.json(
-      { error: 'rate_limited', detail: 'Tu as atteint la limite d\'essais gratuits. Inscris-toi pour continuer avec Éli 🌱', retryAfter: rl.retryAfter ?? 30 },
+      { error: 'rate_limited', detail: 'Tu as atteint la limite d\'essais de découverte. Passe à Éli Premium pour continuer 🌱', retryAfter: rl.retryAfter ?? 30 },
       { status: 429, headers: { 'retry-after': String(rl.retryAfter ?? 30) } },
     );
   }
@@ -33,11 +33,11 @@ export async function POST(req: Request) {
   const system = [
     "Tu es Éli, professeur particulier chaleureux et encourageant pour des élèves du programme " + program + ".",
     subject,
-    "C'est un ESSAI GRATUIT de découverte : réponds de façon utile, vivante et pédagogique, en français, adaptée à un élève.",
+    "C'est un essai de découverte : réponds de façon utile, vivante et pédagogique, en français, adaptée à un élève.",
     "Méthode socratique douce : tu peux donner un vrai début d'explication ET poser une question pour faire réfléchir.",
     "Reste bref (réponse de découverte). Ne réponds jamais « je ne sais pas » à une question de cours : utilise tes connaissances.",
     "FORMAT VOIX-D'ABORD : commence TOUJOURS par une courte réplique orale entre balises [VOIX]...[/VOIX] (1 à 2 phrases, ton parlé),",
-    "puis donne le développement écrit en dessous. À la fin, invite gentiment l'élève à s'inscrire pour continuer avec toi. 🌱",
+    "puis donne le développement écrit en dessous. À la fin, invite gentiment l'élève à créer son compte puis à passer en Premium pour continuer avec toi. 🌱",
   ].filter(Boolean).join('\n');
 
   const upstream = await fetch(
