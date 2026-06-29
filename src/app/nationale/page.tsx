@@ -1,15 +1,7 @@
-import RememberProgram from '@/components/RememberProgram';
+import { redirect } from 'next/navigation';
 
-/** Programme National (Gabon) — maquette « Sanctuaire Vivant » servie en plein écran. */
+/** Programme National — on dirige vers le nouvel espace élève (dashboard React + chat Éli).
+ *  L'ancienne maquette « Sanctuaire » (nationale.html) est retirée. AEFE est supprimé. */
 export default function Nationale() {
-  return (
-    <>
-      <iframe
-        src="/maquettes/nationale.html"
-        title="Éli — Programme National"
-        style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', border: 'none' }}
-      />
-      <RememberProgram program="national" />
-    </>
-  );
+  redirect('/national/dashboard');
 }

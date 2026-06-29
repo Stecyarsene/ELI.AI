@@ -4,7 +4,7 @@ import type { Program } from '@/types/db';
 export const PROG_KEY = 'eli:prog';
 
 export function normalizeProgram(v: unknown): Program | null {
-  return v === 'national' || v === 'aefe' ? v : null;
+  return v === 'national' ? v : null; // AEFE supprimé : on ne reconnaît plus que le national
 }
 
 export function rememberProgram(p: Program): void {
@@ -19,6 +19,6 @@ export function forgetProgram(): void {
   try { localStorage.removeItem(PROG_KEY); } catch { /* noop */ }
 }
 
-export function pathForProgram(p: Program): string {
-  return p === 'aefe' ? '/aefe' : '/nationale';
+export function pathForProgram(_p: Program): string {
+  return '/nationale'; // national uniquement (redirige vers le dashboard)
 }

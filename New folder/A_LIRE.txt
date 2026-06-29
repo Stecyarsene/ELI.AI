@@ -1,8 +1,0 @@
-À déposer dans public/maquettes/ (les 4 ensemble) :
-  hub.html     -> REMPLACE
-  eleve.html   -> REMPLACE/CONFIRME (c est l espace eleve - NE PAS oublier !)
-  junior.html  -> AJOUTER
-  piliers.html -> AJOUTER
-
-Chaine : hub (eleve) -> eleve.html (junior.html / piliers.html)
-Rien d autre a toucher.

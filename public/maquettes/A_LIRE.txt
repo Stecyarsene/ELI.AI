@@ -1,4 +1,0 @@
-public/maquettes/ (remplacer) :
-  eleve.html -> chat Eli visible + boutons (Commencer=chat, Decouvrir=section), WhatsApp reel
-  hub.html   -> Me connecter parent/enseignant
-  infos.html -> logo Olunova non encadre

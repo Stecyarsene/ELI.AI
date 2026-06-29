@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Éli — Inscription élève</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{ --canvas:#F6F4EE; --card:#FFF; --ink:#16241C; --muted:#6A776E; --line:#E8E3D7;
+    --accent:#0B6B3A; --accent2:#12894B; --gold:#BF9B49; --gold2:#E4C66B; --ring:rgba(11,107,58,.16); }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:
+    radial-gradient(1200px 520px at 85% -10%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 60%),
+    radial-gradient(900px 480px at -5% 110%, color-mix(in srgb, var(--gold) 10%, transparent), transparent 55%),
+    var(--canvas);min-height:100vh}
+  h1,.disp{font-family:'Fraunces',Georgia,serif;letter-spacing:-.01em}
+  .wrap{max-width:520px;margin:0 auto;padding:22px}
+  .top{display:flex;align-items:center;gap:12px;padding:10px 0 18px}
+  .top .nm{font-family:'Fraunces',serif;font-weight:700;font-size:20px}
+  .top .sub{color:var(--muted);font-size:12.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 1px 2px rgba(20,36,28,.04),0 18px 40px -28px rgba(20,36,28,.28);padding:26px}
+  .eyebrow{color:var(--accent);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:12px}
+  h1{font-size:28px;margin:8px 0 6px;line-height:1.12}
+  p.lead{color:var(--muted);margin:0 0 18px;font-size:15px}
+  .tabs{display:flex;gap:6px;background:color-mix(in srgb,var(--accent) 6%,#fff);border:1px solid var(--line);padding:5px;border-radius:14px;margin-bottom:20px}
+  .tab{flex:1;border:none;background:none;padding:11px;border-radius:10px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit}
+  .tab[aria-selected="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  label{display:block;font-size:13px;font-weight:600;margin:14px 0 6px}
+  input,select{width:100%;font-family:inherit;font-size:15px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 14px;outline:none;transition:border .15s,box-shadow .15s}
+  input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--ring)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:480px){.row2{grid-template-columns:1fr}}
+  .cta{width:100%;margin-top:20px;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:15.5px;color:#fff;padding:15px;border-radius:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 10px 24px -12px var(--accent)}
+  .cta:disabled{opacity:.55;cursor:not-allowed}
+  .cta.gold{color:#1c1407;background:linear-gradient(135deg,var(--gold2),var(--gold))}
+  .hint{font-size:12.5px;color:var(--muted);margin-top:12px;text-align:center}
+  .note{font-size:13px;color:var(--muted);background:color-mix(in srgb,var(--accent) 5%,#fff);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:14px}
+  .msg{font-size:13.5px;margin-top:14px;padding:11px 13px;border-radius:11px;display:none}
+  .msg.show{display:block}
+  .msg.err{background:#FDECEC;color:#9B1C1C;border:1px solid #F5C2C2}
+  .msg.ok{background:#EAF7EF;color:#136B3A;border:1px solid #BFE6CD}
+  .spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:7px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .hidden{display:none!important}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <svg width="40" height="40" viewBox="0 0 200 200" aria-hidden="true"><defs><radialGradient id="g1" cx="38%" cy="32%" r="70%"><stop offset="0%" stop-color="#388E3C"/><stop offset="100%" stop-color="#1B5E20"/></radialGradient><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFE082"/><stop offset="100%" stop-color="#FFA000"/></linearGradient></defs><circle cx="100" cy="100" r="86" fill="url(#g1)"/><rect x="61" y="44" width="13" height="108" rx="6" fill="url(#g2)"/><rect x="61" y="44" width="78" height="13" rx="6" fill="url(#g2)"/><rect x="61" y="91" width="60" height="13" rx="6" fill="url(#g2)"/><rect x="61" y="139" width="78" height="13" rx="6" fill="url(#g2)"/><circle cx="82" cy="172" r="4.5" fill="url(#g2)"/><circle cx="100" cy="176" r="5.5" fill="url(#g2)"/><circle cx="118" cy="172" r="4.5" fill="url(#g2)"/></svg>
+    <div><div class="nm">Éli</div><div class="sub">Espace&nbsp;Élève</div></div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Bienvenue 🌱</div>
+    <h1 class="disp">Crée ton espace Éli</h1>
+    <p class="lead">Quelques infos et Éli te reconnaît à chaque visite : il garde tes progrès et reprend là où tu t'es arrêté.</p>
+
+    <div class="tabs" role="tablist">
+      <button class="tab" id="tabSignup" role="tab" aria-selected="true" onclick="setMode('signup')">Créer mon compte</button>
+      <button class="tab" id="tabLogin" role="tab" aria-selected="false" onclick="setMode('login')">Se connecter</button>
+    </div>
+
+    <!-- Infos élève (signup) -->
+    <div id="infoFields">
+      <label for="fName">Ton prénom</label>
+      <input id="fName" placeholder="ex. Ada" autocomplete="given-name" />
+      <div class="row2">
+        <div><label for="fClass">Ta classe</label>
+          <select id="fClass">
+            <option value="">Choisir…</option>
+            <optgroup label="Primaire">
+              <option value="cp1">CP1</option><option value="cp2">CP2</option>
+              <option value="ce1">CE1</option><option value="ce2">CE2</option>
+              <option value="cm1">CM1</option><option value="cm2">CM2</option>
+            </optgroup>
+            <optgroup label="Collège">
+              <option value="6e">6ᵉ</option><option value="5e">5ᵉ</option>
+              <option value="4e">4ᵉ</option><option value="3e">3ᵉ</option>
+            </optgroup>
+            <optgroup label="Lycée">
+              <option value="2nde">2nde</option><option value="1ere">1ère</option><option value="terminale">Terminale</option>
+            </optgroup>
+          </select>
+        </div>
+        <div><label for="fBirth">Date de naissance <span style="color:var(--muted);font-weight:500">(option)</span></label>
+          <input id="fBirth" type="date" />
+        </div>
+      </div>
+    </div>
+
+    <!-- WhatsApp + OTP -->
+    <div id="phoneStep">
+      <label for="fPhone">Numéro WhatsApp <span style="color:var(--muted);font-weight:500">(avec indicatif)</span></label>
+      <input id="fPhone" inputmode="tel" placeholder="+241 77 00 00 00" autocomplete="tel" />
+      <button class="cta" id="sendBtn" onclick="sendCode()">Recevoir mon code</button>
+    </div>
+
+    <div id="otpStep" class="hidden">
+      <label for="fOtp">Code reçu sur WhatsApp</label>
+      <input id="fOtp" inputmode="numeric" maxlength="8" placeholder="6 chiffres" />
+      <button class="cta gold" id="verifyBtn" onclick="verifyCode()">Valider et entrer</button>
+      <div class="hint">Rien reçu ? <a href="#" onclick="sendCode();return false">Renvoyer le code</a></div>
+    </div>
+
+    <div class="note" id="minorNote">👨‍👩‍👧 Si tu as moins de 16 ans, un parent devra valider ton inscription depuis l'espace parent (il te relie avec ton prénom et ton numéro). Tes données restent protégées.</div>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <p class="hint" style="margin-top:14px">Tu es parent ou enseignant ? <a href="hub.html">Retour à l'accueil Éli</a></p>
+</div>
+
+<script type="module">
+  let MODE = 'signup', PHONE = '', sbClient = null;
+  const $ = id => document.getElementById(id);
+  const DASHBOARD = '/national/dashboard';
+
+  async function getSb(){
+    if (sbClient) return sbClient;
+    const cfg = await fetch('/api/config').then(r => r.json());
+    const mod = await import('/maquettes/vendor/supabase-js.mjs').catch(() => import('https://esm.sh/@supabase/supabase-js@2'));
+    sbClient = mod.createClient(cfg.supabaseUrl, cfg.supabaseAnon);
+    return sbClient;
+  }
+  async function token(){ const sb = await getSb(); const { data } = await sb.auth.getSession(); return data.session ? data.session.access_token : ''; }
+  async function authedFetch(path, opts){ const t = await token(); opts = opts || {}; opts.headers = Object.assign({ 'content-type':'application/json', authorization:'Bearer ' + t }, opts.headers || {}); return fetch(path, opts); }
+
+  function msg(kind, text){ const el = $('msg'); el.className = 'msg show ' + kind; el.textContent = text; }
+  function clearMsg(){ const el = $('msg'); el.className = 'msg'; el.textContent = ''; }
+  function show(id){ $(id).classList.remove('hidden'); } function hide(id){ $(id).classList.add('hidden'); }
+
+  window.setMode = (m) => {
+    MODE = m;
+    $('tabSignup').setAttribute('aria-selected', m === 'signup');
+    $('tabLogin').setAttribute('aria-selected', m === 'login');
+    $('infoFields').classList.toggle('hidden', m !== 'signup');
+    $('minorNote').classList.toggle('hidden', m !== 'signup');
+    hide('otpStep'); show('phoneStep'); clearMsg();
+    $('sendBtn').textContent = m === 'signup' ? 'Recevoir mon code' : 'Recevoir mon code de connexion';
+  };
+
+  function normalizePhone(raw){ let p = (raw || '').replace(/[\s.\-()]/g, ''); if (!p) return ''; if (p[0] !== '+'){ if (p[0] === '0') p = p.slice(1); p = '+241' + p; } return p; }
+
+  window.sendCode = async () => {
+    clearMsg();
+    if (MODE === 'signup'){
+      if (!$('fName').value.trim()){ msg('err','Dis-moi ton prénom.'); return; }
+      if (!$('fClass').value){ msg('err','Choisis ta classe.'); return; }
+    }
+    PHONE = normalizePhone($('fPhone').value);
+    if (PHONE.length < 9){ msg('err','Entre un numéro WhatsApp valide (avec indicatif, ex. +241…).'); return; }
+    const b = $('sendBtn'); b.disabled = true; const old = b.textContent; b.innerHTML = '<span class="spin"></span>Envoi…';
+    try{
+      const sb = await getSb();
+      const { error } = await sb.auth.signInWithOtp({ phone: PHONE, options: { channel: 'whatsapp', shouldCreateUser: true } });
+      if (error){ msg('err','Envoi impossible : ' + error.message); return; }
+      hide('phoneStep'); show('otpStep'); msg('ok','Code envoyé sur WhatsApp au ' + PHONE + ' 📲');
+    } catch(e){ msg('err','Connexion interrompue, réessaie.'); }
+    finally{ b.disabled = false; b.textContent = old; }
+  };
+
+  window.verifyCode = async () => {
+    const code = $('fOtp').value.trim();
+    if (!code){ msg('err','Entre le code reçu.'); return; }
+    const b = $('verifyBtn'); b.disabled = true; const old = b.textContent; b.innerHTML = '<span class="spin"></span>Vérification…';
+    try{
+      const sb = await getSb();
+      const { error } = await sb.auth.verifyOtp({ phone: PHONE, token: code, type: 'sms' });
+      if (error){ msg('err','Code incorrect ou expiré : ' + error.message); return; }
+      if (MODE === 'signup'){
+        const res = await authedFetch('/api/student/register', { method:'POST', body: JSON.stringify({
+          first_name: $('fName').value.trim(), class_key: $('fClass').value, birth_date: $('fBirth').value || null,
+        })});
+        if (!res.ok){ msg('err','Inscription impossible, réessaie.'); return; }
+      }
+      msg('ok','C\'est bon ! On entre dans ton espace… 🌱');
+      setTimeout(() => { (window.top || window).location.href = DASHBOARD; }, 700);
+    } catch(e){ msg('err','Connexion interrompue, réessaie.'); }
+    finally{ b.disabled = false; b.textContent = old; }
+  };
+
+  setMode('signup');
+</script>
+</body>
+</html>
