@@ -1,0 +1,42 @@
+name: ELI SAFE MODE ENFORCER
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Load schema snapshot
+        run: |
+          echo "Loading schema snapshot..."
+          cat eli-os/schema_snapshot.json
+
+      - name: Check for forbidden patterns
+        run: |
+          echo "Checking for unsafe Supabase operations..."
+
+          if grep -r "DROP TABLE" supabase/; then
+            echo "❌ Forbidden DROP TABLE detected"
+            exit 1
+          fi
+
+          if grep -r "CREATE TABLE" supabase/; then
+            echo "⚠️ New table creation detected - must be reviewed"
+          fi
+
+      - name: Ensure schema snapshot exists
+        run: |
+          if [ ! -f eli-os/schema_snapshot.json ]; then
+            echo "❌ Missing schema snapshot"
+            exit 1
+          fi
+
+      - name: Final validation
+        run: |
+          echo "✅ Eli Safe Mode validation passed"
