@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { PDFDocument, StandardFonts } from 'pdf-lib';
 import { supabaseAdmin } from '@/lib/supabase/server';
+import { buildReceiptPdf } from '@/lib/pdf/sessionPdf';
 import type { Plan } from '@/types/db';
 
 export const runtime = 'nodejs';
@@ -38,15 +38,15 @@ export async function POST(req: Request) {
     await sb.from('profiles').update({ is_paid: true, paid_until: paidUntil }).eq('id', pay.user_id);
   }
 
-  // Verrou 5 — Facture PDF générée EN MÉMOIRE → bucket privé
-  const pdf = await PDFDocument.create();
-  const page = pdf.addPage([420, 320]);
-  const font = await pdf.embedFont(StandardFonts.Helvetica);
-  page.drawText('Reçu officiel — Éli', { x: 40, y: 260, size: 18, font });
-  page.drawText(`Transaction : ${evt.tx}`, { x: 40, y: 220, size: 11, font });
-  page.drawText(`Montant : ${pay.amount_fcfa} FCFA · Plan : ${pay.plan_id}`, { x: 40, y: 200, size: 11, font });
-  page.drawText(`Validité : jusqu'au ${paidUntil.slice(0, 10)}`, { x: 40, y: 180, size: 11, font });
-  const bytes = await pdf.save();
+  // Verrou 5 — Reçu PDF officiel BRANDÉ (vrai logo Éli) généré EN MÉMOIRE → bucket privé
+  const { data: payerProfile } = await sb.from('profiles').select('first_name').eq('id', pay.user_id).maybeSingle();
+  const bytes = await buildReceiptPdf({
+    tx: evt.tx,
+    amountFcfa: pay.amount_fcfa,
+    planLabel: (plan as Plan | null)?.label ?? pay.plan_id,
+    paidUntil,
+    payerName: (payerProfile as { first_name?: string } | null)?.first_name ?? null,
+  });
   const path = `invoices/${evt.tx}.pdf`;
   await sb.storage.from('invoices').upload(path, Buffer.from(bytes), { contentType: 'application/pdf', upsert: true });
   await sb.from('payments').update({ invoice_path: path }).eq('tx_id', evt.tx);

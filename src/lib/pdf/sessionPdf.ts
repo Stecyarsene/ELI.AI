@@ -237,3 +237,33 @@ export async function buildTeacherPdf(d: TeacherPdfData): Promise<Uint8Array> {
   }
   return pdf.save();
 }
+
+export interface ReceiptPdfData { tx: string; amountFcfa: number; planLabel: string; paidUntil: string; payerName?: string | null; }
+
+/** Reçu officiel d'abonnement Éli Premium — avec le vrai logo (drawEliLogo) et l'en-tête de marque. */
+export async function buildReceiptPdf(d: ReceiptPdfData): Promise<Uint8Array> {
+  const pdf = await PDFDocument.create();
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+  const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
+  const italic = await pdf.embedFont(StandardFonts.HelveticaOblique);
+  const PW = 595, PH = 842, M = 54;
+  const page = pdf.addPage([PW, PH]);
+  brandHeader(page, bold, font, 'Recu officiel', 'Abonnement Eli Premium');
+  brandFooter(page, font, italic);
+  let y = PH - 150;
+  page.drawText(winansi('Merci pour ta confiance.'), { x: M, y, size: 16, font: bold, color: GREEN }); y -= 14;
+  page.drawLine({ start: { x: M, y }, end: { x: M + 64, y }, thickness: 2.2, color: GOLD }); y -= 34;
+  const row = (label: string, val: string) => {
+    page.drawText(winansi(label), { x: M, y, size: 11, font, color: MUTED });
+    page.drawText(winansi(val), { x: M + 180, y, size: 12, font: bold, color: rgb(0.13, 0.16, 0.14) });
+    y -= 30;
+  };
+  row('Transaction', d.tx);
+  if (d.payerName) row('Beneficiaire', d.payerName);
+  row('Offre', d.planLabel);
+  row('Montant', new Intl.NumberFormat('fr-FR').format(d.amountFcfa) + ' FCFA');
+  row("Valable jusqu'au", d.paidUntil.slice(0, 10));
+  y -= 10;
+  page.drawText(winansi('Conserve ce recu : il atteste ton acces a Eli Premium.'), { x: M, y, size: 10, font: italic, color: MUTED });
+  return pdf.save();
+}

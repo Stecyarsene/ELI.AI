@@ -1,8 +1,10 @@
 'use client';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { profileRepo, progressRepo } from '@/data/repositories';
 import { themeStyle } from '@/lib/theme/tokens';
 import ChatStream from '@/components/ChatStream';
+import PremiumOffer from '@/components/PremiumOffer';
 import type { Program } from '@/types/db';
 import type { CSSProperties } from 'react';
 
@@ -18,6 +20,8 @@ export default function Dashboard({ params }: { params: { program: string } }) {
     enabled: !!profile.data,
     retry: false,
   });
+
+  const [showPremium, setShowPremium] = useState(false);
 
   // Non connecté (résolu mais null) → message clair, pas de cases vides infinies
   if (!profile.isPending && !profile.data) {
@@ -55,6 +59,19 @@ export default function Dashboard({ params }: { params: { program: string } }) {
       </section>
 
       <ChatStream />
+
+      <div style={{ padding: 24 }}>
+        <button type="button" onClick={() => setShowPremium((v) => !v)}
+          style={{ padding: '12px 20px', borderRadius: 12, border: 'none', cursor: 'pointer', fontWeight: 700,
+            background: 'linear-gradient(135deg,#F5B544,#FFD479)', color: '#231a06' }}>
+          ✨ Passer à Éli Premium
+        </button>
+        {showPremium && (
+          <div style={{ marginTop: 14, border: '1px solid var(--line,#E8E3D7)', borderRadius: 18, background: 'rgba(255,255,255,.04)' }}>
+            <PremiumOffer audience="student" onClose={() => setShowPremium(false)} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
