@@ -1,0 +1,14 @@
+{
+  "codex": {
+    "role": "execution"
+  },
+  "claude": {
+    "role": "architecture"
+  },
+  "eli_core": {
+    "role": "product_logic"
+  },
+  "orchestrator": {
+    "role": "control"
+  }
+}
