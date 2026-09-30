@@ -114,54 +114,27 @@ Architecture, ADR, API, DB, rôles, sécurité, déploiement, runbook, incidents
 Certification finale maquette/frontend/backend/DB/sécurité/IA/Learning/psychométrie/tests/déploiement/documentation.
 
 ## LOT 00 — ÉTAT ACTUEL
+Source ELI actuelle figée: ELI_SOURCE_MAITRE_CONSOLIDE_2026-09-26_BOUGIE_EMPLOI_TEMPS_CLOSURE(2).zip
+SHA-256: 692e24dfa788e512a34fd54add3e5731238bb3b09babfa94adc218a9650c6cea
+Taille: 12,742,224 octets
+Inventaire: 689 fichiers dans l'archive
+Référence GitHub de mission: mission/lot-00-baseline
 Dépôt: Stecyarsene/ELI.AI
-Branche principale observée: main
-Commit main observé: 2c9c725d485de80d27f8787e7d57fefe7d50d373
-Branche de travail: mission/lot-00-baseline
-Projet Supabase audité: szhdlixejgaqzafpirwv
+Projet Supabase: szhdlixejgaqzafpirwv
 
-### Écarts bloquants découverts
-B01 — Le dépôt GitHub observé ne correspond pas à la source ELI récente utilisée lors de l'audit de septembre 2026. Le commit main observé date de juin 2026.
-Statut: NOT CLOSED.
+### Vérification source actuelle
+npm test: 117 tests, 112 PASS, 5 FAIL.
+4 échecs sont bloqués par l'absence de playwright-core.
+1 régression fonctionnelle reste dans maquette/repondre.test.js.
+Aucun de ces résultats n'est transformé artificiellement en PASS.
 
-B02 — Lors de l'audit récent, la source auditée contenait 54 migrations alors que le runtime Supabase en exposait 357.
-Statut: NOT CLOSED, à traiter LOT 01.
+### Blocage GitHub
+Le dépôt GitHub contient actuellement 161 fichiers sur la référence précédente; la source actuelle en contient 689.
+La source actuelle n'est donc pas encore intégralement poussée dans GitHub.
+Le dossier maître et la fiche de gel ont été poussés dans la branche mission/lot-00-baseline, mais le code complet n'est pas déclaré synchronisé.
 
-B03 — xgest-bulletin-ingest était active dans le runtime Supabase mais absente de la source ZIP auditée.
-Statut: NOT CLOSED, à traiter LOT 01.
-
-B04 — Supabase Advisor: 1 table RLS sans policy signalée; 112 SECURITY DEFINER à examiner; 69 cas de policies permissives multiples; 2 tables sans PK; protection mots de passe compromis à vérifier.
-Statut: NOT CLOSED, LOT 02.
-
-B05 — Frontend runtime principal ~1,9 Mo lors de l'audit.
-Statut: PARTIAL, LOT 03.
-
-B06 — Learning Core observé: 4 learning_events, 0 tentative QCM.
-Statut: PARTIAL, LOT 07.
-
-B07 — Certaines intégrations runtime IA/voix/WhatsApp restaient à prouver.
-Statut: UNKNOWN/PARTIAL, LOTS 14-16.
-
-B08 — HTTPS/HSTS/CORS et garanties complètes de déploiement restent à vérifier.
-Statut: UNKNOWN, LOT 24-25.
-
-## BASELINE SUPABASE OBSERVÉE
-ACTIVE_HEALTHY · eu-west-1 · Postgres 17.6.1
-173 tables publiques · 171 RLS · 225 policies · 314 fonctions publiques · 240 SECURITY DEFINER.
-profiles 7 · institutions 84 · classes 2 · eleves 2 · learning_events 4 · eli_qcm_attempts 0.
-Edge Functions: memoire, learning-observation, xgest-bulletin-ingest.
-
-## BASELINE QUALITÉ OBSERVÉE
-Build frontend: PASS.
-architecture:check: PASS.
-architecture:frontend-boundary: PASS.
-Maquette: 117 tests, 112 pass, 5 échecs au moment de l'audit; plusieurs liés à l'environnement Playwright, avec une régression fonctionnelle identifiée.
-
-## VERDICT LOT 00
+### VERDICT LOT 00
 NOT CLOSED.
 
-Raison unique de blocage: la référence exacte du code récent ayant servi à l'audit n'est pas encore réconciliée avec le dépôt GitHub canonique. Fermer ce lot maintenant créerait une fausse baseline.
-
-## PROCHAINE ACTION OBLIGATOIRE
-Reconstituer/identifier la source récente exacte, la rattacher au dépôt canonique, puis seulement figer le commit de référence définitif.
-LOT 01 reste bloqué jusqu'à cette clôture.
+### Action restante obligatoire
+Importer intégralement la source actuelle dans GitHub, vérifier le nombre de fichiers, le commit de référence et la cohérence du contenu, puis seulement déclarer LOT 00 CLOSED et commencer LOT 01.
